@@ -1,0 +1,16 @@
+{
+	"configurations": [
+		{
+			"name": "(Windows) Launch",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "se-x64.exe",
+			// "args": ["unpack"],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/out",
+			"environment": [],
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build"
+		}
+	]
+}

@@ -1,0 +1,38 @@
+#pragma once
+
+#include <Windows.h>
+#include <d3d9.h>
+
+#include "direct_input.hh"
+
+struct InputState {
+	DIMOUSESTATE f_msMouseNew = {0};
+	DIMOUSESTATE f_msMousePrev = {0};
+	BYTE f_lpKeyboard[256] = {0};
+
+	// Keyboard
+	inline BYTE Key(DWORD key) { return f_lpKeyboard[key]; }
+
+	// Mouse
+	inline LONG CurCX() { return f_msMouseNew.lX; }
+	inline LONG CurCY() { return f_msMouseNew.lY; }
+	inline LONG CurLX() { return f_msMousePrev.lX; }
+	inline LONG CurLY() { return f_msMousePrev.lY; }
+	inline bool CurMoved() {
+		return (f_msMouseNew.lX != f_msMousePrev.lX) || (f_msMouseNew.lY != f_msMousePrev.lY);
+	}
+};
+
+class BaseRunner {
+public:
+	virtual void Open() {}
+	virtual void Close() {}
+
+	virtual bool OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+		(void)hWnd, iMsg, wParam, lParam;
+		return false;
+	}
+	virtual void OnInput(FLOAT delta, InputState *state) {(void)delta, state;}
+	virtual void OnUpdate(FLOAT delta) {(void)delta;}
+	virtual void OnDraw(LPDIRECT3DDEVICE9 device) {(void)device;}
+};

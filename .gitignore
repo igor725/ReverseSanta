@@ -1,0 +1,4 @@
+*.pdb
+
+out/*
+objs/*
