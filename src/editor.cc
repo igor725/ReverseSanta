@@ -21,14 +21,15 @@ Editor::Editor() {
 	ImGui_ImplDX9_Init(device);
 }
 
-bool Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, iMsg, wParam, lParam))
-		return true;
+LRESULT Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+	if (auto res = ImGui_ImplWin32_WndProcHandler(hWnd, iMsg, wParam, lParam))
+		return res;
 
-	return false;
+	ImGuiIO &io = ImGui::GetIO();
+	return io.WantCaptureMouse || io.WantCaptureKeyboard;
 }
 
-void Editor::OnInput(FLOAT delta, InputState *state) { (void)delta;
+void Editor::OnInput(FLOAT delta, InputState *state) {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto eye = camera->GetEye();
@@ -57,21 +58,15 @@ void Editor::OnInput(FLOAT delta, InputState *state) { (void)delta;
 		camera->Move(state->CurCX() * 0.001f, state->CurCY() * 0.001f);
 }
 
-void Editor::OnUpdate(FLOAT delta) {
-	(void)delta;
+void Editor::OnUpdate(FLOAT delta) {(void)delta;
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	static bool showed = true;
+	static bool show = true;
 
-	if (showed) {
-		ImGui::Begin("Test window", &showed);
-		ImGui::Text("Yay, ImGui!!!");
-		if (ImGui::Button("Close me"))
-			showed = false;
-		ImGui::End();
-	}
+	if (show)
+		ImGui::ShowDemoWindow(&show);
 
 	ImGui::EndFrame();
 }

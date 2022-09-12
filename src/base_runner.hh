@@ -28,7 +28,7 @@ public:
 	virtual void Open() {}
 	virtual void Close() {}
 
-	virtual bool OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+	virtual LRESULT OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		(void)hWnd, iMsg, wParam, lParam;
 		return false;
 	}
