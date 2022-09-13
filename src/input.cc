@@ -17,9 +17,9 @@ Input::Input(HINSTANCE hInst, HWND hWnd) {
 }
 
 bool Input::Capture() {
-	if(m_bInputAcquired) return true;
-	if(m_lpDIK->Acquire() != DI_OK) return false;
-	if(m_lpDIM->Acquire() != DI_OK) {
+	if (m_bInputAcquired) return true;
+	if (m_lpDIK->Acquire() != DI_OK) return false;
+	if (m_lpDIM->Acquire() != DI_OK) {
 		m_lpDIK->Unacquire();
 		return false;
 	}
@@ -29,11 +29,10 @@ bool Input::Capture() {
 }
 
 bool Input::Release() {
-	if(!m_bInputAcquired) return false;
-	m_bInputAcquired = false;
-	m_lpDIK->Unacquire();
-	m_lpDIM->Unacquire();
-	return true;
+	if (!m_bInputAcquired) return false;
+	return (m_lpDIM->Unacquire() == DI_OK) &&
+	(m_lpDIK->Unacquire() == DI_OK) &&
+	((m_bInputAcquired = false) == false);
 }
 
 void Input::Update(FLOAT delta, BaseRunner *runner) {

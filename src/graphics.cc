@@ -12,7 +12,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
-		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
 			engine->SysInput()->Capture();
 			break;
 		case WM_KEYUP:
@@ -54,33 +54,33 @@ Graphics::Graphics(HINSTANCE hInst) {
 	m_hWindow = CreateWindow(wc.lpszClassName, L"D3D Window",
 		m_dwStyle, cx, cy, width, height, NULL, NULL, hInst, this);
 	ResetPresentParams();
-	// typedef HRESULT(*D3D9CREX)(UINT, LPDIRECT3D9EX *);
-	// D3D9CREX lpexfunc = (D3D9CREX)GetProcAddress(GetModuleHandle(L"d3d9.dll"), "Direct3DCreate9Ex");
-	// if (lpexfunc) {
-	// 	if (lpexfunc(D3D_SDK_VERSION, &m_lpD3DEx) == D3D_OK) {
-	// 		if (m_lpD3DEx->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWindow,
-	// 		m_dwD3DDeviceFlags, &m_D3DPresent, NULL, &m_lpDeviceEx) != D3D_OK) {
-	// 			if (m_lpD3DEx) m_lpD3DEx->Release();
-	// 			if (m_lpDeviceEx) m_lpDeviceEx->Release();
-	// 			m_lpDevice = nullptr, m_lpDeviceEx = nullptr, m_lpD3DEx = nullptr;
-	// 		}
-	// 	}
-	// }
+	do {
+		typedef HRESULT(*D3D9CREX)(UINT, LPDIRECT3D9EX *);
+		D3D9CREX lpexfunc = (D3D9CREX)GetProcAddress(GetModuleHandle(L"d3d9.dll"), "Direct3DCreate9Ex");
+		if (lpexfunc) {
+			if (lpexfunc(D3D_SDK_VERSION, &m_lpD3DEx) == D3D_OK) {
+				if (m_lpD3DEx->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWindow,
+				m_dwD3DDeviceFlags, &m_D3DPresent, NULL, &m_lpDeviceEx) == D3D_OK &&
+				m_lpDeviceEx->QueryInterface(IID_IDirect3DDevice9, (LPVOID *)&m_lpDevice) == D3D_OK)
+					break;
+			}
+		}
 
-	// if (m_lpDevice == nullptr) {
+		if (m_lpD3DEx) m_lpD3DEx->Release();
+		if (m_lpDeviceEx) m_lpDeviceEx->Release();
+		m_lpDevice = nullptr, m_lpDeviceEx = nullptr, m_lpD3DEx = nullptr;
+	} while(0);
+
+	if (m_lpDevice == nullptr) {
 		if ((m_lpD3D = Direct3DCreate9(D3D_SDK_VERSION)) == nullptr)
 			ExitProcess(1);
 		if (m_lpD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWindow,
 		m_dwD3DDeviceFlags, &m_D3DPresent, &m_lpDevice) != D3D_OK)
 			ExitProcess(1);
-	// }
+	}
 
 	FLOAT aspect = m_D3DPresent.BackBufferWidth / (FLOAT)m_D3DPresent.BackBufferHeight;
 	m_lpCamera = new Camera(D3DX_PI / 4.0f, aspect, 0.01f, 10000.0f);
-
-	D3DXCreateFont(m_lpDevice, 25, 0, FW_BLACK, 0, false,
-	DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
-	FIXED_PITCH | FF_DONTCARE, nullptr, &m_lpFont);
 }
 
 LPDIRECT3DDEVICE9 Graphics::BeginFrame() {

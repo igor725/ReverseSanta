@@ -4,7 +4,8 @@
 
 static const D3DXVECTOR3 dV = {0.0f, 0.0f, 1.0f}, dU = {0.0f, 1.0f, 0.0f};
 
-Camera::Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp) : m_vView(0.0f, 1.0f, 0.0f), m_vUp(0.0f, 1.0f, 0.0f), m_vEye(0.0f, 3.0f, 0.0f) {
+Camera::Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp)
+: m_vView(0.0f, 1.0f, 0.0f), m_vUp(0.0f, 1.0f, 0.0f), m_vEye(0.0f, 3.0f, 0.0f) {
 	D3DXMatrixPerspectiveFovLH(&m_mxProj, fov, aspect, nearvp, farvp);
 	D3DXMatrixIdentity(&m_mxView);
 

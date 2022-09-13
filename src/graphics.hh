@@ -31,7 +31,6 @@ private:
 	LPDIRECT3D9EX m_lpD3DEx = nullptr;
 	LPDIRECT3DDEVICE9 m_lpDevice = nullptr;
 	LPDIRECT3DDEVICE9EX m_lpDeviceEx = nullptr;
-	LPD3DXFONT m_lpFont = nullptr;
 	D3DPRESENT_PARAMETERS m_D3DPresent = {0};
 
 	Camera *m_lpCamera = nullptr;
