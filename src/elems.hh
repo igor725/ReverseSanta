@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 #include <fstream>
-#include <iostream>
 #include <map>
 
 #include "mesh.hh"

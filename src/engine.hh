@@ -17,6 +17,7 @@ public:
 
 	BaseRunner *GetRunner();
 	void SetRunner(DWORD num);
+	void NextRunner();
 
 	void Step(FLOAT delta);
 

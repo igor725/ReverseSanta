@@ -5,7 +5,6 @@
 class Camera {
 public:
 	Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp);
-	~Camera();
 
 	void Update();
 	inline void Move(FLOAT yaw, FLOAT pitch) { m_fYaw += yaw, m_fPitch += pitch; }

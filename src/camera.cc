@@ -1,7 +1,5 @@
 #include "camera.hh"
 
-#include <iostream>
-
 static const D3DXVECTOR3 dV = {0.0f, 0.0f, 1.0f}, dU = {0.0f, 1.0f, 0.0f};
 
 Camera::Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp)

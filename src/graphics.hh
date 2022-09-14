@@ -2,13 +2,13 @@
 
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <iostream>
 
 #include "camera.hh"
 
 class Graphics {
 public:
 	Graphics(HINSTANCE hInst);
+	~Graphics();
 
 	inline LPDIRECT3DDEVICE9 GetDevice() { return m_lpDevice; }
 	inline Camera *GetCamera() { return m_lpCamera; }
@@ -26,11 +26,15 @@ private:
 	const DWORD m_dwD3DClearFlags = D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL;
 	const DWORD m_dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
+	bool m_bDeviceLost = false,
+	m_bDeviceOccluded = false;
+
 	HWND m_hWindow = nullptr;
 	LPDIRECT3D9 m_lpD3D = nullptr;
 	LPDIRECT3D9EX m_lpD3DEx = nullptr;
 	LPDIRECT3DDEVICE9 m_lpDevice = nullptr;
 	LPDIRECT3DDEVICE9EX m_lpDeviceEx = nullptr;
+	LPDIRECT3DSURFACE9 m_lpSurface = nullptr;
 	D3DPRESENT_PARAMETERS m_D3DPresent = {0};
 
 	Camera *m_lpCamera = nullptr;

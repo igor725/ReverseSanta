@@ -35,4 +35,7 @@ public:
 	virtual void OnInput(FLOAT delta, InputState *state) {(void)delta, state;}
 	virtual void OnUpdate(FLOAT delta) {(void)delta;}
 	virtual void OnDraw(LPDIRECT3DDEVICE9 device) {(void)device;}
+
+	virtual void OnDeviceLost(LPDIRECT3DDEVICE9 device) {(void)device;}
+	virtual void OnDeviceReset(LPDIRECT3DDEVICE9 device) {(void)device;}
 };

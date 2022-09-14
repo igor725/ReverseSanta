@@ -16,7 +16,7 @@ Engine::Engine(HINSTANCE hInst) {
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
 	m_lpVirtFs = new VirtFs("xmas.xpk");
 	m_lpLevel = new Level();
-	m_lpLevel->Load("levels\\008.dat");
+	m_lpLevel->Load("levels\\000.dat");
 
 	m_vRunners.push_back(new Editor());
 	m_vRunners.push_back(new Game());
@@ -31,6 +31,7 @@ Engine::~Engine() {
 	delete m_lpLevel;
 	for (auto runner : m_vRunners)
 		delete runner;
+	__engineInstance = nullptr;
 }
 
 Engine *Engine::GetInstance() {
@@ -47,6 +48,13 @@ void Engine::SetRunner(DWORD num) {
 		runner->Open();
 }
 
+void Engine::NextRunner() {
+	DWORD nextrunner = (m_dwCurrentRunner + 1);
+	if ((m_dwCurrentRunner + 1) == m_vRunners.size())
+		nextrunner = 0;
+	SetRunner(nextrunner);
+}
+
 BaseRunner *Engine::GetRunner() {
 	if (m_dwCurrentRunner == m_vRunners.size()) return nullptr;
 	return m_vRunners[m_dwCurrentRunner];
@@ -60,9 +68,9 @@ void Engine::Step(FLOAT delta) {
 		if (auto device = m_lpGraphics->BeginFrame()) {
 			m_lpLevel->Draw(device);
 			runner->OnDraw(device);
-			m_lpGraphics->EndFrame();
-		}
 
-		m_lpGraphics->PresentFrame();
+			m_lpGraphics->EndFrame();
+			m_lpGraphics->PresentFrame();
+		}
 	}
 }

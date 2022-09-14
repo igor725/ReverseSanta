@@ -6,4 +6,6 @@ class Game : public BaseRunner{
 public:
 	Game();
 	~Game();
+
+	void OnUpdate(FLOAT delta);
 };

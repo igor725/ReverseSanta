@@ -1,4 +1,5 @@
 #include "engine.hh"
+#include "exceptions.hh"
 
 #include <ShlObj.h>
 
@@ -40,22 +41,30 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 		return 0;
 	}
 
-	Engine engine(hInst);
+	try {
+		Engine engine(hInst);
 
-	MSG msg;
-	DWORD ct = 0, lt;
+		MSG msg = {};
+		DWORD ct = 0, lt;
 
-	while (auto run = true) {
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
-			if (msg.message == WM_QUIT) run = false;
+		while (true) {
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+				if (msg.message == WM_QUIT)
+					return (INT)msg.wParam;
+			}
+
+			lt = ct;
+			ct = ::GetTickCount();
+			engine.Step((ct - lt) / 1000.0f);
 		}
-
-		lt = ct;
-		ct = GetTickCount();
-		engine.Step((ct - lt) / 1000.0f);
+	} catch (MyException &mex) {
+		::MessageBox(nullptr, mex.GetString(), L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+	} catch (...) {
+		MyException mex(std::current_exception());
+		::MessageBox(nullptr, mex.GetString(), L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 	}
 
-	return (INT)msg.wParam;
+	return 0;
 }

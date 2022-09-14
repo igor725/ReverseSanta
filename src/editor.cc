@@ -5,6 +5,8 @@
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_win32.h"
 
+#include "editor\gui\main.hh"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 Editor::Editor() {
@@ -22,11 +24,27 @@ Editor::Editor() {
 }
 
 LRESULT Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+	if (iMsg == WM_KEYUP) {
+		if (wParam == VK_F1) {
+			Engine::GetInstance()->SysInput()->Release();
+			m_Menu.Toggle();
+			return true;
+		}
+	}
+
 	if (auto res = ImGui_ImplWin32_WndProcHandler(hWnd, iMsg, wParam, lParam))
 		return res;
 
 	ImGuiIO &io = ImGui::GetIO();
-	return io.WantCaptureMouse || io.WantCaptureKeyboard;
+	return io.WantCaptureMouse || io.WantCaptureKeyboard || m_Menu.IsActive();
+}
+
+void Editor::OnDeviceLost(LPDIRECT3DDEVICE9 *device) {(void)device;
+	ImGui_ImplDX9_InvalidateDeviceObjects();
+}
+
+void Editor::OnDeviceReset(LPDIRECT3DDEVICE9 *device) {(void)device;
+	ImGui_ImplDX9_CreateDeviceObjects();
 }
 
 void Editor::OnInput(FLOAT delta, InputState *state) {
@@ -63,10 +81,7 @@ void Editor::OnUpdate(FLOAT delta) {(void)delta;
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	static bool show = true;
-
-	if (show)
-		ImGui::ShowDemoWindow(&show);
+	m_Menu.Draw();
 
 	ImGui::EndFrame();
 }

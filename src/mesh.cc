@@ -1,5 +1,6 @@
 #include "engine.hh"
 #include "mesh.hh"
+#include "exceptions.hh"
 
 Mesh::Mesh(LPDIRECT3DDEVICE9 device, std::string path) {
 	auto engine = Engine::GetInstance();
@@ -12,10 +13,9 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 device, std::string path) {
 		file->read(mem, size);
 		virtfs->Close(file);
 
-		if(D3DXLoadMeshFromXInMemory(mem, size, D3DXMESH_SYSTEMMEM,
+		DASSERT(D3DXLoadMeshFromXInMemory(mem, size, D3DXMESH_SYSTEMMEM,
 		device, nullptr, &m_lpMatBuffer, nullptr,
-		&m_dwNumMaterials, &m_lpMesh) != D3D_OK)
-			ExitProcess(1);
+		&m_dwNumMaterials, &m_lpMesh));
 		delete mem;
 
 		auto mats = (LPD3DXMATERIAL)m_lpMatBuffer->GetBufferPointer();
@@ -40,8 +40,7 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 device, std::string path) {
 				mem = new CHAR[size];
 				file->read(mem, size);
 				virtfs->Close(file);
-				if(D3DXCreateTextureFromFileInMemory(device, mem, size, &(m_lpTextures[i])) != D3D_OK)
-					ExitProcess(1);
+				DASSERT(D3DXCreateTextureFromFileInMemory(device, mem, size, &(m_lpTextures[i])));
 				delete mem;
 				continue;
 			}
@@ -55,10 +54,10 @@ Mesh::~Mesh() {
 	delete m_lpTextures;
 }
 
-void Mesh::Draw(LPDIRECT3DDEVICE9 device) {
+void Mesh::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 	for (DWORD i = 0; i < m_dwNumMaterials; i++) {
-		device->SetMaterial(&m_lpMaterials[i]);
-		device->SetTexture(0, m_lpTextures[i]);
-		m_lpMesh->DrawSubset(i);
+		DASSERT(device->SetMaterial(&m_lpMaterials[i]));
+		if (!untextured) { DASSERT(device->SetTexture(0, m_lpTextures[i])); }
+		DASSERT(m_lpMesh->DrawSubset(i));
 	}
 }

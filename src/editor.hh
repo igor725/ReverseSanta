@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base_runner.hh"
+#include "editor\gui\main.hh"
 
 class Editor : public BaseRunner {
 public:
@@ -12,5 +13,9 @@ public:
 	void OnUpdate(FLOAT delta);
 	void OnDraw(LPDIRECT3DDEVICE9 device);
 
+	void OnDeviceLost(LPDIRECT3DDEVICE9 *device);
+	void OnDeviceReset(LPDIRECT3DDEVICE9 *device);
+
 private:
+	EditorMenu m_Menu;
 };

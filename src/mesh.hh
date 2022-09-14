@@ -3,7 +3,6 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <fstream>
-#include <iostream>
 
 #include "graphics.hh"
 #include "virtfs.hh"
@@ -13,7 +12,7 @@ public:
 	Mesh(LPDIRECT3DDEVICE9 device, std::string path);
 	~Mesh();
 
-	void Draw(LPDIRECT3DDEVICE9 device);
+	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);
 
 private:
 	DWORD m_dwNumMaterials;
