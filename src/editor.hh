@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base_runner.hh"
-#include "editor\gui\main.hh"
+#include "editor\menu.hh"
 
 class Editor : public BaseRunner {
 public:

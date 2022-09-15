@@ -3,6 +3,8 @@
 #include <d3dx9.h>
 #include <cmath>
 
+#include "draw.hh"
+
 class Camera {
 public:
 	Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp);
@@ -19,6 +21,8 @@ public:
 			std::cosf(m_vRot.x) * std::cosf(m_vRot.y)
 		};
 	}
+	
+	void Follow(FLOAT delta, DObject *obj);
 
 private:
 	D3DXMATRIX m_mxView, m_mxProj, m_mxRot;

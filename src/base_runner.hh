@@ -32,10 +32,10 @@ public:
 		(void)hWnd, iMsg, wParam, lParam;
 		return false;
 	}
-	virtual void OnInput(FLOAT delta, InputState *state) {(void)delta, state;}
-	virtual void OnUpdate(FLOAT delta) {(void)delta;}
-	virtual void OnDraw(LPDIRECT3DDEVICE9 device) {(void)device;}
+	virtual void OnInput(FLOAT, InputState *) {}
+	virtual void OnUpdate(FLOAT) {}
+	virtual void OnDraw(LPDIRECT3DDEVICE9) {}
 
-	virtual void OnDeviceLost(LPDIRECT3DDEVICE9 device) {(void)device;}
-	virtual void OnDeviceReset(LPDIRECT3DDEVICE9 device) {(void)device;}
+	virtual void OnDeviceLost(LPDIRECT3DDEVICE9) {}
+	virtual void OnDeviceReset(LPDIRECT3DDEVICE9) {}
 };

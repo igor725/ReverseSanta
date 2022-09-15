@@ -17,3 +17,7 @@ void Camera::Update() {
 
 	D3DXMatrixLookAtLH(&m_mxView, &m_vEye, &m_vView, &m_vUp);
 }
+
+void Camera::Follow(FLOAT delta, DObject *obj) {
+
+}

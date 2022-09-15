@@ -9,15 +9,15 @@ set ARCH=%VSCMD_ARG_TGT_ARCH%
 
 @rem Установка переменных проекта
 set WARNLEVEL=4
-set SRC=src\*.cc imgui\backends\imgui_impl_dx9.cpp ^
-imgui\backends\imgui_impl_win32.cpp imgui\imgui*.cpp
+set SRC=src\*.cc src\game\*.cc src\editor\*.cc ^
+imgui\backends\imgui_impl_dx9.cpp imgui\backends\imgui_impl_win32.cpp imgui\imgui*.cpp
 set DEFINES=/DWIN32_LEAN_AND_MEAN /DUNICODE /D_CRT_SECURE_NO_WARNINGS ^
 /DD3D_DEBUG_INFO
 set LIBS=user32.lib d3d9.lib d3dx9.lib dinput8.lib dxguid.lib shell32.lib
 set OUTNAME=se-%ARCH%.exe
 
 @rem Добавление собственных путей поиска lib и h файлов
-set INCLUDE=%INCLUDE%;%DXSDK_DIR%Include;imgui\;imgui\backends\
+set INCLUDE=%INCLUDE%;%DXSDK_DIR%Include;src\;imgui\;imgui\backends\
 set LIB=%LIB%;%DXSDK_DIR%Lib\%ARCH%
 
 @rem Настройка переменных окружения компилятора
