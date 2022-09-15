@@ -20,12 +20,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 			engine->SysInput()->Capture();
 			break;
 		case WM_KEYUP:
-			if (wParam == VK_ESCAPE) {
-				if (!engine->SysInput()->Release())
-					PostMessage(hWnd, WM_CLOSE, 0, 0);
-			} else if (wParam == VK_F5)
-				engine->NextRunner();
-
+			switch (wParam) {
+				case VK_ESCAPE:
+					if (!engine->SysInput()->Release())
+						PostMessage(hWnd, WM_CLOSE, 0, 0);
+					break;
+				case VK_F5:
+					engine->NextRunner();
+					break;
+			}
 			break;
 		case WM_ACTIVATE:
 			if (wParam == WA_INACTIVE)
@@ -91,9 +94,30 @@ Graphics::Graphics(HINSTANCE hInst) {
 	FLOAT aspect = m_D3DPresent.BackBufferWidth / (FLOAT)m_D3DPresent.BackBufferHeight;
 	m_lpCamera = new Camera(D3DX_PI / 4.0f, aspect, 0.01f, 10000.0f);
 
-	DASSERT(m_lpDevice->CreateRenderTarget(400, (UINT)(400 / aspect), D3DFMT_A8R8G8B8,
-	D3DMULTISAMPLE_NONE, 0, false, &m_lpSurface, nullptr));
-	
+	DASSERT(D3DXCreateTexture(m_lpDevice, 400, (UINT)(400 / aspect), D3DX_DEFAULT,
+	D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &m_lpTexture));
+
+	ZeroMemory(&m_Light, sizeof(m_Light));
+	m_Light.Type = D3DLIGHT_POINT;
+	m_Light.Diffuse.r = 0.8f;
+	m_Light.Diffuse.g = 0.8f;
+	m_Light.Diffuse.b = 0.8f;
+	m_Light.Ambient.r = 1.0f;
+	m_Light.Ambient.g = 1.0f;
+	m_Light.Ambient.b = 1.0f;
+	m_Light.Specular.r = 1.0f;
+	m_Light.Specular.g = 1.0f;
+	m_Light.Specular.b = 1.0f;
+
+	m_Light.Position.x = 0.0f;
+	m_Light.Position.y = 15.0f;
+	m_Light.Position.z = 0.0f;
+
+	m_Light.Attenuation0 = 0.4f;
+	m_Light.Attenuation1 = 0.3f;
+	m_Light.Attenuation2 = 0.2f;
+	m_Light.Range = 20.0f;
+
 	// D3DCAPS9 d3dcaps;
 	// if (m_lpDevice->GetDeviceCaps(&d3dcaps) == D3D_OK)
 	// 	std::cerr << d3dcaps. << std::endl;
@@ -102,22 +126,31 @@ Graphics::Graphics(HINSTANCE hInst) {
 Graphics::~Graphics() {
 	if (m_lpDeviceEx) m_lpDeviceEx->Release();
 	else m_lpDevice->Release();
-	if (m_lpSurface) m_lpSurface->Release();
+	if (m_lpTexture) m_lpTexture->Release();
 	if (m_lpD3D) m_lpD3D->Release();
 	delete m_lpCamera;
 
 	m_lpDevice = nullptr, m_lpDeviceEx = nullptr;
 }
 
-LPDIRECT3DDEVICE9 Graphics::BeginFrame() {
-	if (!m_lpDevice) return nullptr;
+void Graphics::UpdateLight() {
+	DASSERT(m_lpDevice->SetLight(0, &m_Light));
+}
+
+void Graphics::EnableLightning(bool state) {
+	DASSERT(m_lpDevice->LightEnable(0, state));
+	m_bLightEnabled = state;
+}
+
+bool Graphics::TestDevice() {
+	if (!m_lpDevice) return false;
 
 #if !defined(D3D_DISABLE_9EX)
 	if (m_bDeviceOccluded) {
 		switch (auto hRes = m_lpDeviceEx->CheckDeviceState(m_hWindow)) {
 			case S_PRESENT_OCCLUDED:
 				Sleep(200);
-				return nullptr;
+				return false;
 			case S_OK:
 			case S_PRESENT_MODE_CHANGED:
 				m_bDeviceOccluded = false;
@@ -135,7 +168,7 @@ LPDIRECT3DDEVICE9 Graphics::BeginFrame() {
 		case D3DERR_DEVICELOST:
 			m_bDeviceLost = true;
 			Sleep(200);
-			return nullptr;
+			return false;
 		case D3DERR_DEVICENOTRESET:
 			ResetPresentParams();
 			BaseRunner *runner;
@@ -153,8 +186,13 @@ LPDIRECT3DDEVICE9 Graphics::BeginFrame() {
 		default: DASSERT(ret);
 	}
 
-	m_lpCamera->Update();
-	m_lpDevice->SetRenderState(D3DRS_LIGHTING, false);
+	return true;
+}
+
+LPDIRECT3DDEVICE9 Graphics::BeginFrame(FLOAT delta) {
+	m_lpCamera->Update(delta);
+
+	m_lpDevice->SetRenderState(D3DRS_LIGHTING, m_bLightEnabled);
 	m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	m_lpDevice->SetTransform(D3DTS_PROJECTION, m_lpCamera->GetProjection());
@@ -182,7 +220,19 @@ void Graphics::PresentFrame() {
 	if (hRes == S_PRESENT_OCCLUDED) {
 		m_bDeviceOccluded = true;
 		return;
+	} else if (hRes == S_PRESENT_MODE_CHANGED) {
+		m_bDeviceOccluded = false;
+		return;
 	}
 
 	DASSERT(hRes);
+}
+
+LPDIRECT3DSURFACE9 Graphics::PresentToSurface() {
+	LPDIRECT3DSURFACE9 rt, sf;
+	m_lpTexture->GetSurfaceLevel(0, &sf);
+	m_lpDevice->GetRenderTarget(0, &rt);
+	m_lpDevice->StretchRect(rt, nullptr, sf, nullptr, D3DTEXF_NONE);
+	rt->Release();
+	return sf;
 }

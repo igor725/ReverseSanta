@@ -3,13 +3,11 @@
 #include <d3dx9.h>
 #include <cmath>
 
-#include "draw.hh"
-
 class Camera {
 public:
 	Camera(FLOAT fov, FLOAT aspect, FLOAT nearvp, FLOAT farvp);
 
-	void Update();
+	void Update(FLOAT delta);
 	inline LPD3DXMATRIX GetProjection() { return &m_mxProj; }
 	inline LPD3DXMATRIX GetView() { return &m_mxView; }
 	inline LPD3DXVECTOR3 GetRot() { return &m_vRot; }
@@ -21,8 +19,10 @@ public:
 			std::cosf(m_vRot.x) * std::cosf(m_vRot.y)
 		};
 	}
-	
-	void Follow(FLOAT delta, DObject *obj);
+
+	inline void SetFollow(LPD3DXVECTOR3 pos, LPD3DXVECTOR3 rot) {
+		m_lpvFollowPos = pos, m_lpvFollowRot = rot;
+	}
 
 private:
 	D3DXMATRIX m_mxView, m_mxProj, m_mxRot;
@@ -30,4 +30,7 @@ private:
 				m_vView = {0.0f, 1.0f, 0.0f},
 				m_vUp   = {0.0f, 1.0f, 0.0f},
 				m_vRot  = {0.0f, 0.0f, 0.0f};
+
+	LPD3DXVECTOR3 m_lpvFollowPos = nullptr,
+	m_lpvFollowRot = nullptr;
 };

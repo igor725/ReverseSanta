@@ -28,4 +28,6 @@ private:
 	Object *m_lpObjects = nullptr;
 	DObject *m_lpDObjects = nullptr;
 	DObject *m_lpSkyBox = nullptr;
+	LPDIRECT3DTEXTURE9 m_lpTempTexture = nullptr;
+	LPDIRECT3DSURFACE9 m_lpTempSurface = nullptr;
 };

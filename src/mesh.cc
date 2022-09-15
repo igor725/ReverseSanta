@@ -56,8 +56,10 @@ Mesh::~Mesh() {
 
 void Mesh::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 	for (DWORD i = 0; i < m_dwNumMaterials; i++) {
-		DASSERT(device->SetMaterial(&m_lpMaterials[i]));
-		if (!untextured) { DASSERT(device->SetTexture(0, m_lpTextures[i])); }
-		DASSERT(m_lpMesh->DrawSubset(i));
+		if (!untextured) {
+			device->SetMaterial(&m_lpMaterials[i]);
+			device->SetTexture(0, m_lpTextures[i]);
+		}
+		m_lpMesh->DrawSubset(i);
 	}
 }

@@ -33,6 +33,9 @@ bool Level::Load(std::string path) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 	auto device = engine->SysGraphics()->GetDevice();
+	DASSERT(D3DXCreateTexture(device, 32, 32, D3DX_DEFAULT, D3DUSAGE_RENDERTARGET,
+	D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpTempTexture));
+	DASSERT(m_lpTempTexture->GetSurfaceLevel(0, &m_lpTempSurface));
 	auto file = virtfs->Open(path, &fsize);
 	if (file->is_open() && fsize > 4) {
 		file->read((char *)&m_dwObjectCount, 4);
@@ -84,6 +87,10 @@ void Level::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 		for (DWORD i = 0; i < m_dwObjectCount; i++) {
 			// D3DXVECTOR3 v = campos - obj.f_pos;
 			// if (D3DXVec3Length(&v) < 1000.f) {
+				if (untextured) {
+					device->ColorFill(m_lpTempSurface, nullptr, i);
+					device->SetTexture(0, m_lpTempTexture);
+				}
 				m_lpDObjects[i].Draw(device, untextured);
 			// }
 		}

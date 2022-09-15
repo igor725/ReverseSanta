@@ -40,12 +40,12 @@ Engine *Engine::GetInstance() {
 
 void Engine::SetRunner(DWORD num) {
 	if (auto runner = GetRunner())
-		runner->Close();
+		runner->OnClose();
 	
 	m_dwCurrentRunner = num;
 
 	if (auto runner = GetRunner())
-		runner->Open();
+		runner->OnOpen();
 }
 
 void Engine::NextRunner() {
@@ -65,12 +65,14 @@ void Engine::Step(FLOAT delta) {
 		m_lpInput->Update(delta, runner);
 		runner->OnUpdate(delta);
 
-		if (auto device = m_lpGraphics->BeginFrame()) {
-			m_lpLevel->Draw(device);
-			runner->OnDraw(device);
+		if (m_lpGraphics->TestDevice()) {
+			if (auto device = m_lpGraphics->BeginFrame(delta)) {
+				m_lpLevel->Draw(device);
+				runner->OnDraw(device);
 
-			m_lpGraphics->EndFrame();
-			m_lpGraphics->PresentFrame();
+				m_lpGraphics->EndFrame();
+				m_lpGraphics->PresentFrame();
+			}
 		}
 	}
 }

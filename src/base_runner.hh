@@ -25,8 +25,8 @@ struct InputState {
 
 class BaseRunner {
 public:
-	virtual void Open() {}
-	virtual void Close() {}
+	virtual void OnOpen() {}
+	virtual void OnClose() {}
 
 	virtual LRESULT OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		(void)hWnd, iMsg, wParam, lParam;

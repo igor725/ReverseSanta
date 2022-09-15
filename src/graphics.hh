@@ -10,13 +10,19 @@ public:
 	Graphics(HINSTANCE hInst);
 	~Graphics();
 
+	void UpdateLight();
+	void EnableLightning(bool state = true);
+
+	inline D3DLIGHT9 *GetLight() { return m_bLightEnabled ? &m_Light : nullptr; }
 	inline LPDIRECT3DDEVICE9 GetDevice() { return m_lpDevice; }
 	inline Camera *GetCamera() { return m_lpCamera; }
 	inline HWND GetWindow() { return m_hWindow; }
 
-	LPDIRECT3DDEVICE9 BeginFrame();
+	bool TestDevice();
+	LPDIRECT3DDEVICE9 BeginFrame(FLOAT delta);
 	void EndFrame();
 	void PresentFrame();
+	LPDIRECT3DSURFACE9 PresentToSurface();
 
 	inline void Show() { ShowWindow(m_hWindow, SW_NORMAL); }
 
@@ -27,15 +33,17 @@ private:
 	const DWORD m_dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
 	bool m_bDeviceLost = false,
-	m_bDeviceOccluded = false;
+	m_bDeviceOccluded = false,
+	m_bLightEnabled = false;
 
 	HWND m_hWindow = nullptr;
 	LPDIRECT3D9 m_lpD3D = nullptr;
 	LPDIRECT3D9EX m_lpD3DEx = nullptr;
 	LPDIRECT3DDEVICE9 m_lpDevice = nullptr;
 	LPDIRECT3DDEVICE9EX m_lpDeviceEx = nullptr;
-	LPDIRECT3DSURFACE9 m_lpSurface = nullptr;
-	D3DPRESENT_PARAMETERS m_D3DPresent = {0};
+	LPDIRECT3DTEXTURE9 m_lpTexture = nullptr;
+	D3DPRESENT_PARAMETERS m_D3DPresent = {};
+	D3DLIGHT9 m_Light = {};
 
 	Camera *m_lpCamera = nullptr;
 
