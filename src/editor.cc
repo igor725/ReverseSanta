@@ -37,11 +37,12 @@ LRESULT Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	return io.WantCaptureMouse || io.WantCaptureKeyboard || m_Menu.IsActive();
 }
 
-void Editor::OnDeviceLost(LPDIRECT3DDEVICE9 *) {
-	ImGui_ImplDX9_InvalidateDeviceObjects();
+void Editor::OnDeviceLost() {
+	ImGui_ImplDX9_Shutdown();
 }
 
-void Editor::OnDeviceReset(LPDIRECT3DDEVICE9 *) {
+void Editor::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+	ImGui_ImplDX9_Init(device);
 	ImGui_ImplDX9_CreateDeviceObjects();
 }
 

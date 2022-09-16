@@ -10,6 +10,7 @@ public:
 	Graphics(HINSTANCE hInst);
 	~Graphics();
 
+	void RecreateDevice();
 	void UpdateLight();
 	void EnableLightning(bool state = true);
 
@@ -34,7 +35,9 @@ private:
 
 	bool m_bDeviceLost = false,
 	m_bDeviceOccluded = false,
-	m_bLightEnabled = false;
+	m_bLightEnabled = false,
+	m_bRenderSuccededTwice = false,
+	m_bRenderPossibleFatal = false;
 
 	HWND m_hWindow = nullptr;
 	LPDIRECT3D9 m_lpD3D = nullptr;

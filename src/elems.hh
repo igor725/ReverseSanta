@@ -24,10 +24,8 @@ public:
 
 	struct Element {
 		DWORD f_type;
-		union {
-			Mesh *u_mesh;
-			/*Effect *u_effect;*/
-		} f_file;
+		Mesh *u_mesh;
+		/*Effect *u_effect;*/
 		/*Anim *f_animation;*/
 		FLOAT f_scaling = 0.0f;
 		FLOAT f_radius = 0.0f;
@@ -40,6 +38,10 @@ public:
 	};
 
 	Elems(std::ifstream *file, DWORD end);
+
+	void OnDeviceLost();
+	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+
 	Element *Search(std::string name);
 
 private:

@@ -13,8 +13,8 @@ public:
 	void OnUpdate(FLOAT delta);
 	void OnDraw(LPDIRECT3DDEVICE9 device);
 
-	void OnDeviceLost(LPDIRECT3DDEVICE9 *device);
-	void OnDeviceReset(LPDIRECT3DDEVICE9 *device);
+	void OnDeviceLost();
+	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 private:
 	EditorMenu m_Menu;

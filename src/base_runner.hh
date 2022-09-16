@@ -30,12 +30,12 @@ public:
 
 	virtual LRESULT OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		(void)hWnd, iMsg, wParam, lParam;
-		return false;
+		return (LRESULT)0;
 	}
 	virtual void OnInput(FLOAT, InputState *) {}
 	virtual void OnUpdate(FLOAT) {}
 	virtual void OnDraw(LPDIRECT3DDEVICE9) {}
 
-	virtual void OnDeviceLost(LPDIRECT3DDEVICE9) {}
+	virtual void OnDeviceLost() {}
 	virtual void OnDeviceReset(LPDIRECT3DDEVICE9) {}
 };

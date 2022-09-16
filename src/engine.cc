@@ -38,6 +38,18 @@ Engine *Engine::GetInstance() {
 	return __engineInstance;
 }
 
+void Engine::OnDeviceLost() {
+	m_lpLevel->OnDeviceLost();
+	for (auto &runner : GetRunners())
+		runner->OnDeviceLost();
+}
+
+void Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+	m_lpLevel->OnDeviceReset(device);
+	for (auto &runner : GetRunners())
+		runner->OnDeviceReset(device);
+}
+
 void Engine::SetRunner(DWORD num) {
 	if (auto runner = GetRunner())
 		runner->OnClose();

@@ -2,12 +2,24 @@
 #include "mesh.hh"
 #include "exceptions.hh"
 
-Mesh::Mesh(LPDIRECT3DDEVICE9 device, std::string path) {
+void Mesh::OnDeviceLost() {
+	if (m_lpMesh) {
+		for (DWORD i = 0; i < m_dwNumMaterials; i++)
+			if (m_lpTextures[i]) m_lpTextures[i]->Release();
+
+		m_lpMesh->Release();
+		m_lpMesh = nullptr;
+		delete m_lpMaterials;
+		delete m_lpTextures;
+	}
+}
+
+void Mesh::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 
 	DWORD size = 0;
-	auto file = virtfs->Open(path, nullptr, &size);
+	auto file = virtfs->Open(m_FilePath, nullptr, &size);
 	if (file->is_open()) {
 		CHAR *mem = new CHAR[size];
 		file->read(mem, size);
@@ -48,13 +60,9 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 device, std::string path) {
 	}
 }
 
-Mesh::~Mesh() {
-	m_lpMesh->Release();
-	delete m_lpMaterials;
-	delete m_lpTextures;
-}
-
 void Mesh::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
+	if (!m_lpMesh) return;
+
 	for (DWORD i = 0; i < m_dwNumMaterials; i++) {
 		if (!untextured) {
 			device->SetMaterial(&m_lpMaterials[i]);

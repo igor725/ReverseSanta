@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "engine.hh"
 #include "exceptions.hh"
 
@@ -5,10 +6,10 @@
 
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdShow) {
 	(VOID)hPrev;(VOID)szCmdLine;(VOID)iCmdShow;
-	AttachConsole(ATTACH_PARENT_PROCESS);
-	freopen("CONOUT$", "w", stderr);
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleMode(hConsole, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	::AttachConsole(ATTACH_PARENT_PROCESS);
+	::freopen("CONOUT$", "w", stderr);
+	HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	::SetConsoleMode(hConsole, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
 	if (std::strcmp(szCmdLine, "unpack") >= 0) {
 		Xpk xpk("xmas.xpk");
@@ -22,7 +23,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 				handle->seekg(sv, std::ios::beg);
 				auto pos = name.find_last_of('\\');
 				if (pos != name.npos)
-					CreateDirectoryA((".\\" + std::string{name, 0, pos}).c_str(), nullptr);
+					::CreateDirectoryA((".\\" + std::string{name, 0, pos}).c_str(), nullptr);
 
 				std::ofstream ofile(name, std::ios::binary);
 

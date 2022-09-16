@@ -18,6 +18,9 @@ public:
 	Level();
 	~Level();
 
+	void OnDeviceLost();
+	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+
 	bool Load(std::string path);
 	void RefreshDrawer();
 	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);

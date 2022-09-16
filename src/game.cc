@@ -12,6 +12,14 @@ Game::~Game() {
 	delete m_lpPlayer;
 }
 
+void Game::OnDeviceLost() {
+	m_lpPlayer->OnDeviceLost();
+}
+
+void Game::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+	m_lpPlayer->OnDeviceReset(device);
+}
+
 void Game::OnOpen() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
@@ -32,9 +40,9 @@ void Game::OnInput(FLOAT delta, InputState *state) {
 		m_lpPlayer->Rotate(delta * (D3DX_PI * 1.2f));
 
 	if (state->Key(DIK_W) & 0x80)
-		m_lpPlayer->Move(m_lpPlayer->Forward() * delta * -10.0f);
+		m_lpPlayer->Move(m_lpPlayer->GetForward() * delta * -10.0f);
 	else if (state->Key(DIK_S) & 0x80)
-		m_lpPlayer->Move(m_lpPlayer->Forward() * delta * 10.0f);
+		m_lpPlayer->Move(m_lpPlayer->GetForward() * delta * 10.0f);
 }
 
 void Game::OnUpdate(FLOAT delta) {

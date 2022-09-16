@@ -18,6 +18,19 @@ Level::~Level() {
 	if (m_lpDObjects) delete m_lpDObjects;
 }
 
+void Level::OnDeviceLost() {
+	if (m_lpSkyBox)
+		m_lpSkyBox->f_mesh->OnDeviceLost();
+	m_lpElems->OnDeviceLost();
+	RefreshDrawer();
+}
+
+void Level::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+	if (m_lpSkyBox)
+		m_lpSkyBox->f_mesh->OnDeviceReset(device);
+	m_lpElems->OnDeviceReset(device);
+}
+
 bool Level::Load(std::string path) {
 	if (m_lpObjects) {
 		delete m_lpObjects;
@@ -74,8 +87,9 @@ void Level::RefreshDrawer() {
 		auto dobj = &m_lpDObjects[i];
 		auto elem = m_lpElems->Search(obj->f_name);
 
+		dobj->f_alerted = true;
 		dobj->f_pos = obj->f_pos[0];
-		dobj->f_mesh = elem->f_file.u_mesh;
+		dobj->f_mesh = elem->u_mesh;
 		dobj->f_scale = elem->f_scaling / 100.0f;
 		dobj->f_rot.y = D3DXToRadian(elem->f_rotation + obj->f_rot * 90.0f);
 	}

@@ -64,6 +64,22 @@ Graphics::Graphics(HINSTANCE hInst) {
 	m_hWindow = CreateWindow(wc.lpszClassName, L"D3D9 Window",
 	m_dwStyle, cx, cy, width, height, NULL, NULL, hInst, this);
 	ResetPresentParams();
+	RecreateDevice();
+}
+
+Graphics::~Graphics() {
+	if (m_lpDeviceEx) m_lpDeviceEx->Release();
+	else if (m_lpDevice) m_lpDevice->Release();
+	if (m_lpTexture) m_lpTexture->Release();
+	if (m_lpD3D) m_lpD3D->Release();
+	if (m_lpCamera) delete m_lpCamera;
+
+	m_lpCamera = nullptr, m_lpTexture = nullptr,
+	m_lpDevice = nullptr, m_lpDeviceEx = nullptr;
+}
+
+void Graphics::RecreateDevice() {
+	Graphics::~Graphics();
 
 #if !defined(D3D_DISABLE_9EX)
 	do {
@@ -118,19 +134,10 @@ Graphics::Graphics(HINSTANCE hInst) {
 	m_Light.Attenuation2 = 0.2f;
 	m_Light.Range = 20.0f;
 
-	// D3DCAPS9 d3dcaps;
-	// if (m_lpDevice->GetDeviceCaps(&d3dcaps) == D3D_OK)
-	// 	std::cerr << d3dcaps. << std::endl;
-}
-
-Graphics::~Graphics() {
-	if (m_lpDeviceEx) m_lpDeviceEx->Release();
-	else m_lpDevice->Release();
-	if (m_lpTexture) m_lpTexture->Release();
-	if (m_lpD3D) m_lpD3D->Release();
-	delete m_lpCamera;
-
-	m_lpDevice = nullptr, m_lpDeviceEx = nullptr;
+	D3DCAPS9 d3dcaps;
+	if (m_lpDevice->GetDeviceCaps(&d3dcaps) == D3D_OK) {
+		EASSERT(d3dcaps.MaxActiveLights > 0);
+	}
 }
 
 void Graphics::UpdateLight() {
@@ -155,35 +162,35 @@ bool Graphics::TestDevice() {
 			case S_PRESENT_MODE_CHANGED:
 				m_bDeviceOccluded = false;
 				break;
-			
 			default: DASSERT(hRes);
 		}
 	}
 #endif
 
-	switch (auto ret = m_lpDevice->TestCooperativeLevel()) {
-		case D3D_OK:
-			m_bDeviceLost = false;
-			break;
-		case D3DERR_DEVICELOST:
-			m_bDeviceLost = true;
-			Sleep(200);
-			return false;
-		case D3DERR_DEVICENOTRESET:
-			ResetPresentParams();
-			BaseRunner *runner;
-			if ((runner = Engine::GetInstance()->GetRunner()) != nullptr)
-				runner->OnDeviceLost(m_lpDevice);
+	if (m_bDeviceLost) {
+		switch (auto hRes = m_lpDevice->TestCooperativeLevel()) {
+			case D3DERR_DEVICELOST:
+				Sleep(500);
+				break;
 
-			if (m_lpDeviceEx)
-				DASSERT(m_lpDeviceEx->ResetEx(&m_D3DPresent, nullptr));
-			else
-				DASSERT(m_lpDevice->Reset(&m_D3DPresent));
+			case D3DERR_DEVICENOTRESET:
+				ResetPresentParams();
 
-			if (runner) runner->OnDeviceReset(m_lpDevice);
-			break;
+				if (m_lpDeviceEx)
+					DASSERT(m_lpDeviceEx->ResetEx(&m_D3DPresent, nullptr));
+				else
+					DASSERT(m_lpDevice->Reset(&m_D3DPresent));
+			
+			/* fallthrough */
+			case D3D_OK:
+				m_bDeviceLost = false;
+				Engine::GetInstance()->OnDeviceReset(m_lpDevice);
+				break;
 
-		default: DASSERT(ret);
+			default: DASSERT(hRes);
+		}
+
+		return false;
 	}
 
 	return true;
@@ -216,16 +223,41 @@ void Graphics::PresentFrame() {
 		hRes = m_lpDeviceEx->PresentEx(nullptr, nullptr, nullptr, nullptr, 0);
 	else
 		hRes = m_lpDevice->Present(nullptr, nullptr, nullptr, nullptr);
-	
-	if (hRes == S_PRESENT_OCCLUDED) {
-		m_bDeviceOccluded = true;
-		return;
-	} else if (hRes == S_PRESENT_MODE_CHANGED) {
-		m_bDeviceOccluded = false;
-		return;
-	}
 
-	DASSERT(hRes);
+	/* D3DERR_DEVICELOST - 0x88760868 */
+
+	if (m_bRenderPossibleFatal)
+		DASSERT(hRes);
+
+	switch (hRes) {
+		case D3D_OK:
+			if (!m_bRenderSuccededTwice) {
+				m_bRenderSuccededTwice = true;
+				m_bRenderPossibleFatal = false;
+			}
+			break;
+
+		case D3DERR_DEVICELOST:
+			Engine::GetInstance()->OnDeviceLost();
+			if (m_bRenderSuccededTwice) {
+				m_bDeviceLost = true;
+				m_bRenderPossibleFatal = true;
+				m_bRenderSuccededTwice = false;
+			} else {
+				m_bDeviceLost = false;
+				RecreateDevice();
+				Engine::GetInstance()->OnDeviceReset(m_lpDevice);
+			}
+			break;
+		case S_PRESENT_OCCLUDED:
+			m_bDeviceOccluded = true;
+			break;
+		case S_PRESENT_MODE_CHANGED:
+			m_bDeviceOccluded = false;
+			break;
+
+		default: DASSERT(hRes);
+	}
 }
 
 LPDIRECT3DSURFACE9 Graphics::PresentToSurface() {

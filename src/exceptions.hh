@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 #include <exception>
-#include <iostream>
 
 struct MyException : public std::exception {
 public:

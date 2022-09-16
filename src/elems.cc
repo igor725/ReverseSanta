@@ -44,7 +44,8 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 					if (path.find("ani", ext))
 						path.replace(ext, 4, ".x");
 
-					inwork->f_file.u_mesh = new Mesh(device, path);
+					/* TODO: Lazy mesh loading */
+					inwork->u_mesh = new Mesh(device, path);
 				} else if (line.find("EFFECT") == 0) {
 				} else if (line.find("WALKANIM") == 0) {
 						inwork->f_walkanim = (BYTE)std::strtol(line.substr(vstart).c_str(), nullptr, 10);
@@ -73,6 +74,16 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 		}
 		file->seekg(pos);
 	} while (file->tellg() < end);
+}
+
+void Elems::OnDeviceLost() {
+	for (auto &elem : m_mElements)
+		elem.second.u_mesh->OnDeviceLost();
+}
+
+void Elems::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+	for (auto &elem : m_mElements)
+		elem.second.u_mesh->OnDeviceReset(device);
 }
 
 Elems::Element *Elems::Search(std::string name) {

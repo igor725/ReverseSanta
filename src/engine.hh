@@ -15,16 +15,20 @@ public:
 	Engine(HINSTANCE hInst);
 	~Engine();
 
+	void OnDeviceLost();
+	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+
 	BaseRunner *GetRunner();
+	inline std::vector<BaseRunner *> &GetRunners() { return m_vRunners; }
 	void SetRunner(DWORD num);
 	void NextRunner();
 
 	void Step(FLOAT delta);
 
-	inline Input *Engine::SysInput() { return m_lpInput; }
-	inline Graphics *Engine::SysGraphics() { return m_lpGraphics; }
-	inline Level *Engine::SysLevel() { return m_lpLevel; }
-	inline VirtFs *Engine::SysVirtFs() { return m_lpVirtFs; }
+	inline Input *SysInput() { return m_lpInput; }
+	inline Graphics *SysGraphics() { return m_lpGraphics; }
+	inline Level *SysLevel() { return m_lpLevel; }
+	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
 
 private:
 	Input *m_lpInput = nullptr;
