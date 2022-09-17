@@ -24,33 +24,36 @@ void Game::OnOpen() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto pobj = m_lpPlayer->GetDrawObject();
-	camera->SetFollow(&pobj->f_pos, &pobj->f_rot);
+	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
 }
 
 void Game::OnClose() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
-	camera->SetFollow(nullptr, nullptr);
+	camera->SetFollow();
 }
 
 void Game::OnInput(FLOAT delta, InputState *state) {
 	if (state->Key(DIK_A) & 0x80)
-		m_lpPlayer->Rotate(delta * (D3DX_PI * -1.2f));
+		m_lpPlayer->Rotate((D3DX_PI * -1.2f) * delta);
 	else if (state->Key(DIK_D) & 0x80)
-		m_lpPlayer->Rotate(delta * (D3DX_PI * 1.2f));
+		m_lpPlayer->Rotate((D3DX_PI * 1.2f) * delta);
 
 	if (state->Key(DIK_W) & 0x80)
-		m_lpPlayer->Move(m_lpPlayer->GetForward() * delta * -10.0f);
+		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * -6.0f);
 	else if (state->Key(DIK_S) & 0x80)
-		m_lpPlayer->Move(m_lpPlayer->GetForward() * delta * 10.0f);
+		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * 6.0f);
+
+	static BYTE lsp, csp;
+	if ((csp = state->Key(DIK_SPACE)) != lsp) {
+		if (csp & 0x80) m_lpPlayer->Jump();
+		lsp = csp;
+	}
 }
 
 void Game::OnUpdate(FLOAT delta) {
-	// auto engine = Engine::GetInstance();
-	// auto graphics = engine->SysGraphics();
-	// auto camera = graphics->GetCamera();
-
-	m_lpPlayer->Update(delta);
+	for (FLOAT i = 0.0f; i < 6.0f; i++)
+		m_lpPlayer->Update(delta / 6.0f);
 }
 
 void Game::OnDraw(LPDIRECT3DDEVICE9 device) {

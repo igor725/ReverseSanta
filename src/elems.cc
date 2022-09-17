@@ -34,18 +34,13 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 				if (line.find("TYPE") == 0) {
 					for (auto &type : m_mElemTypes) {
 						if (line.find(type.second, vstart) != line.npos) {
-							inwork->f_type = type.first;
+							inwork->f_eType = type.first;
 							break;
 						}
 					}
 				} else if (line.find("FILE") == 0) {
-					auto path = GetStringParam(line);
-					auto ext = path.find_last_of('.');
-					if (path.find("ani", ext))
-						path.replace(ext, 4, ".x");
-
 					/* TODO: Lazy mesh loading */
-					inwork->u_mesh = new Mesh(device, path);
+					inwork->f_lpMesh = new Mesh(device, GetStringParam(line));
 				} else if (line.find("EFFECT") == 0) {
 				} else if (line.find("WALKANIM") == 0) {
 						inwork->f_walkanim = (BYTE)std::strtol(line.substr(vstart).c_str(), nullptr, 10);
@@ -53,19 +48,19 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 					auto value = std::strtof(line.substr(vstart).c_str(), nullptr);
 
 					if (line.find("SCALING") == 0)
-						inwork->f_scaling = value;
+						inwork->f_fScalling = value;
 					else if (line.find("RADIUS") == 0)
-						inwork->f_radius = value;
+						inwork->f_fRadius = value;
 					else if (line.find("SPEED") == 0)
-						inwork->f_speed = value;
+						inwork->f_fSpeed = value;
 					else if (line.find("JUMPHEIGHT") == 0)
-						inwork->f_jumpheight = value;
+						inwork->f_fJumpHeight = value;
 					else if (line.find("VERTICALOFFSET") == 0)
-						inwork->f_verticaloffset = value;
+						inwork->f_fVerticalOffset = value;
 					else if (line.find("FRICTION") == 0)
-						inwork->f_friction = value;
+						inwork->f_fFriction = value;
 					else if (line.find("ROTATION") == 0)
-						inwork->f_rotation = value;
+						inwork->f_fRotation = value;
 					else
 						ExitProcess(1);
 				}
@@ -78,12 +73,12 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 
 void Elems::OnDeviceLost() {
 	for (auto &elem : m_mElements)
-		elem.second.u_mesh->OnDeviceLost();
+		elem.second.f_lpMesh->OnDeviceLost();
 }
 
 void Elems::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	for (auto &elem : m_mElements)
-		elem.second.u_mesh->OnDeviceReset(device);
+		elem.second.f_lpMesh->OnDeviceReset(device);
 }
 
 Elems::Element *Elems::Search(std::string name) {

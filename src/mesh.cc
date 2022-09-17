@@ -2,6 +2,8 @@
 #include "mesh.hh"
 #include "exceptions.hh"
 
+#include <iostream>
+
 void Mesh::OnDeviceLost() {
 	if (m_lpMesh) {
 		for (DWORD i = 0; i < m_dwNumMaterials; i++)
@@ -18,19 +20,33 @@ void Mesh::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 
+	/* TODO: Animations ??? */
+	auto path = m_FilePath;
+	auto ext = path.find_last_of('.');
+	if (path.find("ani", ext))
+		path.replace(ext, 4, ".x");
+
 	DWORD size = 0;
-	auto file = virtfs->Open(m_FilePath, nullptr, &size);
+	auto file = virtfs->Open(path, nullptr, &size);
 	if (file->is_open()) {
 		CHAR *mem = new CHAR[size];
 		file->read(mem, size);
 		virtfs->Close(file);
 
+		LPD3DXBUFFER matbuf;
 		DASSERT(D3DXLoadMeshFromXInMemory(mem, size, D3DXMESH_SYSTEMMEM,
-		device, nullptr, &m_lpMatBuffer, nullptr,
+		device, nullptr, &matbuf, nullptr,
 		&m_dwNumMaterials, &m_lpMesh));
 		delete mem;
 
-		auto mats = (LPD3DXMATERIAL)m_lpMatBuffer->GetBufferPointer();
+		LPD3DXVECTOR3 vbuf;
+		if (m_lpMesh->LockVertexBuffer(0, (LPVOID *)&vbuf) == D3D_OK) {
+			D3DXComputeBoundingBox(vbuf, m_lpMesh->GetNumVertices(),
+			m_lpMesh->GetNumBytesPerVertex(), &m_vBoundMin, &m_vBoundMax);
+			m_lpMesh->UnlockVertexBuffer();
+		}
+
+		auto mats = (LPD3DXMATERIAL)matbuf->GetBufferPointer();
 		m_lpTextures = new LPDIRECT3DTEXTURE9[m_dwNumMaterials];
 		m_lpMaterials = new D3DMATERIAL9[m_dwNumMaterials];
 
@@ -57,6 +73,8 @@ void Mesh::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 				continue;
 			}
 		}
+
+		matbuf->Release();
 	}
 }
 

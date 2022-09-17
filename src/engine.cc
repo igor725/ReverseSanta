@@ -53,7 +53,7 @@ void Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 void Engine::SetRunner(DWORD num) {
 	if (auto runner = GetRunner())
 		runner->OnClose();
-	
+
 	m_dwCurrentRunner = num;
 
 	if (auto runner = GetRunner())

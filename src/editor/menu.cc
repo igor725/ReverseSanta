@@ -13,6 +13,10 @@ void EditorMenu::Draw() {
 		return;
 	}
 
+	auto engine = Engine::GetInstance();
+	auto graphics = engine->SysGraphics();
+	auto camera = graphics->GetCamera();
+
 	if (ImGui::CollapsingHeader("Level manager")) {
 		static int curr_level = 0;
 		// TODO: Итерация по XPK файлу
@@ -23,19 +27,27 @@ void EditorMenu::Draw() {
 		};
 
 		if (ImGui::ListBox("Pick a level", &curr_level, items, IM_ARRAYSIZE(items), 5)) {
-			auto engine = Engine::GetInstance();
 			auto level = engine->SysLevel();
 			level->Load("levels\\" + std::string(items[curr_level]));
 		}
 	}
 
+	if (ImGui::CollapsingHeader("Camera manager")) {
+		bool update = false;
+
+		update |= ImGui::SliderFloat("FOV", &camera->f_fFov, 0.0f, D3DX_PI, "%.2f");
+		ImGui::Spacing();
+		update |= ImGui::SliderFloat2("Viewport", &camera->f_fNearVP, 0.0f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+		ImGui::Spacing();
+
+		if (update) camera->UpdateProj();
+	}
+
 	if (ImGui::CollapsingHeader("Light manager")) {
-		auto engine = Engine::GetInstance();
-		auto graphics = engine->SysGraphics();
 		auto light = graphics->GetLight();
 		static bool light_enabled = light != nullptr;
 		if (ImGui::Checkbox("Lightning enabled", &light_enabled)) {
-			graphics->EnableLightning(light_enabled);
+			graphics->EnableLighting(light_enabled);
 			graphics->UpdateLight();
 		}
 
@@ -65,7 +77,12 @@ void EditorMenu::Draw() {
 				ImGui::Spacing();
 			}
 			if (light->Type != D3DLIGHT_DIRECTIONAL) {
-				update |= ImGui::SliderFloat("Range", &light->Range, 0.0f, 1000.0f, "%.3f");
+				if (ImGui::Button("Teleport to camera")) {
+					light->Position = camera->f_vEye;
+					light->Direction = camera->GetForward();
+					update = true;
+				}
+				update |= ImGui::SliderFloat("Range", &light->Range, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 				ImGui::Spacing();
 			}
 			if (light->Type == D3DLIGHT_SPOT) {

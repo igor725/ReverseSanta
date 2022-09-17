@@ -1,6 +1,6 @@
 #pragma once
 
-#include "draw.hh"
+#include "dobject.hh"
 
 class Player {
 public:
@@ -13,18 +13,38 @@ public:
 	void Update(FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device);
 
-	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_rot.y += dir; m_lpDrawObj->f_alerted = true; }
-	inline void Move(D3DXVECTOR3 diff) { m_lpDrawObj->f_pos += diff; m_lpDrawObj->f_alerted = true; }
+	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; m_lpDrawObj->f_bAlerted = true; }
+	inline void Move(D3DXVECTOR3 diff) { m_lpDrawObj->f_vPos += diff; m_lpDrawObj->f_bAlerted = true; }
+	inline void Jump() {
+		if (m_dwJumpsLeft > 0) {
+			if (m_bIsTouchingGround)
+				m_dwJumpsLeft -= 1;
+			else
+				m_dwJumpsLeft = 0;
+			m_vVelocity.y = 14.0f;
+			m_lpDrawObj->f_bAlerted = true;
+		}
+	}
+	inline void SetXZVelocity(D3DXVECTOR3 diff) {
+		m_vVelocity.x = diff.x;
+		m_vVelocity.z = diff.z;
+		m_lpDrawObj->f_bAlerted = true;
+	}
 
+	inline bool IsOnGround() { return m_bIsTouchingGround; }
 	inline DObject *GetDrawObject() { return m_lpDrawObj; }
 	inline D3DXVECTOR3 GetForward() {
 		return {
-			std::sinf(m_lpDrawObj->f_rot.y) * std::cosf(m_lpDrawObj->f_rot.x),
-			std::sinf(-m_lpDrawObj->f_rot.x),
-			std::cosf(m_lpDrawObj->f_rot.y) * std::cosf(m_lpDrawObj->f_rot.x)
+			std::sinf(m_lpDrawObj->f_vRot.y) * std::cosf(m_lpDrawObj->f_vRot.x),
+			std::sinf(-m_lpDrawObj->f_vRot.x),
+			std::cosf(m_lpDrawObj->f_vRot.y) * std::cosf(m_lpDrawObj->f_vRot.x)
 		};
 	}
 
 private:
 	DObject *m_lpDrawObj;
+
+	DWORD m_dwJumpsLeft = 2;
+	bool m_bIsTouchingGround = false;
+	D3DXVECTOR3 m_vVelocity = {0.0f, 0.0f, 0.0f};
 };

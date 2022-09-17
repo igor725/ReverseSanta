@@ -20,14 +20,14 @@ Level::~Level() {
 
 void Level::OnDeviceLost() {
 	if (m_lpSkyBox)
-		m_lpSkyBox->f_mesh->OnDeviceLost();
+		m_lpSkyBox->f_lpMesh->OnDeviceLost();
 	m_lpElems->OnDeviceLost();
 	RefreshDrawer();
 }
 
 void Level::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	if (m_lpSkyBox)
-		m_lpSkyBox->f_mesh->OnDeviceReset(device);
+		m_lpSkyBox->f_lpMesh->OnDeviceReset(device);
 	m_lpElems->OnDeviceReset(device);
 }
 
@@ -87,11 +87,12 @@ void Level::RefreshDrawer() {
 		auto dobj = &m_lpDObjects[i];
 		auto elem = m_lpElems->Search(obj->f_name);
 
-		dobj->f_alerted = true;
-		dobj->f_pos = obj->f_pos[0];
-		dobj->f_mesh = elem->u_mesh;
-		dobj->f_scale = elem->f_scaling / 100.0f;
-		dobj->f_rot.y = D3DXToRadian(elem->f_rotation + obj->f_rot * 90.0f);
+		dobj->f_bAlerted = true;
+		dobj->f_eType = elem->f_eType;
+		dobj->f_vPos = obj->f_vPos[0];
+		dobj->f_lpMesh = elem->f_lpMesh;
+		dobj->f_scale = elem->f_fScalling / 100.0f;
+		dobj->f_vRot.y = D3DXToRadian(elem->f_fRotation + obj->f_dwRot * 90.0f);
 	}
 }
 
@@ -99,7 +100,7 @@ void Level::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 	if (m_dwObjectCount > 0) {
 		if (!untextured) m_lpSkyBox->Draw(device);
 		for (DWORD i = 0; i < m_dwObjectCount; i++) {
-			// D3DXVECTOR3 v = campos - obj.f_pos;
+			// D3DXVECTOR3 v = campos - obj.f_vPos;
 			// if (D3DXVec3Length(&v) < 1000.f) {
 				if (untextured) {
 					device->ColorFill(m_lpTempSurface, nullptr, i);
@@ -109,4 +110,22 @@ void Level::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 			// }
 		}
 	}
+}
+
+bool Level::IsTouching(DObject *obj, FLOAT *ground) {
+	for (DWORD i = 0; i < m_dwObjectCount; i++) {
+		auto &lobj = m_lpDObjects[i];
+		switch (lobj.f_eType) {
+			case Elems::PLATFORM:
+			case Elems::RECTFORM:
+			case Elems::ELEVATOR:
+			case Elems::MOVER:
+			case Elems::JUMPER:
+				if (lobj.IsTouching(obj, ground))
+					return true;
+				break;
+		}
+	}
+
+	return false;
 }

@@ -49,8 +49,6 @@ void Editor::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 void Editor::OnInput(FLOAT delta, InputState *state) {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
-	auto crot = camera->GetRot();
-	auto ceye = camera->GetEye();
 	auto speed = 15.0f * delta;
 
 	if (state->Key(DIK_LSHIFT) & 0x80)
@@ -59,17 +57,17 @@ void Editor::OnInput(FLOAT delta, InputState *state) {
 	auto fwd = camera->GetForward() * speed;
 
 	if (state->Key(DIK_W) & 0x80)
-		*ceye += fwd;
+		camera->f_vEye += fwd;
 	else if (state->Key(DIK_S) & 0x80)
-		*ceye -= fwd;
+		camera->f_vEye -= fwd;
 
 	if (state->Key(DIK_A) & 0x80)
-		ceye->x -= fwd.z, ceye->z += fwd.x;
+		camera->f_vEye.x -= fwd.z, camera->f_vEye.z += fwd.x;
 	else if (state->Key(DIK_D) & 0x80)
-		ceye->x += fwd.z, ceye->z -= fwd.x;
+		camera->f_vEye.x += fwd.z, camera->f_vEye.z -= fwd.x;
 
 	if (state->CurMoved())
-		*crot += D3DXVECTOR3{state->CurCX() * 0.001f, state->CurCY() * 0.001f, 0.0f};
+		camera->f_vRot += D3DXVECTOR3{state->CurCX() * 0.001f, state->CurCY() * 0.001f, 0.0f};
 }
 
 void Editor::OnUpdate(FLOAT) {

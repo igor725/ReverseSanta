@@ -15,13 +15,22 @@ public:
 	void OnDeviceLost();
 	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
+	inline D3DXVECTOR3 GetBoundMin(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundMin * scale) + pos; }
+	inline D3DXVECTOR3 GetBoundMax(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundMax * scale) + pos; }
+
+	void SetBoundMin(D3DXVECTOR3 min) { m_vBoundMin = min; }
+	void SetBoundMax(D3DXVECTOR3 max) { m_vBoundMax = max; }
+
 	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);
 
 private:
-	DWORD m_dwNumMaterials;
-	LPD3DXBUFFER m_lpMatBuffer;
-	D3DMATERIAL9 *m_lpMaterials;
-	LPDIRECT3DTEXTURE9 *m_lpTextures;
-	LPD3DXMESH m_lpMesh;
 	std::string m_FilePath;
+
+	LPD3DXMESH m_lpMesh = nullptr;
+	DWORD m_dwNumMaterials = 0;
+	D3DMATERIAL9 *m_lpMaterials = nullptr;
+	LPDIRECT3DTEXTURE9 *m_lpTextures = nullptr;
+
+	D3DXVECTOR3 m_vBoundMin = {0.0f, 0.0f, 0.0f},
+	m_vBoundMax = {0.0f, 0.0f, 0.0f};
 };

@@ -8,32 +8,51 @@
 
 class Elems {
 public:
-	const std::map<DWORD, std::string>  m_mElemTypes = {
-		{1, "PLATTFORM"},
-		{2, "RECTFORM"},
-		{3, "DECO"},
-		{4, "ELEVATOR"},
-		{5, "MOVER"},
-		{6, "JUMPER"},
-		{7, "ENEMY"},
-		{8, "EXIT"},
-		{9, "BONUS"},
-		{10, "SAVEPOINT"},
-		{11, "EXTRALIFE"}
+	enum Type {
+		NONE,
+		PLATFORM,
+		RECTFORM,
+		DECO,
+		ELEVATORENEMY,
+		ELEVATOR,
+		MOVER,
+		JUMPER,
+		ENEMY,
+		EXIT,
+		BONUS,
+		SAVEPOINT,
+		EXTRALIFE,
+
+		DWORD_MAX = 0xFFFFFFFF
+	};
+
+	const std::map<Type, std::string>  m_mElemTypes = {
+		{PLATFORM,      "PLATTFORM"    },
+		{RECTFORM,      "RECTFORM"     },
+		{DECO,          "DECO"         },
+		{ELEVATORENEMY, "ELEVATORENEMY"},
+		{ELEVATOR,      "ELEVATOR"     },
+		{MOVER,         "MOVER"        },
+		{JUMPER,        "JUMPER"       },
+		{ENEMY,         "ENEMY"        },
+		{EXIT,          "EXIT"         },
+		{BONUS,         "BONUS"        },
+		{SAVEPOINT,     "SAVEPOINT"    },
+		{EXTRALIFE,     "EXTRALIFE"    }
 	};
 
 	struct Element {
-		DWORD f_type;
-		Mesh *u_mesh;
-		/*Effect *u_effect;*/
-		/*Anim *f_animation;*/
-		FLOAT f_scaling = 0.0f;
-		FLOAT f_radius = 0.0f;
-		FLOAT f_speed = 0.0f;
-		FLOAT f_jumpheight = 0.0f;
-		FLOAT f_verticaloffset = 0.0f;
-		FLOAT f_friction = 0.0f;
-		FLOAT f_rotation = 0.0f;
+		Type f_eType;
+		Mesh *f_lpMesh;
+		/*Effect *f_lpEffect;*/
+		/*Anim *f_lpAnimation;*/
+		FLOAT f_fScalling = 0.0f;
+		FLOAT f_fRadius = 0.0f;
+		FLOAT f_fSpeed = 0.0f;
+		FLOAT f_fJumpHeight = 0.0f;
+		FLOAT f_fVerticalOffset = 0.0f;
+		FLOAT f_fFriction = 0.0f;
+		FLOAT f_fRotation = 0.0f;
 		BYTE f_walkanim = 0;
 	};
 

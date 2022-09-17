@@ -52,7 +52,7 @@ Graphics::Graphics(HINSTANCE hInst) {
 	wc.lpszClassName = L"D3DAPP";
 	if (FAILED(RegisterClass(&wc))) ExitProcess(1);
 
-	RECT winrect = {0, 0, 800, 600};
+	RECT winrect = {0, 0, 1024, 768};
 	AdjustWindowRect(&winrect, m_dwStyle, FALSE);
 
 	INT width = winrect.right - winrect.left,
@@ -108,10 +108,11 @@ void Graphics::RecreateDevice() {
 	}
 
 	FLOAT aspect = m_D3DPresent.BackBufferWidth / (FLOAT)m_D3DPresent.BackBufferHeight;
-	m_lpCamera = new Camera(D3DX_PI / 4.0f, aspect, 0.01f, 10000.0f);
+	m_lpCamera = new Camera(aspect);
 
 	DASSERT(D3DXCreateTexture(m_lpDevice, 400, (UINT)(400 / aspect), D3DX_DEFAULT,
 	D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &m_lpTexture));
+	DASSERT(m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 
 	ZeroMemory(&m_Light, sizeof(m_Light));
 	m_Light.Type = D3DLIGHT_POINT;
@@ -133,20 +134,18 @@ void Graphics::RecreateDevice() {
 	m_Light.Attenuation1 = 0.3f;
 	m_Light.Attenuation2 = 0.2f;
 	m_Light.Range = 20.0f;
-
-	D3DCAPS9 d3dcaps;
-	if (m_lpDevice->GetDeviceCaps(&d3dcaps) == D3D_OK) {
-		EASSERT(d3dcaps.MaxActiveLights > 0);
-	}
+	EnableLighting(false);
+	UpdateLight();
 }
 
 void Graphics::UpdateLight() {
 	DASSERT(m_lpDevice->SetLight(0, &m_Light));
 }
 
-void Graphics::EnableLightning(bool state) {
-	DASSERT(m_lpDevice->LightEnable(0, state));
+void Graphics::EnableLighting(bool state) {
 	m_bLightEnabled = state;
+	DASSERT(m_lpDevice->LightEnable(0, state));
+	DASSERT(m_lpDevice->SetRenderState(D3DRS_LIGHTING, state));
 }
 
 bool Graphics::TestDevice() {
@@ -180,7 +179,7 @@ bool Graphics::TestDevice() {
 					DASSERT(m_lpDeviceEx->ResetEx(&m_D3DPresent, nullptr));
 				else
 					DASSERT(m_lpDevice->Reset(&m_D3DPresent));
-			
+
 			/* fallthrough */
 			case D3D_OK:
 				m_bDeviceLost = false;
@@ -199,11 +198,8 @@ bool Graphics::TestDevice() {
 LPDIRECT3DDEVICE9 Graphics::BeginFrame(FLOAT delta) {
 	m_lpCamera->Update(delta);
 
-	m_lpDevice->SetRenderState(D3DRS_LIGHTING, m_bLightEnabled);
-	m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
-	m_lpDevice->SetTransform(D3DTS_PROJECTION, m_lpCamera->GetProjection());
-	m_lpDevice->SetTransform(D3DTS_VIEW, m_lpCamera->GetView());
+	m_lpDevice->SetTransform(D3DTS_PROJECTION, &m_lpCamera->f_mxProj);
+	m_lpDevice->SetTransform(D3DTS_VIEW, &m_lpCamera->f_mxView);
 
 	if (m_lpDevice->BeginScene() == D3D_OK) {
 		m_lpDevice->Clear(0, nullptr, m_dwD3DClearFlags, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);

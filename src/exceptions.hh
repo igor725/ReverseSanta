@@ -2,21 +2,74 @@
 
 #include <Windows.h>
 #include <exception>
+#include <DbgHelp.h>
 
 struct MyException : public std::exception {
+	LPCWSTR TrimPath(LPCWSTR path) {
+		LPCWSTR prev[2] = {path, nullptr};
+
+		while (*path != L'\0') {
+			if (*path++ == L'\\') {
+				prev[0] = prev[1];
+				prev[1] = path;
+			}
+		}
+
+		return prev[0];
+	}
+
 public:
-	MyException(LPCWSTR path) : m_lpFile(path) {}
+	MyException(LPCWSTR path) : m_lpCallStack(TrimPath(path)) {
+		m_lpCallStack += L"\r\n\r\n";
+
+		if (!SymInitializeW(GetCurrentProcess(), nullptr, true)) {
+			m_lpCallStack += L"SymInitialize() failed!";
+			return;
+		}
+
+		LPVOID stack[16];
+		CHAR buffer[sizeof(SYMBOL_INFOW) + (MAX_SYM_NAME * 2)];
+
+		PSYMBOL_INFOW sym = (PSYMBOL_INFOW)buffer;
+		sym->MaxNameLen = MAX_SYM_NAME;
+		sym->SizeOfStruct = sizeof(SYMBOL_INFOW);
+
+		WORD frames = CaptureStackBackTrace(2, 16, stack, nullptr);
+		IMAGEHLP_LINEW64 ln = {};
+		ln.SizeOfStruct = sizeof(IMAGEHLP_LINEW64);
+
+		WCHAR framestr[256];
+		for (WORD i = 0; i < frames; i++) {
+			if (SymFromAddrW(GetCurrentProcess(), (DWORD64)stack[i], nullptr, sym)) {
+				if (std::swprintf(framestr, 256, L"Frame #%d: %ls = %p\r\n", i, sym->Name, (LPVOID)sym->Address) > 0)
+					m_lpCallStack += framestr;
+				if (SymGetLineFromAddrW64(GetCurrentProcess(), (DWORD64)sym->Address, (PDWORD)&stack[i], &ln)) {
+					if (std::swprintf(framestr, 256, L"\tin %ls:%lu\r\n\r\n", TrimPath(ln.FileName), ln.LineNumber) > 0)
+						m_lpCallStack += framestr;
+				} else
+					m_lpCallStack += L"\tin ...\r\n\r\n";
+
+				/* Дальше по стеку идут неинтересные CRT функции винды */
+				if (sym->Address == (DWORD64)&WinMain) break;
+			} else {
+				m_lpCallStack += L"(SysFromAddr failed here)";
+				break;
+			}
+		}
+
+		SymCleanup(GetCurrentProcess());
+	}
 
 	MyException(std::exception_ptr ptr) {
-		ApplyFormattedMessage(L"Uncaught exception: %p", &ptr);
+		ApplyFormattedMessage(L"Uncaught exception: %p\r\n%ls", &ptr, GetCallStack());
 	}
 
 	~MyException() {
 		::LocalFree(m_lpMessage);
 	}
 
-	LPCWSTR GetFileInfo() {
-		return m_lpFile;
+	LPCWSTR GetCallStack() {
+		return m_lpCallStack.c_str();
 	}
 
 	LPWSTR GetPointer() {
@@ -36,17 +89,17 @@ public:
 
 private:
 	LPWSTR m_lpMessage = nullptr;
-	LPCWSTR m_lpFile = nullptr;
+	std::wstring m_lpCallStack = nullptr;
 };
 
 struct AssertException : public MyException {
 public:
 	AssertException(LPCWSTR cond, LPCWSTR path) : MyException(path) {
-		ApplyFormattedMessage(m_lpFormat, cond, GetFileInfo());
+		ApplyFormattedMessage(m_lpFormat, cond, GetCallStack());
 	}
 
 private:
-	LPCWSTR m_lpFormat = L"Assertion failed: %ls";
+	LPCWSTR m_lpFormat = L"Assertion failed: %ls\r\n%ls";
 };
 
 #define D3DECASE(N) case N: \
@@ -107,7 +160,7 @@ public:
 				break;
 		}
 
-		ApplyFormattedMessage(m_lpFormat, codestr, GetFileInfo());
+		ApplyFormattedMessage(m_lpFormat, codestr, GetCallStack());
 	}
 private:
 	LPCWSTR m_lpFormat = L"D3D9 error occured: %ls\r\n%ls";

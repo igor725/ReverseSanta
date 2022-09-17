@@ -5,14 +5,14 @@
 #include <iterator>
 
 #include "elems.hh"
-#include "draw.hh"
+#include "dobject.hh"
 
 class Level {
 public:
 	struct Object {
 		CHAR f_name[32];
-		D3DXVECTOR3 f_pos[2];
-		DWORD f_rot;
+		D3DXVECTOR3 f_vPos[2];
+		DWORD f_dwRot;
 	};
 
 	Level();
@@ -24,6 +24,8 @@ public:
 	bool Load(std::string path);
 	void RefreshDrawer();
 	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);
+
+	bool IsTouching(DObject *obj, FLOAT *ground);
 
 private:
 	Elems *m_lpElems = nullptr;

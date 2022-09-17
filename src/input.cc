@@ -4,7 +4,7 @@ Input::Input(HINSTANCE hInst, HWND hWnd) {
 	if(DirectInput8Create(hInst, DIRECTINPUT_VERSION,
 	IID_IDirectInput8, (LPVOID *)&m_lpDI, NULL) != DI_OK)
 		ExitProcess(1);
-	
+
 	if (m_lpDI->CreateDevice(GUID_SysKeyboard, &m_lpDIK, NULL) != DI_OK
 	|| m_lpDIK->SetDataFormat(&c_dfDIKeyboard) != DI_OK
 	|| m_lpDIK->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NOWINKEY | DISCL_NONEXCLUSIVE) != DI_OK)
@@ -30,9 +30,9 @@ bool Input::Capture() {
 
 bool Input::Release() {
 	if (!m_bInputAcquired) return false;
+	m_bInputAcquired = false;
 	return (m_lpDIM->Unacquire() == DI_OK) &&
-	(m_lpDIK->Unacquire() == DI_OK) &&
-	((m_bInputAcquired = false) == false);
+	(m_lpDIK->Unacquire() == DI_OK);
 }
 
 void Input::Update(FLOAT delta, BaseRunner *runner) {

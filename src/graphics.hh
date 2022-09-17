@@ -12,7 +12,7 @@ public:
 
 	void RecreateDevice();
 	void UpdateLight();
-	void EnableLightning(bool state = true);
+	void EnableLighting(bool state = true);
 
 	inline D3DLIGHT9 *GetLight() { return m_bLightEnabled ? &m_Light : nullptr; }
 	inline LPDIRECT3DDEVICE9 GetDevice() { return m_lpDevice; }
