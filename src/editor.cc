@@ -22,9 +22,10 @@ Editor::Editor() {
 }
 
 LRESULT Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+	auto engine = Engine::GetInstance();
 	if (iMsg == WM_KEYUP) {
 		if (wParam == VK_F1) {
-			Engine::GetInstance()->SysInput()->Release();
+			engine->SysInput()->Release();
 			m_Menu.Toggle();
 			return true;
 		}
@@ -34,7 +35,14 @@ LRESULT Editor::OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		return res;
 
 	ImGuiIO &io = ImGui::GetIO();
-	return io.WantCaptureMouse || io.WantCaptureKeyboard || m_Menu.IsActive();
+	auto ongui = io.WantCaptureMouse || io.WantCaptureKeyboard;
+	if (!ongui && iMsg == WM_LBUTTONUP) {
+		auto x = (SHORT)(((DWORD_PTR)lParam) & 0xFFFF),
+		y = (SHORT)(((DWORD_PTR)lParam >> 16) & 0xFFFF);
+		engine->GetObjectOn(&m_Menu.m_odPicked, x, y);
+	}
+
+	return ongui;
 }
 
 void Editor::OnDeviceLost() {
@@ -68,6 +76,9 @@ void Editor::OnInput(FLOAT delta, InputState *state) {
 
 	if (state->CurMoved())
 		camera->f_vRot += D3DXVECTOR3{state->CurCX() * 0.001f, state->CurCY() * 0.001f, 0.0f};
+
+	if (state->LeftClick() && engine->GetObjectOn(&m_Menu.m_odPicked))
+		engine->SysInput()->Release();
 }
 
 void Editor::OnUpdate(FLOAT) {

@@ -6,16 +6,15 @@
 
 class EditorMenu {
 public:
+	void DrawMainMenu();
+	void DrawObjectMenu();
 	void Draw();
 
 	inline void Toggle() {
-		m_bActive = !m_bActive;
+		m_bMainActive = !m_bMainActive;
 	}
 
-	inline bool IsActive() {
-		return m_bActive;
-	}
-
+	Level::ObjectData m_odPicked = {nullptr, nullptr};
 private:
-	bool m_bActive = false;
+	bool m_bMainActive = false;
 };

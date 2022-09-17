@@ -1,14 +1,13 @@
 #include "editor\menu.hh"
 
-void EditorMenu::Draw() {
-	if (!m_bActive) return;
+void EditorMenu::DrawMainMenu() {
 	const auto vp = ImGui::GetMainViewport();
 	const auto res = ImVec2(400, 340);
 
 	ImGui::SetNextWindowPos(ImVec2((vp->WorkSize.x - res.x) * 0.5f, (vp->WorkSize.y - res.y) * 0.5f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(res, ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("ReverseSanta Main Menu", &m_bActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
+	if (!ImGui::Begin("ReverseSanta Main Menu", &m_bMainActive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
 		ImGui::End();
 		return;
 	}
@@ -103,4 +102,27 @@ void EditorMenu::Draw() {
 	}
 
 	ImGui::End();
+}
+
+void EditorMenu::DrawObjectMenu() {
+	auto lvlobj = m_odPicked.f_lpLObj;
+	bool isactive = true;
+
+	ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
+
+	if (!ImGui::Begin(lvlobj->f_name, &isactive, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
+		ImGui::End();
+		return;
+	}
+
+	ImGui::End();
+	if (!isactive)
+		m_odPicked = {nullptr, nullptr};
+}
+
+void EditorMenu::Draw() {
+	if (m_bMainActive)
+		DrawMainMenu();
+	if (m_odPicked.f_lpDObj)
+		DrawObjectMenu();
 }

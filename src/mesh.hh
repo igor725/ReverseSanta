@@ -21,7 +21,7 @@ public:
 	void SetBoundMin(D3DXVECTOR3 min) { m_vBoundMin = min; }
 	void SetBoundMax(D3DXVECTOR3 max) { m_vBoundMax = max; }
 
-	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);
+	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 
 private:
 	std::string m_FilePath;

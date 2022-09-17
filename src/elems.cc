@@ -48,7 +48,7 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 					auto value = std::strtof(line.substr(vstart).c_str(), nullptr);
 
 					if (line.find("SCALING") == 0)
-						inwork->f_fScalling = value;
+						inwork->f_fScaling = value;
 					else if (line.find("RADIUS") == 0)
 						inwork->f_fRadius = value;
 					else if (line.find("SPEED") == 0)
@@ -69,6 +69,22 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 		}
 		file->seekg(pos);
 	} while (file->tellg() < end);
+
+	/* What the actual fuck!? */
+	for (auto &elem : m_mElements) {
+		switch (elem.second.f_eType) {
+			case Elems::SAVEPOINT:
+				break;
+			case Elems::ENEMY:
+			case Elems::ELEVATORENEMY:
+				if (elem.second.f_fSpeed != 0.0f)
+					break;
+			default:
+				elem.second.f_fScaling /= 100.0f;
+				break;
+			
+		}
+	}
 }
 
 void Elems::OnDeviceLost() {

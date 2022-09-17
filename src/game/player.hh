@@ -31,7 +31,7 @@ public:
 		m_lpDrawObj->f_bAlerted = true;
 	}
 
-	inline bool IsOnGround() { return m_bIsTouchingGround; }
+	inline BOOL IsOnGround() { return m_bIsTouchingGround; }
 	inline DObject *GetDrawObject() { return m_lpDrawObj; }
 	inline D3DXVECTOR3 GetForward() {
 		return {
@@ -42,9 +42,11 @@ public:
 	}
 
 private:
-	DObject *m_lpDrawObj;
+	DObject *m_lpDrawObj = nullptr;
 
 	DWORD m_dwJumpsLeft = 2;
-	bool m_bIsTouchingGround = false;
-	D3DXVECTOR3 m_vVelocity = {0.0f, 0.0f, 0.0f};
+	BOOL m_bIsTouchingGround = false;
+	D3DXVECTOR3 m_vSavePos = {0.0f, 0.0f, 0.0f},
+	m_vSaveRot = {0.0f, 0.0f, 0.0f},
+	m_vVelocity = {0.0f, 0.0f, 0.0f};
 };

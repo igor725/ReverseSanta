@@ -14,7 +14,7 @@ Level::Level() {
 
 Level::~Level() {
 	delete m_lpElems;
-	if (m_lpObjects) delete m_lpObjects;
+	if (m_lpLObjects) delete m_lpLObjects;
 	if (m_lpDObjects) delete m_lpDObjects;
 }
 
@@ -22,7 +22,7 @@ void Level::OnDeviceLost() {
 	if (m_lpSkyBox)
 		m_lpSkyBox->f_lpMesh->OnDeviceLost();
 	m_lpElems->OnDeviceLost();
-	RefreshDrawer();
+	Refresh();
 }
 
 void Level::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
@@ -31,10 +31,10 @@ void Level::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	m_lpElems->OnDeviceReset(device);
 }
 
-bool Level::Load(std::string path) {
-	if (m_lpObjects) {
-		delete m_lpObjects;
-		m_lpObjects = nullptr;
+BOOL Level::Load(std::string path) {
+	if (m_lpLObjects) {
+		delete m_lpLObjects;
+		m_lpLObjects = nullptr;
 	}
 	if (m_lpDObjects) {
 		delete m_lpDObjects;
@@ -53,16 +53,16 @@ bool Level::Load(std::string path) {
 	if (file->is_open() && fsize > 4) {
 		file->read((char *)&m_dwObjectCount, 4);
 		if (m_dwObjectCount > 0) {
-			auto bsize = m_dwObjectCount * sizeof(Object);
+			auto bsize = m_dwObjectCount * sizeof(LObject);
 			if ((bsize - fsize) < 3) {
 				virtfs->Close(file);
 				return false;
 			}
 
-			m_lpObjects = new Object[m_dwObjectCount];
-			file->read((char *)m_lpObjects, bsize);
+			m_lpLObjects = new LObject[m_dwObjectCount];
+			file->read((char *)m_lpLObjects, bsize);
 			m_lpDObjects = new DObject[m_dwObjectCount];
-			RefreshDrawer();
+			Refresh();
 		}
 		virtfs->Close(file);
 
@@ -81,22 +81,24 @@ bool Level::Load(std::string path) {
 	return false;
 }
 
-void Level::RefreshDrawer() {
+void Level::Refresh() {
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
-		auto obj = &m_lpObjects[i];
+		auto obj = &m_lpLObjects[i];
 		auto dobj = &m_lpDObjects[i];
-		auto elem = m_lpElems->Search(obj->f_name);
 
 		dobj->f_bAlerted = true;
-		dobj->f_eType = elem->f_eType;
 		dobj->f_vPos = obj->f_vPos[0];
-		dobj->f_lpMesh = elem->f_lpMesh;
-		dobj->f_scale = elem->f_fScalling / 100.0f;
-		dobj->f_vRot.y = D3DXToRadian(elem->f_fRotation + obj->f_dwRot * 90.0f);
+		dobj->f_lpElem = m_lpElems->Search(obj->f_name);
+		dobj->f_lpMesh = dobj->f_lpElem->f_lpMesh;
+		dobj->f_vRot.y = D3DXToRadian(dobj->f_lpElem->f_fRotation + obj->f_dwRot * 90.0f);
 	}
 }
 
-void Level::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
+void Level::Update(FLOAT delta) {(void)delta;
+	/* TODO: Логика уровня - лифты, враги, движущиеся платформы и прочая срань */
+}
+
+void Level::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
 	if (m_dwObjectCount > 0) {
 		if (!untextured) m_lpSkyBox->Draw(device);
 		for (DWORD i = 0; i < m_dwObjectCount; i++) {
@@ -112,19 +114,21 @@ void Level::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
 	}
 }
 
-bool Level::IsTouching(DObject *obj, FLOAT *ground) {
+BOOL Level::IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *second, FLOAT floor, void *ud), void *ud) {
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
-		auto &lobj = m_lpDObjects[i];
-		switch (lobj.f_eType) {
-			case Elems::PLATFORM:
-			case Elems::RECTFORM:
-			case Elems::ELEVATOR:
-			case Elems::MOVER:
-			case Elems::JUMPER:
-				if (lobj.IsTouching(obj, ground))
-					return true;
-				break;
-		}
+		auto second = &m_lpDObjects[i]; FLOAT floor;
+		if (second->IsTouching(obj, &floor) && callback(obj, second, floor, ud))
+			return true;
+	}
+
+	return false;
+}
+
+BOOL Level::GetObjectData(DWORD id, ObjectData *data) {
+	if (id < m_dwObjectCount) {
+		data->f_lpDObj = &m_lpDObjects[id];
+		data->f_lpLObj = &m_lpLObjects[id];
+		return true;
 	}
 
 	return false;

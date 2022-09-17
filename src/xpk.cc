@@ -48,7 +48,7 @@ static bool cmpnames(std::string &s1, std::string &s2) {
 	}));
 }
 
-bool Xpk::SearchFile(std::string name, DWORD *end, DWORD *size) {
+BOOL Xpk::SearchFile(std::string name, DWORD *end, DWORD *size) {
 	DWORD fileIndex = 0;
 	m_fArchive.seekg(m_dwNameTableOffset, std::ios::beg);
 	do {
@@ -64,7 +64,7 @@ bool Xpk::SearchFile(std::string name, DWORD *end, DWORD *size) {
 	return false;
 }
 
-bool Xpk::SearchFile(XpkFile &cfile, DWORD *end, DWORD *size) {
+BOOL Xpk::SearchFile(XpkFile &cfile, DWORD *end, DWORD *size) {
 	DWORD npos = m_dwContentOffset + cfile.dwOffset;
 	m_fArchive.seekg(npos, std::ios::beg);
 	if (end) *end = npos + cfile.dwSize;

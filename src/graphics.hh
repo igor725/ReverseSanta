@@ -12,14 +12,14 @@ public:
 
 	void RecreateDevice();
 	void UpdateLight();
-	void EnableLighting(bool state = true);
+	void EnableLighting(BOOL state = true);
 
 	inline D3DLIGHT9 *GetLight() { return m_bLightEnabled ? &m_Light : nullptr; }
 	inline LPDIRECT3DDEVICE9 GetDevice() { return m_lpDevice; }
 	inline Camera *GetCamera() { return m_lpCamera; }
 	inline HWND GetWindow() { return m_hWindow; }
 
-	bool TestDevice();
+	BOOL TestDevice();
 	LPDIRECT3DDEVICE9 BeginFrame(FLOAT delta);
 	void EndFrame();
 	void PresentFrame();
@@ -33,7 +33,7 @@ private:
 	const DWORD m_dwD3DClearFlags = D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL;
 	const DWORD m_dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
-	bool m_bDeviceLost = false,
+	BOOL m_bDeviceLost = false,
 	m_bDeviceOccluded = false,
 	m_bLightEnabled = false,
 	m_bRenderSuccededTwice = false,
@@ -57,6 +57,8 @@ private:
 		m_D3DPresent.EnableAutoDepthStencil = true;
 		m_D3DPresent.hDeviceWindow = m_hWindow;
 		m_D3DPresent.BackBufferFormat = D3DFMT_UNKNOWN;
+		m_D3DPresent.MultiSampleType = D3DMULTISAMPLE_NONE;
+		m_D3DPresent.MultiSampleQuality = 0;
 		m_D3DPresent.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 		m_D3DPresent.Windowed = true;
 	}

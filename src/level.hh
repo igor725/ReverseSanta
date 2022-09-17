@@ -9,10 +9,15 @@
 
 class Level {
 public:
-	struct Object {
+	struct LObject {
 		CHAR f_name[32];
 		D3DXVECTOR3 f_vPos[2];
 		DWORD f_dwRot;
+	};
+
+	struct ObjectData {
+		DObject *f_lpDObj;
+		LObject *f_lpLObj;
 	};
 
 	Level();
@@ -21,16 +26,18 @@ public:
 	void OnDeviceLost();
 	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
-	bool Load(std::string path);
-	void RefreshDrawer();
-	void Draw(LPDIRECT3DDEVICE9 device, bool untextured = false);
+	BOOL Load(std::string path);
+	void Refresh();
+	void Update(FLOAT delta);
+	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 
-	bool IsTouching(DObject *obj, FLOAT *ground);
+	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, void *ud), void *ud);
+	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:
 	Elems *m_lpElems = nullptr;
 	DWORD m_dwObjectCount = 0;
-	Object *m_lpObjects = nullptr;
+	LObject *m_lpLObjects = nullptr;
 	DObject *m_lpDObjects = nullptr;
 	DObject *m_lpSkyBox = nullptr;
 	LPDIRECT3DTEXTURE9 m_lpTempTexture = nullptr;

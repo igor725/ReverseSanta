@@ -46,7 +46,8 @@ public:
 		Mesh *f_lpMesh;
 		/*Effect *f_lpEffect;*/
 		/*Anim *f_lpAnimation;*/
-		FLOAT f_fScalling = 0.0f;
+
+		FLOAT f_fScaling = 1.0f;
 		FLOAT f_fRadius = 0.0f;
 		FLOAT f_fSpeed = 0.0f;
 		FLOAT f_fJumpHeight = 0.0f;

@@ -31,14 +31,14 @@ struct Camera {
 
 	void Update(FLOAT delta) {
 		if (f_lpvFollowPos && f_lpvFollowRot) {
-			D3DXVECTOR3 plfwd = {
+			D3DXVECTOR3 flfwd = {
 				std::sinf(f_lpvFollowRot->y) * std::cosf(f_lpvFollowRot->x),
 				std::sinf(-f_lpvFollowRot->x),
 				std::cosf(f_lpvFollowRot->y) * std::cosf(f_lpvFollowRot->x)
 			};
 
-			plfwd.y = 0.5f;
-			auto back = plfwd * -f_fFollowDistance;
+			flfwd.y = 0.5f;
+			auto back = flfwd * -f_fFollowDistance;
 			auto dizcampos = *f_lpvFollowPos - back;
 			auto dizcampdiff = f_vEye - dizcampos;
 			auto length = D3DXVec3Length(&dizcampdiff);
@@ -47,10 +47,11 @@ struct Camera {
 			else f_vEye = dizcampos;
 
 			auto dcamplpdiff = f_vEye - *f_lpvFollowPos;
-			if (dcamplpdiff.x != 0.0f)
+			if (dcamplpdiff.x != 0.0f) {
 				f_vRot.x = std::atan(dcamplpdiff.x / dcamplpdiff.z);
-			if (dcamplpdiff.z > 0.0f)
-				f_vRot.x += D3DX_PI;
+				if (dcamplpdiff.z >= 0.0f)
+					f_vRot.x += D3DX_PI;
+			}
 			if (dcamplpdiff.y != 0.0f)
 				f_vRot.y = std::atan(dcamplpdiff.y / std::sqrt(dcamplpdiff.x * dcamplpdiff.x + dcamplpdiff.z * dcamplpdiff.z));
 		}

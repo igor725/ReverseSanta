@@ -18,8 +18,17 @@ struct InputState {
 	inline LONG CurCY() { return f_msMouseNew.lY; }
 	inline LONG CurLX() { return f_msMousePrev.lX; }
 	inline LONG CurLY() { return f_msMousePrev.lY; }
-	inline bool CurMoved() {
+	inline BOOL CurMoved() {
 		return (f_msMouseNew.lX != f_msMousePrev.lX) || (f_msMouseNew.lY != f_msMousePrev.lY);
+	}
+	inline BOOL MBIsDown(BYTE idx) {
+		return (f_msMouseNew.rgbButtons[idx] & 0x80) != 0x00;
+	}
+	inline BOOL MBChanged(BYTE idx) {
+		return f_msMousePrev.rgbButtons[idx] != f_msMouseNew.rgbButtons[idx];
+	}
+	inline BOOL LeftClick() {
+		return MBChanged(0) && !MBIsDown(0);
 	}
 };
 

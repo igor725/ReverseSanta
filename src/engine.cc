@@ -73,8 +73,10 @@ BaseRunner *Engine::GetRunner() {
 }
 
 void Engine::Step(FLOAT delta) {
+	delta = min(delta, 0.016f);
 	if (auto runner = GetRunner()) {
 		m_lpInput->Update(delta, runner);
+		m_lpLevel->Update(delta);
 		runner->OnUpdate(delta);
 
 		if (m_lpGraphics->TestDevice()) {
@@ -87,4 +89,31 @@ void Engine::Step(FLOAT delta) {
 			}
 		}
 	}
+}
+
+BOOL Engine::GetObjectOn(Level::ObjectData *data, DWORD x, DWORD y) {
+	if (auto device = m_lpGraphics->BeginFrame(0)) {
+		m_lpLevel->Draw(device, true);
+		m_lpGraphics->EndFrame();
+		auto sur = m_lpGraphics->PresentToSurface();
+		D3DLOCKED_RECT lock;
+		D3DSURFACE_DESC desc;
+		if (sur->GetDesc(&desc) == D3D_OK) {
+			if (x == -1 && y == -1)
+				x = desc.Width / 2, y = desc.Height / 2;
+			else if (x >= desc.Width || y >= desc.Height)
+				return false;
+		} else
+			return false;
+
+		if (sur->LockRect(&lock, nullptr, D3DLOCK_READONLY) == D3D_OK) {
+			auto bits = (BYTE *)lock.pBits;
+			auto row = (DWORD *)(bits + (DWORD)y * lock.Pitch);
+			auto ret = m_lpLevel->GetObjectData(row[x], data);
+			sur->UnlockRect();
+			return ret;
+		}
+	}
+
+	return false;
 }

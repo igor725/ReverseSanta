@@ -2,8 +2,6 @@
 #include "mesh.hh"
 #include "exceptions.hh"
 
-#include <iostream>
-
 void Mesh::OnDeviceLost() {
 	if (m_lpMesh) {
 		for (DWORD i = 0; i < m_dwNumMaterials; i++)
@@ -78,7 +76,7 @@ void Mesh::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	}
 }
 
-void Mesh::Draw(LPDIRECT3DDEVICE9 device, bool untextured) {
+void Mesh::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
 	if (!m_lpMesh) return;
 
 	for (DWORD i = 0; i < m_dwNumMaterials; i++) {

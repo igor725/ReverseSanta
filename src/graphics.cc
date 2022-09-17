@@ -71,11 +71,13 @@ Graphics::~Graphics() {
 	if (m_lpDeviceEx) m_lpDeviceEx->Release();
 	else if (m_lpDevice) m_lpDevice->Release();
 	if (m_lpTexture) m_lpTexture->Release();
-	if (m_lpD3D) m_lpD3D->Release();
+	if (m_lpD3DEx) m_lpD3DEx->Release();
+	else if (m_lpD3D) m_lpD3D->Release();
 	if (m_lpCamera) delete m_lpCamera;
 
 	m_lpCamera = nullptr, m_lpTexture = nullptr,
-	m_lpDevice = nullptr, m_lpDeviceEx = nullptr;
+	m_lpDevice = nullptr, m_lpDeviceEx = nullptr,
+	m_lpD3D = nullptr, m_lpD3DEx = nullptr;
 }
 
 void Graphics::RecreateDevice() {
@@ -107,11 +109,12 @@ void Graphics::RecreateDevice() {
 		m_dwD3DDeviceFlags, &m_D3DPresent, &m_lpDevice));
 	}
 
-	FLOAT aspect = m_D3DPresent.BackBufferWidth / (FLOAT)m_D3DPresent.BackBufferHeight;
-	m_lpCamera = new Camera(aspect);
+	auto width = m_D3DPresent.BackBufferWidth,
+	height = m_D3DPresent.BackBufferHeight;
+	m_lpCamera = new Camera(width / (FLOAT)height);
 
-	DASSERT(D3DXCreateTexture(m_lpDevice, 400, (UINT)(400 / aspect), D3DX_DEFAULT,
-	D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &m_lpTexture));
+	DASSERT(D3DXCreateTexture(m_lpDevice, width, height, D3DX_DEFAULT,
+	D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_lpTexture));
 	DASSERT(m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 
 	ZeroMemory(&m_Light, sizeof(m_Light));
@@ -142,13 +145,13 @@ void Graphics::UpdateLight() {
 	DASSERT(m_lpDevice->SetLight(0, &m_Light));
 }
 
-void Graphics::EnableLighting(bool state) {
+void Graphics::EnableLighting(BOOL state) {
 	m_bLightEnabled = state;
 	DASSERT(m_lpDevice->LightEnable(0, state));
 	DASSERT(m_lpDevice->SetRenderState(D3DRS_LIGHTING, state));
 }
 
-bool Graphics::TestDevice() {
+BOOL Graphics::TestDevice() {
 	if (!m_lpDevice) return false;
 
 #if !defined(D3D_DISABLE_9EX)
@@ -258,9 +261,9 @@ void Graphics::PresentFrame() {
 
 LPDIRECT3DSURFACE9 Graphics::PresentToSurface() {
 	LPDIRECT3DSURFACE9 rt, sf;
-	m_lpTexture->GetSurfaceLevel(0, &sf);
-	m_lpDevice->GetRenderTarget(0, &rt);
-	m_lpDevice->StretchRect(rt, nullptr, sf, nullptr, D3DTEXF_NONE);
+	DASSERT(m_lpTexture->GetSurfaceLevel(0, &sf));
+	DASSERT(m_lpDevice->GetRenderTarget(0, &rt));
+	DASSERT(m_lpDevice->GetRenderTargetData(rt, sf));
 	rt->Release();
 	return sf;
 }

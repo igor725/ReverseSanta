@@ -7,13 +7,13 @@ class Input {
 public:
 	Input(HINSTANCE hInst, HWND hWnd);
 
-	bool Capture();
-	bool Release();
+	BOOL Capture();
+	BOOL Release();
 
 	void Update(FLOAT delta, BaseRunner *runner);
 
 private:
 	LPDIRECTINPUT8 m_lpDI = nullptr;
 	LPDIRECTINPUTDEVICE8 m_lpDIK = nullptr, m_lpDIM = nullptr;
-	bool m_bInputAcquired = false;
+	BOOL m_bInputAcquired = false;
 };

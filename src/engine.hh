@@ -30,6 +30,7 @@ public:
 	inline Level *SysLevel() { return m_lpLevel; }
 	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
 
+	BOOL GetObjectOn(Level::ObjectData *data, DWORD x = (DWORD)-1, DWORD y = (DWORD)-1);
 private:
 	Input *m_lpInput = nullptr;
 	Graphics *m_lpGraphics = nullptr;

@@ -14,11 +14,11 @@ public:
 
 	Xpk(std::string fname);
 
-	bool SearchFile(XpkFile &cfile, DWORD *end, DWORD *size);
+	BOOL SearchFile(XpkFile &cfile, DWORD *end, DWORD *size);
 
 	std::string &ReadFileName(XpkFile &cfile, std::string &fname);
 
-	bool SearchFile(std::string name, DWORD *end, DWORD *size);
+	BOOL SearchFile(std::string name, DWORD *end, DWORD *size);
 
 	inline std::vector<XpkFile> &GetFiles() { return m_fileMap; }
 	inline std::ifstream *GetHandle() { return &m_fArchive; }

@@ -16,7 +16,7 @@ Input::Input(HINSTANCE hInst, HWND hWnd) {
 		ExitProcess(1);
 }
 
-bool Input::Capture() {
+BOOL Input::Capture() {
 	if (m_bInputAcquired) return true;
 	if (m_lpDIK->Acquire() != DI_OK) return false;
 	if (m_lpDIM->Acquire() != DI_OK) {
@@ -28,7 +28,7 @@ bool Input::Capture() {
 	return true;
 }
 
-bool Input::Release() {
+BOOL Input::Release() {
 	if (!m_bInputAcquired) return false;
 	m_bInputAcquired = false;
 	return (m_lpDIM->Unacquire() == DI_OK) &&

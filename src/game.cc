@@ -35,9 +35,9 @@ void Game::OnClose() {
 
 void Game::OnInput(FLOAT delta, InputState *state) {
 	if (state->Key(DIK_A) & 0x80)
-		m_lpPlayer->Rotate((D3DX_PI * -1.2f) * delta);
+		m_lpPlayer->Rotate((D3DX_PI * -1.1f) * delta);
 	else if (state->Key(DIK_D) & 0x80)
-		m_lpPlayer->Rotate((D3DX_PI * 1.2f) * delta);
+		m_lpPlayer->Rotate((D3DX_PI * 1.1f) * delta);
 
 	if (state->Key(DIK_W) & 0x80)
 		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * -6.0f);
