@@ -15,12 +15,12 @@ struct DObject {
 	f_vRot = {0.0f, 0.0f, 0.0f};
 	D3DXMATRIX f_mxWorld = {};
 	FLOAT f_fScaling = 1.0f;
+	LPVOID f_lpUserData = nullptr;
 
-	DObject() {};
+	DObject() {}
 	DObject(Mesh *mesh, D3DXVECTOR3 pos, D3DXVECTOR3 rot, FLOAT scale = 1.0f)
 	: f_lpMesh(mesh), f_vPos(pos), f_vRot(rot), f_fScaling(scale) {}
 
-	inline Elems::Element *GetElemInfo() { return f_lpElem; }
 	inline FLOAT GetScale() { return f_lpElem ? f_lpElem->f_fScaling : f_fScaling; }
 
 	void Update() {

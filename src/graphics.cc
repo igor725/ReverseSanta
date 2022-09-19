@@ -2,6 +2,12 @@
 #include "graphics.hh"
 #include "exceptions.hh"
 
+#include "imgui.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_win32.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	if (iMsg == WM_DESTROY) {
 		PostQuitMessage(0);
@@ -11,9 +17,16 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	auto engine = Engine::GetInstance();
 	if (!engine) return DefWindowProc(hWnd, iMsg, wParam, lParam);
 
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, iMsg, wParam, lParam))
+		return DefWindowProc(hWnd, iMsg, wParam, lParam);
+
 	if (auto runner = engine->GetRunner())
 		if (runner->OnWndProc(hWnd, iMsg, wParam, lParam))
 			return DefWindowProc(hWnd, iMsg, wParam, lParam);
+
+	auto &io = ImGui::GetIO();
+	if (io.WantCaptureMouse || io.WantCaptureKeyboard)
+		return DefWindowProc(hWnd, iMsg, wParam, lParam);
 
 	switch (iMsg) {
 		case WM_RBUTTONUP:
@@ -61,8 +74,15 @@ Graphics::Graphics(HINSTANCE hInst) {
 	INT cx = (GetSystemMetrics(SM_CXSCREEN) - width) / 2,
 	cy = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+
 	m_hWindow = CreateWindow(wc.lpszClassName, L"D3D9 Window",
 	m_dwStyle, cx, cy, width, height, NULL, NULL, hInst, this);
+
+	ImGui_ImplWin32_Init(m_hWindow);
+
 	ResetPresentParams();
 	RecreateDevice();
 }
@@ -78,6 +98,17 @@ Graphics::~Graphics() {
 	m_lpCamera = nullptr, m_lpTexture = nullptr,
 	m_lpDevice = nullptr, m_lpDeviceEx = nullptr,
 	m_lpD3D = nullptr, m_lpD3DEx = nullptr;
+}
+
+static void DeviceLostHandler() {
+	ImGui_ImplDX9_Shutdown();
+	Engine::GetInstance()->OnDeviceLost();
+}
+
+static void DeviceResetHandler(LPDIRECT3DDEVICE9 device) {
+	ImGui_ImplDX9_Init(device);
+	ImGui_ImplDX9_CreateDeviceObjects();
+	Engine::GetInstance()->OnDeviceReset(device);
 }
 
 void Graphics::RecreateDevice() {
@@ -115,7 +146,8 @@ void Graphics::RecreateDevice() {
 
 	DASSERT(D3DXCreateTexture(m_lpDevice, width, height, D3DX_DEFAULT,
 	D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_lpTexture));
-	DASSERT(m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+	DASSERT(m_lpDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+	DASSERT(m_lpDevice->SetRenderState(D3DRS_CLIPPING, true));
 
 	ZeroMemory(&m_Light, sizeof(m_Light));
 	m_Light.Type = D3DLIGHT_POINT;
@@ -139,6 +171,8 @@ void Graphics::RecreateDevice() {
 	m_Light.Range = 20.0f;
 	EnableLighting(false);
 	UpdateLight();
+
+	ImGui_ImplDX9_Init(m_lpDevice);
 }
 
 void Graphics::UpdateLight() {
@@ -186,7 +220,7 @@ BOOL Graphics::TestDevice() {
 			/* fallthrough */
 			case D3D_OK:
 				m_bDeviceLost = false;
-				Engine::GetInstance()->OnDeviceReset(m_lpDevice);
+				DeviceResetHandler(m_lpDevice);
 				break;
 
 			default: DASSERT(hRes);
@@ -210,6 +244,18 @@ LPDIRECT3DDEVICE9 Graphics::BeginFrame(FLOAT delta) {
 	}
 
 	return nullptr;
+}
+
+void Graphics::StartUI() {
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+}
+
+void Graphics::EndUI() {
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Graphics::EndFrame() {
@@ -237,7 +283,7 @@ void Graphics::PresentFrame() {
 			break;
 
 		case D3DERR_DEVICELOST:
-			Engine::GetInstance()->OnDeviceLost();
+			DeviceLostHandler();
 			if (m_bRenderSuccededTwice) {
 				m_bDeviceLost = true;
 				m_bRenderPossibleFatal = true;

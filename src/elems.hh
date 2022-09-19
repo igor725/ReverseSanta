@@ -59,9 +59,6 @@ public:
 
 	Elems(std::ifstream *file, DWORD end);
 
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
-
 	Element *Search(std::string name);
 
 private:

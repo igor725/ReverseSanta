@@ -1,15 +1,12 @@
 #pragma once
 
-#include "base_runner.hh"
+#include "baserunner.hh"
 #include "game\player.hh"
 
 class Game : public BaseRunner{
 public:
 	Game();
 	~Game();
-
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 	void OnOpen();
 	void OnClose();

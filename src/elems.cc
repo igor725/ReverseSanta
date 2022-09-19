@@ -12,8 +12,7 @@ static std::string GetStringParam(std::string &line) {
 
 Elems::Elems(std::ifstream *file, DWORD end) {
 	auto engine = Engine::GetInstance();
-	auto device = engine->SysGraphics()->GetDevice();
-
+	auto cache = engine->SysCache();
 	Element *inwork = nullptr;
 	do {
 		char ch;
@@ -40,7 +39,7 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 					}
 				} else if (line.find("FILE") == 0) {
 					/* TODO: Lazy mesh loading */
-					inwork->f_lpMesh = new Mesh(device, GetStringParam(line));
+					inwork->f_lpMesh = cache->GetMesh(GetStringParam(line));
 				} else if (line.find("EFFECT") == 0) {
 				} else if (line.find("WALKANIM") == 0) {
 						inwork->f_walkanim = (BYTE)std::strtol(line.substr(vstart).c_str(), nullptr, 10);
@@ -85,16 +84,6 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 			
 		}
 	}
-}
-
-void Elems::OnDeviceLost() {
-	for (auto &elem : m_mElements)
-		elem.second.f_lpMesh->OnDeviceLost();
-}
-
-void Elems::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
-	for (auto &elem : m_mElements)
-		elem.second.f_lpMesh->OnDeviceReset(device);
 }
 
 Elems::Element *Elems::Search(std::string name) {

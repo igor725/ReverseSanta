@@ -21,6 +21,8 @@ public:
 
 	BOOL TestDevice();
 	LPDIRECT3DDEVICE9 BeginFrame(FLOAT delta);
+	void StartUI();
+	void EndUI();
 	void EndFrame();
 	void PresentFrame();
 	LPDIRECT3DSURFACE9 PresentToSurface();

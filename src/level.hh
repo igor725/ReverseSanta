@@ -20,14 +20,32 @@ public:
 		LObject *f_lpLObj;
 	};
 
+	struct ElevatorData {
+		BOOL f_bIsActive = false,
+		f_bStopOnFinish = false;
+		FLOAT f_fTime = 3.0f / 4.0f;
+
+		ElevatorData(Elems::Type type) : f_bIsActive(type == Elems::ELEVATOR) {}
+
+		void Update(DObject *dobj, LObject *lobj, FLOAT delta) {
+			if (!f_bIsActive) return;
+			dobj->f_bAlerted = true;
+			auto dir = lobj->f_vPos[1] - lobj->f_vPos[0];
+			auto mult = (0.5f * (1.0f + std::sinf(2 * D3DX_PI * f_fTime)));
+			dobj->f_vPos = lobj->f_vPos[0] + dir * mult;
+			auto len = D3DXVec3Length(&dir);
+			f_fTime += delta / (len / 2.0f);
+		}
+	};
+
 	Level();
 	~Level();
 
 	void OnDeviceLost();
 	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
+	void Rebuild();
 	BOOL Load(std::string path);
-	void Refresh();
 	void Update(FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 

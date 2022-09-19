@@ -6,12 +6,13 @@ cls
 
 @rem Узнаём целевую архитектуру
 set ARCH=%VSCMD_ARG_TGT_ARCH%
+set DEBUG=1
 
 @rem Установка переменных проекта
 set WARNLEVEL=4
 set SRC=src\*.cc src\game\*.cc src\editor\*.cc ^
 imgui\backends\imgui_impl_dx9.cpp imgui\backends\imgui_impl_win32.cpp imgui\imgui*.cpp
-set DEFINES=/DWIN32_LEAN_AND_MEAN /DUNICODE /DD3D_DEBUG_INFO
+set DEFINES=/DWIN32_LEAN_AND_MEAN /DUNICODE /DD3D_DEBUG_INFO /DDIRECTINPUT_VERSION=0x0800
 set LIBS=user32.lib d3d9.lib d3dx9.lib dinput8.lib ^
 dxguid.lib shell32.lib dbghelp.lib
 set OUTNAME=se-%ARCH%.exe
@@ -22,8 +23,15 @@ set LIB=%LIB%;%DXSDK_DIR%Lib\%ARCH%
 
 @rem Настройка переменных окружения компилятора
 set _CL_=/Feout/%OUTNAME% /Foobjs\%ARCH%\ /FC /W%WARNLEVEL% %DEFINES%
-set CL=/EHsc /MP /MTd /Gm- /Zi /Od /nologo /fp:fast
+set CL=/EHsc /MP /nologo /fp:fast
 set LINK=/subsystem:Windows /incremental:no
+
+IF "%DEBUG%"=="1" (
+	set CL=%CL% /MTd /Zi /Od
+) else (
+	set CL=%CL% /MT /O2
+	set LINK=%LINK% /RELEASE
+)
 
 @rem Проверка наличия папок для объектных и скомпилированных файлов
 mkdir out 2> nul

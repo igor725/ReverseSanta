@@ -2,8 +2,6 @@
 
 #include "engine.hh"
 
-#include "imgui.h"
-
 class EditorMenu {
 public:
 	void DrawMainMenu();

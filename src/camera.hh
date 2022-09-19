@@ -40,6 +40,7 @@ struct Camera {
 			flfwd.y = 0.5f;
 			auto back = flfwd * -f_fFollowDistance;
 			auto dizcampos = *f_lpvFollowPos - back;
+			dizcampos.y = max(dizcampos.y, -5.0f);
 			auto dizcampdiff = f_vEye - dizcampos;
 			auto length = D3DXVec3Length(&dizcampdiff);
 			if (length > 1.0f)

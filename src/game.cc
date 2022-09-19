@@ -2,22 +2,11 @@
 #include "engine.hh"
 
 Game::Game() {
-	auto engine = Engine::GetInstance();
-	auto graphics = engine->SysGraphics();
-
-	m_lpPlayer = new Player(graphics->GetDevice());
+	m_lpPlayer = new Player;
 }
 
 Game::~Game() {
 	delete m_lpPlayer;
-}
-
-void Game::OnDeviceLost() {
-	m_lpPlayer->OnDeviceLost();
-}
-
-void Game::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
-	m_lpPlayer->OnDeviceReset(device);
 }
 
 void Game::OnOpen() {

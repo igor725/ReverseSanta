@@ -1,19 +1,19 @@
+#include "exceptions.hh"
 #include "input.hh"
 
 Input::Input(HINSTANCE hInst, HWND hWnd) {
-	if(DirectInput8Create(hInst, DIRECTINPUT_VERSION,
-	IID_IDirectInput8, (LPVOID *)&m_lpDI, NULL) != DI_OK)
-		ExitProcess(1);
+	IASSERT(DirectInput8Create(hInst, DIRECTINPUT_VERSION,
+	IID_IDirectInput8, (LPVOID *)&m_lpDI, NULL));
 
-	if (m_lpDI->CreateDevice(GUID_SysKeyboard, &m_lpDIK, NULL) != DI_OK
-	|| m_lpDIK->SetDataFormat(&c_dfDIKeyboard) != DI_OK
-	|| m_lpDIK->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NOWINKEY | DISCL_NONEXCLUSIVE) != DI_OK)
-		ExitProcess(1);
+	/* Инициализируем клавиатуру */
+	IASSERT(m_lpDI->CreateDevice(GUID_SysKeyboard, &m_lpDIK, NULL));
+	IASSERT(m_lpDIK->SetDataFormat(&c_dfDIKeyboard));
+	IASSERT(m_lpDIK->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NOWINKEY | DISCL_NONEXCLUSIVE));
 
-	if (m_lpDI->CreateDevice(GUID_SysMouse, &m_lpDIM, NULL) != DI_OK
-	|| m_lpDIM->SetDataFormat(&c_dfDIMouse) != DI_OK
-	|| m_lpDIM->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
-		ExitProcess(1);
+	/* Инициализируем мышу */
+	IASSERT(m_lpDI->CreateDevice(GUID_SysMouse, &m_lpDIM, NULL));
+	IASSERT(m_lpDIM->SetDataFormat(&c_dfDIMouse));
+	IASSERT(m_lpDIM->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND));
 }
 
 BOOL Input::Capture() {
@@ -38,11 +38,11 @@ BOOL Input::Release() {
 void Input::Update(FLOAT delta, BaseRunner *runner) {
 	static InputState state;
 
-	if (m_lpDIM->GetDeviceState(sizeof(state.f_msMouseNew), &state.f_msMouseNew) != DI_OK)
-		return;
+	if (auto hRes = m_lpDIM->GetDeviceState(sizeof(state.f_msMouseNew), &state.f_msMouseNew))
+		if (hRes != DIERR_NOTACQUIRED) throw DIException(hRes, EAFINFO);
 
-	if (m_lpDIK->GetDeviceState(sizeof(state.f_lpKeyboard), state.f_lpKeyboard) != DI_OK)
-		return;
+	if (auto hRes = m_lpDIK->GetDeviceState(sizeof(state.f_lpKeyboard), &state.f_lpKeyboard))
+		if (hRes != DIERR_NOTACQUIRED) throw DIException(hRes, EAFINFO);
 
 	runner->OnInput(delta, &state);
 	state.f_msMousePrev = state.f_msMouseNew;

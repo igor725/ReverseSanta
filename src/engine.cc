@@ -12,14 +12,15 @@ static Engine *__engineInstance = nullptr;
 Engine::Engine(HINSTANCE hInst) {
 	__engineInstance = this;
 
+	m_lpCache = new ResCache;
+	m_lpVirtFs = new VirtFs("xmas.xpk");
 	m_lpGraphics = new Graphics(hInst);
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
-	m_lpVirtFs = new VirtFs("xmas.xpk");
-	m_lpLevel = new Level();
+	m_lpLevel = new Level;
 	m_lpLevel->Load("levels\\000.dat");
 
-	m_vRunners.push_back(new Editor());
-	m_vRunners.push_back(new Game());
+	m_vRunners.push_back(new Editor);
+	m_vRunners.push_back(new Game);
 
 	m_lpGraphics->Show();
 }
@@ -28,6 +29,7 @@ Engine::~Engine() {
 	delete m_lpGraphics;
 	delete m_lpInput;
 	delete m_lpVirtFs;
+	delete m_lpCache;
 	delete m_lpLevel;
 	for (auto runner : m_vRunners)
 		delete runner;
@@ -39,13 +41,13 @@ Engine *Engine::GetInstance() {
 }
 
 void Engine::OnDeviceLost() {
-	m_lpLevel->OnDeviceLost();
+	m_lpCache->OnDeviceLost();
 	for (auto &runner : GetRunners())
 		runner->OnDeviceLost();
 }
 
 void Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
-	m_lpLevel->OnDeviceReset(device);
+	m_lpCache->OnDeviceReset(device);
 	for (auto &runner : GetRunners())
 		runner->OnDeviceReset(device);
 }
@@ -83,6 +85,10 @@ void Engine::Step(FLOAT delta) {
 			if (auto device = m_lpGraphics->BeginFrame(delta)) {
 				m_lpLevel->Draw(device);
 				runner->OnDraw(device);
+
+				m_lpGraphics->StartUI();
+				runner->OnDrawUI();
+				m_lpGraphics->EndUI();
 
 				m_lpGraphics->EndFrame();
 				m_lpGraphics->PresentFrame();

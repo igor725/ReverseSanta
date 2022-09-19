@@ -4,27 +4,20 @@
 #define PLAYER_DEF_POSITION {0.0f, 1.0f, 0.0f}
 #define PLAYER_DEF_ROTATION {0.0f, -D3DX_PI / 2.0f, 0.0f}
 
+Player::Player() {
+	m_lpDrawObj = new DObject(
+		Engine::GetInstance()->SysCache()->GetMesh("gfx\\weihnachtsman_000.x"),
+		PLAYER_DEF_POSITION, PLAYER_DEF_ROTATION, 0.014f
+	);
+
+	m_vSavePos = PLAYER_DEF_POSITION;
+	m_vSaveRot = PLAYER_DEF_ROTATION;
+	m_lpDrawObj->f_lpMesh->SetBoundMin({-20.0f,  -0.8f, -20.0f});
+	m_lpDrawObj->f_lpMesh->SetBoundMax({ 20.0f, 120.0f,  20.0f});
+}
+
 Player::~Player() {
 	delete m_lpDrawObj;
-}
-
-void Player::OnDeviceLost() {
-	m_lpDrawObj->f_lpMesh->OnDeviceLost();
-}
-
-void Player::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
-	if (!m_lpDrawObj) {
-		m_lpDrawObj = new DObject(
-			new Mesh(device, "gfx\\weihnachtsman_000.x"),
-			PLAYER_DEF_POSITION, PLAYER_DEF_ROTATION, 0.014f
-		);
-
-		m_vSavePos = PLAYER_DEF_POSITION;
-		m_vSaveRot = PLAYER_DEF_ROTATION;
-		m_lpDrawObj->f_lpMesh->SetBoundMin({-20.0f,  -0.8f, -20.0f});
-		m_lpDrawObj->f_lpMesh->SetBoundMax({ 20.0f, 120.0f,  20.0f});
-	} else
-		m_lpDrawObj->f_lpMesh->OnDeviceReset(device);
 }
 
 void Player::Update(FLOAT delta) {
@@ -33,19 +26,26 @@ void Player::Update(FLOAT delta) {
 	struct PhyState {
 		FLOAT ground = 0.0f;
 		FLOAT friction = 0.0f;
+		LPD3DXVECTOR3 velocity = nullptr;
 	} ps;
 
+	ps.velocity = &m_vVelocity;
 	BOOL touching =
 	level->IterTouches(m_lpDrawObj, [](DObject *, DObject *second, FLOAT floor, void *ud)->BOOL {
-		auto elem = second->GetElemInfo();
+		auto elem = second->f_lpElem;
 		auto ps = (PhyState *)ud;
 
 		switch(elem->f_eType) {
-			case Elems::PLATFORM:
-			case Elems::RECTFORM:
+			case Elems::JUMPER:
+				ps->velocity->y = 28.0f;
+				break;
 			case Elems::ELEVATOR:
 			case Elems::MOVER:
-			case Elems::JUMPER:
+				((Level::ElevatorData *)second->f_lpUserData)->f_bIsActive = true;
+			/* fallthrough */
+
+			case Elems::PLATFORM:
+			case Elems::RECTFORM:
 				ps->ground = floor;
 				ps->friction = elem->f_fFriction;
 				return true;
@@ -55,7 +55,7 @@ void Player::Update(FLOAT delta) {
 	}, &ps);
 
 	level->IterTouches(m_lpDrawObj, [](DObject *, DObject *second, FLOAT, void *ud)->BOOL {
-		switch(second->GetElemInfo()->f_eType) {
+		switch(second->f_lpElem->f_eType) {
 			case Elems::SAVEPOINT:
 				((Player *)ud)->m_vSavePos = second->f_vPos;
 				((Player *)ud)->m_vSaveRot.y = second->f_vRot.y + (D3DX_PI / 2.0f);
@@ -69,7 +69,7 @@ void Player::Update(FLOAT delta) {
 	}, this);
 
 	if (touching && m_vVelocity.y <= 0.0f) {
-		auto factor = 1.0f - (delta * (7.5f - ps.friction * 7.0f));
+		auto factor = 1.0f - (delta * (12.5f - ps.friction * 12.0f));
 		m_vVelocity.x = m_vVelocity.x * factor;
 		m_vVelocity.z = m_vVelocity.z * factor;
 		if (!m_bIsTouchingGround) {

@@ -4,17 +4,19 @@
 
 class Player {
 public:
-	Player(LPDIRECT3DDEVICE9 device) { OnDeviceReset(device); };
+	Player();
 	~Player();
-
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 	void Update(FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device);
 
 	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; m_lpDrawObj->f_bAlerted = true; }
-	inline void Move(D3DXVECTOR3 diff) { m_lpDrawObj->f_vPos += diff; m_lpDrawObj->f_bAlerted = true; }
+	inline void Move(D3DXVECTOR3 diff) {
+		if (diff.x != 0.0f || diff.y != 0.0f || diff.z != 0.0f) {
+			m_lpDrawObj->f_vPos += diff;
+			m_lpDrawObj->f_bAlerted = true;
+		}
+	}
 	inline void Jump() {
 		if (m_dwJumpsLeft > 0) {
 			if (m_bIsTouchingGround)

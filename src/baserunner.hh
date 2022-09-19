@@ -2,8 +2,7 @@
 
 #include <Windows.h>
 #include <d3d9.h>
-
-#include "direct_input.hh"
+#include <dinput.h>
 
 struct InputState {
 	DIMOUSESTATE f_msMouseNew = {0};
@@ -44,6 +43,7 @@ public:
 	virtual void OnInput(FLOAT, InputState *) {}
 	virtual void OnUpdate(FLOAT) {}
 	virtual void OnDraw(LPDIRECT3DDEVICE9) {}
+	virtual void OnDrawUI() {}
 
 	virtual void OnDeviceLost() {}
 	virtual void OnDeviceReset(LPDIRECT3DDEVICE9) {}

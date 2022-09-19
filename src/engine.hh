@@ -7,11 +7,13 @@
 #include "input.hh"
 #include "virtfs.hh"
 #include "level.hh"
-#include "base_runner.hh"
+#include "baserunner.hh"
+#include "rescache.hh"
 
 class Engine {
 public:
 	static Engine *GetInstance();
+
 	Engine(HINSTANCE hInst);
 	~Engine();
 
@@ -28,12 +30,15 @@ public:
 	inline Input *SysInput() { return m_lpInput; }
 	inline Graphics *SysGraphics() { return m_lpGraphics; }
 	inline Level *SysLevel() { return m_lpLevel; }
+	inline ResCache *SysCache() { return m_lpCache; }
 	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
 
 	BOOL GetObjectOn(Level::ObjectData *data, DWORD x = (DWORD)-1, DWORD y = (DWORD)-1);
+
 private:
 	Input *m_lpInput = nullptr;
 	Graphics *m_lpGraphics = nullptr;
+	ResCache *m_lpCache = nullptr;
 	VirtFs *m_lpVirtFs = nullptr;
 	Level *m_lpLevel = nullptr;
 
