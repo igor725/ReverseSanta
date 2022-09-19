@@ -14,6 +14,7 @@ void Game::OnOpen() {
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto pobj = m_lpPlayer->GetDrawObject();
 	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
+	m_lpPlayer->ResetPosition();
 }
 
 void Game::OnClose() {
@@ -41,10 +42,14 @@ void Game::OnInput(FLOAT delta, InputState *state) {
 }
 
 void Game::OnUpdate(FLOAT delta) {
-	for (FLOAT i = 0.0f; i < 6.0f; i++)
-		m_lpPlayer->Update(delta / 6.0f);
+	for (DWORD i = 0; i < 4; i++)
+		m_lpPlayer->Update(delta / 4.0f);
 }
 
 void Game::OnDraw(LPDIRECT3DDEVICE9 device) {
 	m_lpPlayer->Draw(device);
+}
+
+void Game::OnDrawUI() {
+	
 }

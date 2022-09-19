@@ -136,6 +136,15 @@ BOOL Level::IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *s
 	return false;
 }
 
+BOOL Level::IterObjects(BOOL(*callback)(DObject *obj, void *ud), void *ud) {
+	for (DWORD i = 0; i < m_dwObjectCount; i++) {
+		if (callback(&m_lpDObjects[i], ud))
+			return true;
+	}
+
+	return false;
+}
+
 BOOL Level::GetObjectData(DWORD id, ObjectData *data) {
 	if (id < m_dwObjectCount) {
 		data->f_lpDObj = &m_lpDObjects[id];

@@ -10,7 +10,7 @@ public:
 
 	void OnDeviceLost();
 	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
-	operator LPDIRECT3DTEXTURE9() const {
+	inline operator LPDIRECT3DTEXTURE9() const {
 		return this ? m_lpTexture : nullptr;
 	}
 

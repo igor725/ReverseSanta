@@ -31,9 +31,9 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 
 			if (inwork) {
 				if (line.find("TYPE") == 0) {
-					for (auto &type : m_mElemTypes) {
-						if (line.find(type.second, vstart) != line.npos) {
-							inwork->f_eType = type.first;
+					for (DWORD i = PLATFORM; i < END_TYPE; i++) {
+						if (line.find(m_aElemTypes[i], vstart) != line.npos) {
+							inwork->f_eType = Type(i);
 							break;
 						}
 					}

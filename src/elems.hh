@@ -22,23 +22,16 @@ public:
 		BONUS,
 		SAVEPOINT,
 		EXTRALIFE,
+		END_TYPE,
 
 		DWORD_MAX = 0xFFFFFFFF
 	};
 
-	const std::map<Type, std::string>  m_mElemTypes = {
-		{PLATFORM,      "PLATTFORM"    },
-		{RECTFORM,      "RECTFORM"     },
-		{DECO,          "DECO"         },
-		{ELEVATORENEMY, "ELEVATORENEMY"},
-		{ELEVATOR,      "ELEVATOR"     },
-		{MOVER,         "MOVER"        },
-		{JUMPER,        "JUMPER"       },
-		{ENEMY,         "ENEMY"        },
-		{EXIT,          "EXIT"         },
-		{BONUS,         "BONUS"        },
-		{SAVEPOINT,     "SAVEPOINT"    },
-		{EXTRALIFE,     "EXTRALIFE"    }
+	const std::string m_aElemTypes[END_TYPE] = {
+		"NONE", "PLATTFORM", "RECTFORM",
+		"DECO", "ELEVATORENEMY", "ELEVATOR",
+		"MOVER", "JUMPER", "ENEMY", "EXIT",
+		"BONUS", "SAVEPOINT", "EXTRALIFE"   
 	};
 
 	struct Element {
