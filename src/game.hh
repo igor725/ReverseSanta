@@ -3,7 +3,7 @@
 #include "baserunner.hh"
 #include "game\player.hh"
 #include "game\gmenu.hh"
-#include "game\walkthroughman.hh"
+#include "game\walkthrough.hh"
 
 class Game : public BaseRunner {
 public:
@@ -12,7 +12,7 @@ public:
 
 	void OnOpen();
 	void OnClose();
-	
+
 	LRESULT OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam);
 	void OnInput(FLOAT delta, InputState *state);
 	void OnUpdate(FLOAT delta);
@@ -20,7 +20,8 @@ public:
 	void OnDrawUI();
 
 private:
+	BOOL m_bIsPaused = false;
 	Player *m_lpPlayer = nullptr;
-	WalkthroughMan m_Walkthrough;
+	Walkthrough m_Walkthrough;
 	GameMenu m_Menu;
 };

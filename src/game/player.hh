@@ -11,7 +11,7 @@ public:
 	Player();
 	~Player();
 
-	void Update(Level *level, FLOAT delta);
+	BOOL Update(Level *level, FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device);
 
 	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; m_lpDrawObj->f_bAlerted = true; }
@@ -32,6 +32,11 @@ public:
 	inline void ResetPosition() {
 		m_vSavePos = m_lpDrawObj->f_vPos = PLAYER_DEF_POSITION;
 		m_vSaveRot = m_lpDrawObj->f_vRot = PLAYER_DEF_ROTATION;
+		m_vVelocity = {0.0f, 0.0f, 0.0f};
+	}
+	inline void Respawn() {
+		m_lpDrawObj->f_vPos = m_vSavePos;
+		m_lpDrawObj->f_vRot = m_vSaveRot;
 		m_vVelocity = {0.0f, 0.0f, 0.0f};
 	}
 

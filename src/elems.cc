@@ -81,7 +81,6 @@ Elems::Elems(std::ifstream *file, DWORD end) {
 			default:
 				elem.second.f_fScaling /= 100.0f;
 				break;
-			
 		}
 	}
 }

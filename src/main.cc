@@ -2,16 +2,18 @@
 #include "engine.hh"
 #include "exceptions.hh"
 
+#include <iostream>
 #include <ShlObj.h>
 
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdShow) {
 	(VOID)hPrev;(VOID)szCmdLine;(VOID)iCmdShow;
-	::AttachConsole(ATTACH_PARENT_PROCESS);
-	::freopen("CONOUT$", "w", stderr);
-	HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
-	::SetConsoleMode(hConsole, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
 	if (std::strcmp(szCmdLine, "unpack") >= 0) {
+		::AttachConsole(ATTACH_PARENT_PROCESS);
+		::freopen("CONOUT$", "w", stderr);
+		HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
+		::SetConsoleMode(hConsole, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
 		Xpk xpk("xmas.xpk");
 		std::ifstream *handle = xpk.GetHandle();
 		for (auto &file : xpk.GetFiles()) {
@@ -28,17 +30,24 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 				std::ofstream ofile(name, std::ios::binary);
 
 				if (ofile.is_open()) {
+					std::cerr << "Extracting " << name << "...";
 					char buf[512];
 					while (size > 0) {
+						if (!handle->good() || handle->eof() || !ofile.good()) {
+							std::cerr << "error!" << std::endl;
+							break;
+						}
 						DWORD cur = min(512, size);
 						handle->read(buf, cur);
 						ofile.write(buf, cur);
 						size -= cur;
 					}
 					ofile.close();
+					std::cerr << "done!" << std::endl;
 				}
 			}
 		}
+
 		return 0;
 	}
 
@@ -61,10 +70,10 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 			engine.Step((ct - lt) / 1000.0f);
 		}
 	} catch (MyException &mex) {
-		::MessageBox(nullptr, mex.GetString(), L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+		mex.Alert();
 	} catch (...) {
 		MyException mex(std::current_exception());
-		::MessageBox(nullptr, mex.GetString(), L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+		mex.Alert();
 	}
 
 	return 0;

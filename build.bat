@@ -13,8 +13,7 @@ set WARNLEVEL=4
 set SRC=src\*.cc src\game\*.cc src\editor\*.cc ^
 imgui\backends\imgui_impl_dx9.cpp imgui\backends\imgui_impl_win32.cpp imgui\imgui*.cpp
 set DEFINES=/DWIN32_LEAN_AND_MEAN /DUNICODE /DD3D_DEBUG_INFO /DDIRECTINPUT_VERSION=0x0800
-set LIBS=user32.lib d3d9.lib d3dx9.lib dinput8.lib ^
-dxguid.lib shell32.lib dbghelp.lib
+set LIBS=user32.lib d3d9.lib d3dx9.lib dinput8.lib dxguid.lib shell32.lib dbghelp.lib
 set OUTNAME=se-%ARCH%.exe
 
 @rem Добавление собственных путей поиска lib и h файлов

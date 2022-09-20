@@ -15,7 +15,7 @@ Player::~Player() {
 	delete m_lpDrawObj;
 }
 
-void Player::Update(Level *level, FLOAT delta) {
+BOOL Player::Update(Level *level, FLOAT delta) {
 	struct PhyState {
 		FLOAT ground = 0.0f;
 		FLOAT friction = 0.0f;
@@ -70,11 +70,7 @@ void Player::Update(Level *level, FLOAT delta) {
 	m_lpDrawObj->f_vPos += m_vVelocity * delta;
 	m_lpDrawObj->f_bAlerted = true;
 
-	if (m_lpDrawObj->f_vPos.y < -50.0f) {
-		m_lpDrawObj->f_vPos = m_vSavePos;
-		m_lpDrawObj->f_vRot = m_vSaveRot;
-		m_vVelocity = {0.0f, 0.0f, 0.0f};
-	}
+	return m_lpDrawObj->f_vPos.y > -50.0f;
 }
 
 void Player::Draw(LPDIRECT3DDEVICE9 device) {

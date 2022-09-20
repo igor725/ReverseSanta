@@ -15,6 +15,7 @@ void Game::OnOpen() {
 	auto pobj = m_lpPlayer->GetDrawObject();
 	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
 	m_lpPlayer->ResetPosition();
+	m_Walkthrough.Begin();
 }
 
 void Game::OnClose() {
@@ -55,19 +56,25 @@ void Game::OnInput(FLOAT delta, InputState *state) {
 }
 
 void Game::OnUpdate(FLOAT delta) {
+	if (m_bIsPaused) return;
 	auto engine = Engine::GetInstance();
 	auto level = engine->SysLevel();
 
 	struct TouchState {
 		Level *level;
 		Player *player;
-		WalkthroughMan *wman;
+		Walkthrough *wth;
 	} ts;
 
-	for (DWORD i = 0; i < 4; i++)
-		m_lpPlayer->Update(level, delta / 4.0f);
+	for (DWORD i = 0; i < 4; i++) {
+		if (!m_lpPlayer->Update(level, delta / 4.0f)) {
+			m_lpPlayer->Respawn();
+			EASSERT(m_Walkthrough.Death() && "No more lives left, game over!");
+		}
 
-	ts.wman = &m_Walkthrough;
+	}
+
+	ts.wth = &m_Walkthrough;
 	ts.player = m_lpPlayer;
 	ts.level = level;
 
@@ -76,19 +83,27 @@ void Game::OnUpdate(FLOAT delta) {
 
 		switch(second->f_lpElem->f_eType) {
 			case Elems::SAVEPOINT:
+				if (!ts->wth->IsSavePointsEnabled()) break;
+				ts->wth->SavePointUsed();
 				ts->player->SetSavePosition(&second->f_vPos, second->f_vRot.y + (D3DX_PI / 2.0f));
-			case Elems::BONUS:
+				/* fallthrough */
 			case Elems::EXTRALIFE:
+				if (!ts->wth->IsSavePointsEnabled()) break;
+				ts->wth->SavePointUsed();
+				/* double fallthrough */
+			case Elems::BONUS:
 				second->f_bHidden = true;
 				return true;
 			case Elems::EXIT:
-				ts->wman->NextLevel(ts->level);
+				ts->wth->NextLevel(ts->level);
 				ts->player->ResetPosition();
 				return true;
 		}
 
 		return false;
 	}, &ts);
+
+	EASSERT(m_Walkthrough.Update(delta) && "Time's up, game over!");
 }
 
 void Game::OnDraw(LPDIRECT3DDEVICE9 device) {

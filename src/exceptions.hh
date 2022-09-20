@@ -71,16 +71,16 @@ public:
 		::LocalFree(m_lpMessage);
 	}
 
+	void Alert() {
+		::MessageBox(nullptr, m_lpMessage, L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+	}
+
 	LPCWSTR GetCallStack() {
 		return m_lpCallStack.c_str();
 	}
 
 	LPWSTR GetPointer() {
 		return (LPWSTR)&m_lpMessage;
-	}
-
-	LPWSTR GetString() {
-		return m_lpMessage;
 	}
 
 	template<typename... Ts>

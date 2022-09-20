@@ -14,7 +14,7 @@ Mesh *ResCache::GetMesh(const std::string &path) {
 Texture *ResCache::GetTexture(const std::string &path) {
 	if (m_mCache.find(path) != m_mCache.end())
 		return (Texture *)m_mCache[path];
-	
+
 	return (Texture *)(m_mCache[path] = {TEXTURE, new Texture(DEVICE, path)});
 }
 
