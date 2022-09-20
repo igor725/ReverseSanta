@@ -15,9 +15,7 @@ Player::~Player() {
 	delete m_lpDrawObj;
 }
 
-void Player::Update(FLOAT delta) {
-	auto engine = Engine::GetInstance();
-	auto level = engine->SysLevel();
+void Player::Update(Level *level, FLOAT delta) {
 	struct PhyState {
 		FLOAT ground = 0.0f;
 		FLOAT friction = 0.0f;
@@ -54,20 +52,6 @@ void Player::Update(FLOAT delta) {
 
 		return false;
 	}, &ps);
-
-	level->IterTouches(m_lpDrawObj, [](DObject *, DObject *second, FLOAT, void *ud)->BOOL {
-		switch(second->f_lpElem->f_eType) {
-			case Elems::SAVEPOINT:
-				((Player *)ud)->m_vSavePos = second->f_vPos;
-				((Player *)ud)->m_vSaveRot.y = second->f_vRot.y + (D3DX_PI / 2.0f);
-			case Elems::BONUS:
-			case Elems::EXTRALIFE:
-				second->f_bHidden = true;
-				return true;
-		}
-
-		return false;
-	}, this);
 
 	if (touching && m_vVelocity.y <= 0.0f) {
 		auto factor = 1.0f - (delta * (10.5f - ps.friction * 10.0f));

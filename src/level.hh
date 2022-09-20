@@ -64,7 +64,7 @@ public:
 	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 
 	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, void *ud), void *ud);
-	BOOL IterObjects(BOOL(*callback)(DObject *obj, void *ud), void *ud);
+	BOOL IterObjects(BOOL(*callback)(ObjectData data, void *ud), void *ud);
 	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:

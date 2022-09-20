@@ -1,5 +1,6 @@
 #pragma once
 
+#include "level.hh"
 #include "dobject.hh"
 
 #define PLAYER_DEF_POSITION {0.0f, 1.0f, 0.0f}
@@ -10,7 +11,7 @@ public:
 	Player();
 	~Player();
 
-	void Update(FLOAT delta);
+	void Update(Level *level, FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device);
 
 	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; m_lpDrawObj->f_bAlerted = true; }
@@ -24,6 +25,9 @@ public:
 	inline void SetXZVelocity(D3DXVECTOR3 diff) {
 		m_vVelocity.x = diff.x, m_vVelocity.z = diff.z;
 		m_lpDrawObj->f_bAlerted = true;
+	}
+	inline void SetSavePosition(LPD3DXVECTOR3 pos, FLOAT rot) {
+		m_vSavePos = *pos, m_vSaveRot.y = rot;
 	}
 	inline void ResetPosition() {
 		m_vSavePos = m_lpDrawObj->f_vPos = PLAYER_DEF_POSITION;

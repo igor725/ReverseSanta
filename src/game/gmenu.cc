@@ -1,9 +1,10 @@
-#include "game\menu.hh"
+#include "game\gmenu.hh"
 #include "imgui.h"
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings
 
 void GameMenu::Draw() {
+	if (!m_bMainActive) return;
 	const auto vp = ImGui::GetMainViewport();
 	const auto res = ImVec2(400, 340);
 

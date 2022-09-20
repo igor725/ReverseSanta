@@ -23,6 +23,19 @@ void Game::OnClose() {
 	camera->SetFollow();
 }
 
+LRESULT Game::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM) {
+	auto engine = Engine::GetInstance();
+	if (iMsg == WM_KEYUP) {
+		if (wParam == VK_F1) {
+			engine->SysInput()->Release();
+			m_Menu.Toggle();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void Game::OnInput(FLOAT delta, InputState *state) {
 	if (state->Key(DIK_A) & 0x80)
 		m_lpPlayer->Rotate((D3DX_PI * -1.1f) * delta);
@@ -42,8 +55,40 @@ void Game::OnInput(FLOAT delta, InputState *state) {
 }
 
 void Game::OnUpdate(FLOAT delta) {
+	auto engine = Engine::GetInstance();
+	auto level = engine->SysLevel();
+
+	struct TouchState {
+		Level *level;
+		Player *player;
+		WalkthroughMan *wman;
+	} ts;
+
 	for (DWORD i = 0; i < 4; i++)
-		m_lpPlayer->Update(delta / 4.0f);
+		m_lpPlayer->Update(level, delta / 4.0f);
+
+	ts.wman = &m_Walkthrough;
+	ts.player = m_lpPlayer;
+	ts.level = level;
+
+	level->IterTouches(m_lpPlayer->GetDrawObject(), [](DObject *, DObject *second, FLOAT, void *ud)->BOOL {
+		auto *ts = (TouchState *)ud;
+
+		switch(second->f_lpElem->f_eType) {
+			case Elems::SAVEPOINT:
+				ts->player->SetSavePosition(&second->f_vPos, second->f_vRot.y + (D3DX_PI / 2.0f));
+			case Elems::BONUS:
+			case Elems::EXTRALIFE:
+				second->f_bHidden = true;
+				return true;
+			case Elems::EXIT:
+				ts->wman->NextLevel(ts->level);
+				ts->player->ResetPosition();
+				return true;
+		}
+
+		return false;
+	}, &ts);
 }
 
 void Game::OnDraw(LPDIRECT3DDEVICE9 device) {
@@ -51,5 +96,5 @@ void Game::OnDraw(LPDIRECT3DDEVICE9 device) {
 }
 
 void Game::OnDrawUI() {
-	
+	m_Menu.Draw();
 }
