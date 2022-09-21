@@ -78,8 +78,10 @@ void Engine::Step(FLOAT delta) {
 	delta = min(delta, 0.016f);
 	if (auto runner = GetRunner()) {
 		m_lpInput->Update(delta, runner);
-		m_lpLevel->Update(delta);
-		runner->OnUpdate(delta);
+		for (DWORD i = 0; i < 4; i++) {
+			m_lpLevel->Update(delta / 4.0f);
+			runner->OnUpdate(delta / 4.0f);
+		}
 
 		if (m_lpGraphics->TestDevice()) {
 			if (auto device = m_lpGraphics->BeginFrame(delta)) {

@@ -1,9 +1,8 @@
+#include "exceptions.hh"
 #include "xpk.hh"
 
 Xpk::Xpk(std::string fpath) : m_fArchive(fpath, std::ios::binary) {
-	if (!m_fArchive.is_open())
-		ExitProcess(1);
-
+	EASSERT(m_fArchive.is_open());
 	m_fArchive.seekg(0, std::ios::beg);
 	m_fArchive.read((char *)&m_dwFileCount, 4);
 	for (DWORD i = 0; i < m_dwFileCount; i++) {

@@ -1,14 +1,6 @@
 #include "game.hh"
 #include "engine.hh"
 
-Game::Game() {
-	m_lpPlayer = new Player;
-}
-
-Game::~Game() {
-	delete m_lpPlayer;
-}
-
 void Game::OnOpen() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
@@ -66,11 +58,9 @@ void Game::OnUpdate(FLOAT delta) {
 		Walkthrough *wth;
 	} ts;
 
-	for (DWORD i = 0; i < 4; i++) {
-		if (!m_lpPlayer->Update(level, delta / 4.0f)) {
-			m_lpPlayer->Respawn();
-			EASSERT(m_Walkthrough.Death() && "No more lives left, game over!");
-		}
+	if (!m_lpPlayer->Update(level, delta)) {
+		m_lpPlayer->Respawn();
+		EASSERT(m_Walkthrough.Death() && "No more lives left, game over!");
 	}
 
 	ts.wth = &m_Walkthrough;

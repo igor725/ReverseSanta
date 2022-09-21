@@ -22,7 +22,7 @@ set LIB=%LIB%;%DXSDK_DIR%Lib\%ARCH%
 
 @rem Настройка переменных окружения компилятора
 set _CL_=/Feout/%OUTNAME% /Foobjs\%ARCH%\ /FC /W%WARNLEVEL% %DEFINES%
-set CL=/EHsc /MP /nologo /fp:fast
+set CL=/EHsc /MP /nologo /fp:fast /wd4127
 set LINK=/subsystem:Windows /incremental:no
 
 IF "%DEBUG%"=="1" (

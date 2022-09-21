@@ -2,37 +2,17 @@
 #include "level.hh"
 #include "exceptions.hh"
 
-Level::Level() {
-	auto virtfs = Engine::GetInstance()->SysVirtFs();
-	DWORD size;
-	std::ifstream *file = virtfs->Open("data\\elements.txt", &size);
-	if (file->is_open()) {
-		m_lpElems = new Elems(file, size);
-		virtfs->Close(file);
-	}
-}
-
 Level::~Level() {
 	for (DWORD i = 0; i < m_dwObjectCount; i++)
 		if (auto ud = m_lpDObjects[i].f_lpUserData)
 			delete ud;
 
-	delete m_lpElems;
-	if (m_lpLObjects) delete m_lpLObjects;
-	if (m_lpDObjects) delete m_lpDObjects;
+	delete m_lpLObjects;
+	delete m_lpDObjects;
 }
 
 BOOL Level::Load(std::string path) {
-	if (m_lpLObjects) {
-		delete m_lpLObjects;
-		m_lpLObjects = nullptr;
-	}
-	if (m_lpDObjects) {
-		delete m_lpDObjects;
-		m_lpDObjects = nullptr;
-	}
-	m_dwObjectCount = 0;
-
+	Level::~Level();
 	DWORD fsize = 0;
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
@@ -41,8 +21,11 @@ BOOL Level::Load(std::string path) {
 	DASSERT(D3DXCreateTexture(device, 16, 16, D3DX_DEFAULT, D3DUSAGE_RENDERTARGET,
 	D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpTempTexture));
 	DASSERT(m_lpTempTexture->GetSurfaceLevel(0, &m_lpTempSurface));
-	auto file = virtfs->Open(path, &fsize);
-	if (file->is_open() && fsize > 4) {
+	if (auto file = virtfs->Open(path, &fsize)) {
+		if (fsize < 4) {
+			virtfs->Close(file);
+			return false;
+		}
 		file->read((char *)&m_dwObjectCount, 4);
 		if (m_dwObjectCount > 0) {
 			auto bsize = m_dwObjectCount * sizeof(LObject);

@@ -55,7 +55,8 @@ private:
 
 	DWORD m_dwJumpsLeft = 2;
 	BOOL m_bIsTouchingGround = false;
-	D3DXVECTOR3 m_vSavePos = {0.0f, 0.0f, 0.0f},
+	D3DXVECTOR3 
+	m_vSavePos = {0.0f, 0.0f, 0.0f},
 	m_vSaveRot = {0.0f, 0.0f, 0.0f},
 	m_vVelocity = {0.0f, 0.0f, 0.0f};
 };

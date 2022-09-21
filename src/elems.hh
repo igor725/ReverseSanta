@@ -35,8 +35,8 @@ public:
 	};
 
 	struct Element {
-		Type f_eType;
-		Mesh *f_lpMesh;
+		Type f_eType = NONE;
+		Mesh *f_lpMesh = nullptr;
 		/*Effect *f_lpEffect;*/
 		/*Anim *f_lpAnimation;*/
 
@@ -50,10 +50,10 @@ public:
 		BYTE f_walkanim = 0;
 	};
 
-	Elems(std::ifstream *file, DWORD end);
+	Elems(std::string fpath);
 
 	Element *Search(std::string name);
 
 private:
-	std::map<std::string, Element> m_mElements;
+	std::map<std::string, Element> m_mElements = {};
 };

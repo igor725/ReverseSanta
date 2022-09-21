@@ -63,7 +63,7 @@ Graphics::Graphics(HINSTANCE hInst) {
 	wc.hInstance = hInst;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.lpszClassName = L"D3DAPP";
-	if (FAILED(RegisterClass(&wc))) ExitProcess(1);
+	EASSERT(SUCCEEDED(RegisterClass(&wc)));
 
 	RECT winrect = {0, 0, 1024, 768};
 	AdjustWindowRect(&winrect, m_dwStyle, FALSE);

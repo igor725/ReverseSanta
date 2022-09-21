@@ -7,8 +7,8 @@
 
 class Game : public BaseRunner {
 public:
-	Game();
-	~Game();
+	Game() : m_lpPlayer(new Player) {}
+	~Game() { delete m_lpPlayer; }
 
 	void OnOpen();
 	void OnClose();

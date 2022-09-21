@@ -48,11 +48,11 @@ public:
 			dobj->f_vPos = lobj->f_vPos[0] + dir * f_fMult;
 			f_vMove -= dobj->f_vPos;
 			auto len = D3DXVec3Length(&dir);
-			f_fTime += delta / (len / 2.0f);
+			f_fTime += delta / (len / 1.5f);
 		}
 	};
 
-	Level();
+	Level() : m_lpElems(new Elems("data\\elements.txt")) {}
 	~Level();
 
 	void OnDeviceLost();
@@ -68,7 +68,7 @@ public:
 	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:
-	Elems *m_lpElems = nullptr;
+	Elems *m_lpElems;
 	DWORD m_dwObjectCount = 0;
 	LObject *m_lpLObjects = nullptr;
 	DObject *m_lpDObjects = nullptr;

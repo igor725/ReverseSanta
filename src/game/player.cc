@@ -7,7 +7,7 @@ Player::Player() {
 		PLAYER_DEF_POSITION, PLAYER_DEF_ROTATION, 0.014f
 	);
 
-	m_lpDrawObj->f_lpMesh->SetBoundMin({-20.0f,  -0.8f, -20.0f});
+	m_lpDrawObj->f_lpMesh->SetBoundMin({-20.0f,  -1.8f, -20.0f});
 	m_lpDrawObj->f_lpMesh->SetBoundMax({ 20.0f, 120.0f,  20.0f});
 }
 
@@ -20,8 +20,10 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 		FLOAT ground = 0.0f;
 		FLOAT friction = 0.0f;
 		FLOAT *vely = nullptr;
+		LPDWORD jumps = nullptr;
 	} ps;
 
+	ps.jumps = &m_dwJumpsLeft;
 	ps.vely = &m_vVelocity.y;
 	BOOL touching =
 	level->IterTouches(m_lpDrawObj, [](DObject *me, DObject *second, FLOAT floor, void *ud)->BOOL {
@@ -32,15 +34,14 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 		switch (elem->f_eType) {
 			case Elems::JUMPER:
 				*ps->vely = 17.5f;
+				*ps->jumps = 1;
 				break;
 			case Elems::ELEVATOR:
 			case Elems::MOVER:
 				eldata = (Level::ElevatorData *)second->f_lpUserData;
 				if (eldata->f_dwState == 0) eldata->f_dwState = 1;
-				/* Деление на 4 необходимо из-за четырёхкратной точности физики */
-				me->f_vPos -= eldata->f_vMove / 4.0f;
+				me->f_vPos -= eldata->f_vMove;
 				me->f_bAlerted = true;
-				me->f_vPos.y = floor;
 			/* fallthrough */
 
 			case Elems::PLATFORM:
