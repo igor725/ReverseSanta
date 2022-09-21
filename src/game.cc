@@ -30,21 +30,21 @@ LRESULT Game::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM) {
 }
 
 void Game::OnInput(FLOAT delta, InputState *state) {
-	if (state->Key(DIK_A) & 0x80)
+	if (state->CurMoved())
+		m_lpPlayer->Rotate(state->CurCX() * 0.001f);
+
+	if (state->KBIsDown(DIK_A))
 		m_lpPlayer->Rotate((D3DX_PI * -1.1f) * delta);
-	else if (state->Key(DIK_D) & 0x80)
+	else if (state->KBIsDown(DIK_D))
 		m_lpPlayer->Rotate((D3DX_PI * 1.1f) * delta);
 
-	if (state->Key(DIK_W) & 0x80)
+	if (state->KBIsDown(DIK_W))
 		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * -6.0f);
-	else if (state->Key(DIK_S) & 0x80)
+	else if (state->KBIsDown(DIK_S))
 		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * 6.0f);
 
-	static BYTE lsp, csp;
-	if ((csp = state->Key(DIK_SPACE)) != lsp) {
-		if (csp & 0x80) m_lpPlayer->Jump();
-		lsp = csp;
-	}
+	if (state->KBIsJustDown(DIK_SPACE) || state->MBIsJustDown(0))
+		m_lpPlayer->Jump();
 }
 
 void Game::OnUpdate(FLOAT delta) {

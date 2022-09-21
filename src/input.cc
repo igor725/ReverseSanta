@@ -36,14 +36,10 @@ BOOL Input::Release() {
 }
 
 void Input::Update(FLOAT delta, BaseRunner *runner) {
+	if (!m_bInputAcquired) return;
 	static InputState state;
 
-	if (auto hRes = m_lpDIM->GetDeviceState(sizeof(state.f_msMouseNew), &state.f_msMouseNew))
-		if (hRes != DIERR_NOTACQUIRED) throw DIException(hRes, EAFINFO);
-
-	if (auto hRes = m_lpDIK->GetDeviceState(sizeof(state.f_lpKeyboard), &state.f_lpKeyboard))
-		if (hRes != DIERR_NOTACQUIRED) throw DIException(hRes, EAFINFO);
-
+	state.Begin(m_lpDIM, m_lpDIK);
 	runner->OnInput(delta, &state);
-	state.f_msMousePrev = state.f_msMouseNew;
+	state.End();
 }

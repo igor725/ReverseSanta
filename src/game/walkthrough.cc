@@ -13,7 +13,8 @@ DWORD Walkthrough::NextLevel(Level *level) {
 	level->IterObjects([](Level::ObjectData data, void *ud)->BOOL {
 		switch (data.f_lpDObj->f_lpElem->f_eType) {
 			case Elems::BONUS:
-				*((DWORD *)ud) += 10;
+				if (data.f_lpDObj->f_bHidden)
+					*((DWORD *)ud) += 10;
 				break;
 		}
 
@@ -25,8 +26,7 @@ DWORD Walkthrough::NextLevel(Level *level) {
 	m_fElapsedTime = 0.0f;
 
 	char path[16];
-	EASSERT(std::snprintf(path, 16, "levels\\%03d.dat", ++m_dwCurrLevel) > 0);
-	level->Load(path);
+	EASSERT(std::snprintf(path, 16, "levels\\%03d.dat", ++m_dwCurrLevel) > 0 && level->Load(path));
 
 	return score;
 }

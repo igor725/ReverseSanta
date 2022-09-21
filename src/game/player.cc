@@ -43,7 +43,6 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 				me->f_vPos -= eldata->f_vMove;
 				me->f_bAlerted = true;
 			/* fallthrough */
-
 			case Elems::PLATFORM:
 			case Elems::RECTFORM:
 				ps->ground = floor;
@@ -57,11 +56,11 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 	if (touching && m_vVelocity.y <= 0.0f) {
 		auto factor = 1.0f - (delta * (10.5f - ps.friction * 10.0f));
 		m_vVelocity.x *= factor, m_vVelocity.z *= factor;
+		m_lpDrawObj->f_vPos.y = ps.ground;
 		if (!m_bIsTouchingGround) {
-			m_dwJumpsLeft = 2;
+ 			m_dwJumpsLeft = 2;
 			m_vVelocity.y = 0.0f;
 			m_bIsTouchingGround = true;
-			m_lpDrawObj->f_vPos.y = ps.ground;
 		}
 	} else if (!touching || m_vVelocity.y != 0.0f) {
 		m_vVelocity.y -= delta * (2.0f * 9.81f);

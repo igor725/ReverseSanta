@@ -17,7 +17,7 @@ Engine::Engine(HINSTANCE hInst) {
 	m_lpGraphics = new Graphics(hInst);
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
 	m_lpLevel = new Level;
-	m_lpLevel->Load("levels\\000.dat");
+	EASSERT(m_lpLevel->Load("levels\\000.dat"));
 
 	m_vRunners.push_back(new Editor);
 	m_vRunners.push_back(new Game);

@@ -14,17 +14,15 @@ public:
 	BOOL Update(Level *level, FLOAT delta);
 	void Draw(LPDIRECT3DDEVICE9 device);
 
-	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; m_lpDrawObj->f_bAlerted = true; }
+	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; }
 	inline void Jump() {
 		if (m_dwJumpsLeft > 0) {
-			m_vVelocity.y = 11.5f * (m_dwJumpsLeft / 2.0f);
+			m_vVelocity.y = max(m_vVelocity.y, 11.5f * (m_dwJumpsLeft / 2.0f));
 			m_dwJumpsLeft -= m_bIsTouchingGround ? 1 : m_dwJumpsLeft;
-			m_lpDrawObj->f_bAlerted = true;
 		}
 	}
 	inline void SetXZVelocity(D3DXVECTOR3 diff) {
 		m_vVelocity.x = diff.x, m_vVelocity.z = diff.z;
-		m_lpDrawObj->f_bAlerted = true;
 	}
 	inline void SetSavePosition(LPD3DXVECTOR3 pos, FLOAT rot) {
 		m_vSavePos = *pos, m_vSaveRot.y = rot;
