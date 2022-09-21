@@ -3,8 +3,6 @@
 #include <d3dx9.h>
 #include <cmath>
 
-static const D3DXVECTOR3 dV = {0.0f, 0.0f, 1.0f}, dU = {0.0f, 1.0f, 0.0f};
-
 struct Camera {
 	D3DXMATRIX  f_mxView, f_mxProj, f_mxRot;
 	D3DXVECTOR3 f_vEye  = {0.0f, 3.0f, 0.0f},
@@ -59,8 +57,9 @@ struct Camera {
 
 		D3DXMatrixRotationYawPitchRoll(&f_mxRot, f_vRot.x, f_vRot.y, f_vRot.z);
 
-		D3DXVec3TransformCoord(&f_vView, &dV, &f_mxRot);
-		D3DXVec3TransformCoord(&f_vUp, &dU, &f_mxRot);
+		const D3DXVECTOR3 v = {0.0f, 0.0f, 1.0f}, u = {0.0f, 1.0f, 0.0f};
+		D3DXVec3TransformCoord(&f_vView, &v, &f_mxRot);
+		D3DXVec3TransformCoord(&f_vUp, &u, &f_mxRot);
 
 		D3DXVec3Add(&f_vView, &f_vView, &f_vEye);
 

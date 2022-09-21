@@ -15,6 +15,8 @@ public:
 
 	inline D3DXVECTOR3 GetBoundMin(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundMin * scale) + pos; }
 	inline D3DXVECTOR3 GetBoundMax(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundMax * scale) + pos; }
+	inline D3DXVECTOR3 GetBoundCenter(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundCenter * scale) + pos; }
+	inline FLOAT GetBoundRadius(FLOAT scale) { return m_vBoundRadius * scale; }
 
 	void SetBoundMin(D3DXVECTOR3 min) { m_vBoundMin = min; }
 	void SetBoundMax(D3DXVECTOR3 max) { m_vBoundMax = max; }
@@ -28,5 +30,7 @@ private:
 	Texture **m_lpTextures = nullptr;
 
 	D3DXVECTOR3 m_vBoundMin = {0.0f, 0.0f, 0.0f},
-	m_vBoundMax = {0.0f, 0.0f, 0.0f};
+	m_vBoundMax = {0.0f, 0.0f, 0.0f},
+	m_vBoundCenter = {0.0f, 0.0f, 0.0f};
+	FLOAT m_vBoundRadius = 0.0f;
 };

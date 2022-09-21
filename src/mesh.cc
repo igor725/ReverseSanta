@@ -27,8 +27,9 @@ Mesh::Mesh(LPDIRECT3DDEVICE9 device, const std::string &path) {
 
 	LPD3DXVECTOR3 vbuf;
 	if (m_lpMesh->LockVertexBuffer(0, (LPVOID *)&vbuf) == D3D_OK) {
-		D3DXComputeBoundingBox(vbuf, m_lpMesh->GetNumVertices(),
-		m_lpMesh->GetNumBytesPerVertex(), &m_vBoundMin, &m_vBoundMax);
+		auto verts = m_lpMesh->GetNumVertices(), bpv = m_lpMesh->GetNumBytesPerVertex();
+		D3DXComputeBoundingBox(vbuf, verts, bpv, &m_vBoundMin, &m_vBoundMax);
+		D3DXComputeBoundingSphere(vbuf, verts, bpv, &m_vBoundCenter, &m_vBoundRadius);
 		m_lpMesh->UnlockVertexBuffer();
 	}
 

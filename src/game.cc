@@ -71,7 +71,6 @@ void Game::OnUpdate(FLOAT delta) {
 			m_lpPlayer->Respawn();
 			EASSERT(m_Walkthrough.Death() && "No more lives left, game over!");
 		}
-
 	}
 
 	ts.wth = &m_Walkthrough;

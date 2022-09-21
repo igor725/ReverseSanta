@@ -8,7 +8,7 @@ public:
 	void Begin();
 	DWORD NextLevel(Level *level);
 	BOOL Update(FLOAT delta);
-	
+
 	inline BOOL Death() { return --m_dwLives > 0; }
 	inline void SavePointUsed() { m_bSavePointUsed = true; }
 
@@ -22,5 +22,5 @@ private:
 	const FLOAT m_fLevelTime = 420.0f;
 	FLOAT m_fElapsedTime = 0.0f;
 	BOOL m_bSavePointUsed = false,
-	m_bSavePointsEnabled = false;
+	m_bSavePointsEnabled = true;
 };
