@@ -40,19 +40,19 @@ Engine *Engine::GetInstance() {
 	return __engineInstance;
 }
 
-void Engine::OnDeviceLost() {
+VOID Engine::OnDeviceLost() {
 	m_lpCache->OnDeviceLost();
 	for (auto &runner : GetRunners())
 		runner->OnDeviceLost();
 }
 
-void Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+VOID Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	m_lpCache->OnDeviceReset(device);
 	for (auto &runner : GetRunners())
 		runner->OnDeviceReset(device);
 }
 
-void Engine::SetRunner(DWORD num) {
+VOID Engine::SetRunner(DWORD num) {
 	if (auto runner = GetRunner())
 		runner->OnClose();
 
@@ -62,7 +62,7 @@ void Engine::SetRunner(DWORD num) {
 		runner->OnOpen();
 }
 
-void Engine::NextRunner() {
+VOID Engine::NextRunner() {
 	DWORD nextrunner = (m_dwCurrentRunner + 1);
 	if ((m_dwCurrentRunner + 1) == m_vRunners.size())
 		nextrunner = 0;
@@ -74,7 +74,7 @@ BaseRunner *Engine::GetRunner() {
 	return m_vRunners[m_dwCurrentRunner];
 }
 
-void Engine::Step(FLOAT delta) {
+VOID Engine::Step(FLOAT delta) {
 	delta = min(delta, 0.016f);
 	if (auto runner = GetRunner()) {
 		m_lpInput->Update(delta, runner);

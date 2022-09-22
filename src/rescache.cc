@@ -18,14 +18,14 @@ Texture *ResCache::GetTexture(const std::string &path) {
 	return (Texture *)(m_mCache[path] = {TEXTURE, new Texture(DEVICE, path)});
 }
 
-void ResCache::OnDeviceLost() {
+VOID ResCache::OnDeviceLost() {
 	for (auto &f : m_mCache)
 		if (f.second.f_eType == TEXTURE)
-			((Texture *)f.second)->OnDeviceLost();
+			((Texture *)f.second.f_lpData)->OnDeviceLost();
 }
 
-void ResCache::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+VOID ResCache::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	for (auto &f : m_mCache)
 		if (f.second.f_eType == TEXTURE)
-			((Texture *)f.second)->OnDeviceReset(device);
+			((Texture *)f.second.f_lpData)->OnDeviceReset(device);
 }

@@ -10,7 +10,7 @@ public:
 	BOOL Capture();
 	BOOL Release();
 
-	void Update(FLOAT delta, BaseRunner *runner);
+	VOID Update(FLOAT delta, BaseRunner *runner);
 
 private:
 	LPDIRECTINPUT8 m_lpDI = nullptr;

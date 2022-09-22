@@ -19,7 +19,7 @@ std::ifstream *VirtFs::Open(std::string &path, DWORD *end, DWORD *size) {
 	return direct;
 }
 
-void VirtFs::Close(std::ifstream *file) {
+VOID VirtFs::Close(std::ifstream *file) {
 	if (file != m_lpXpk.GetHandle()) {
 		file->close();
 		delete file;

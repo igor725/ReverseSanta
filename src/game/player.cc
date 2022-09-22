@@ -26,7 +26,7 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 	ps.jumps = &m_dwJumpsLeft;
 	ps.vely = &m_vVelocity.y;
 	BOOL touching =
-	level->IterTouches(m_lpDrawObj, [](DObject *me, DObject *second, FLOAT floor, void *ud)->BOOL {
+	level->IterTouches(m_lpDrawObj, [](DObject *me, DObject *second, FLOAT floor, LPVOID ud)->BOOL {
 		auto elem = second->f_lpElem;
 		auto ps = (PhyState *)ud;
 		Level::ElevatorData *eldata;
@@ -73,6 +73,6 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 	return m_lpDrawObj->f_vPos.y > -50.0f;
 }
 
-void Player::Draw(LPDIRECT3DDEVICE9 device) {
+VOID Player::Draw(LPDIRECT3DDEVICE9 device) {
 	m_lpDrawObj->Draw(device);
 }

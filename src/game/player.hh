@@ -12,27 +12,27 @@ public:
 	~Player();
 
 	BOOL Update(Level *level, FLOAT delta);
-	void Draw(LPDIRECT3DDEVICE9 device);
+	VOID Draw(LPDIRECT3DDEVICE9 device);
 
-	inline void Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; }
-	inline void Jump() {
+	inline VOID Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; }
+	inline VOID Jump() {
 		if (m_dwJumpsLeft > 0) {
 			m_vVelocity.y = max(m_vVelocity.y, 11.5f * (m_dwJumpsLeft / 2.0f));
 			m_dwJumpsLeft -= m_bIsTouchingGround ? 1 : m_dwJumpsLeft;
 		}
 	}
-	inline void SetXZVelocity(D3DXVECTOR3 diff) {
+	inline VOID SetXZVelocity(D3DXVECTOR3 diff) {
 		m_vVelocity.x = diff.x, m_vVelocity.z = diff.z;
 	}
-	inline void SetSavePosition(LPD3DXVECTOR3 pos, FLOAT rot) {
+	inline VOID SetSavePosition(LPD3DXVECTOR3 pos, FLOAT rot) {
 		m_vSavePos = *pos, m_vSaveRot.y = rot;
 	}
-	inline void ResetPosition() {
+	inline VOID ResetPosition() {
 		m_vSavePos = m_lpDrawObj->f_vPos = PLAYER_DEF_POSITION;
 		m_vSaveRot = m_lpDrawObj->f_vRot = PLAYER_DEF_ROTATION;
 		m_vVelocity = {0.0f, 0.0f, 0.0f};
 	}
-	inline void Respawn() {
+	inline VOID Respawn() {
 		m_lpDrawObj->f_vPos = m_vSavePos;
 		m_lpDrawObj->f_vRot = m_vSaveRot;
 		m_vVelocity = {0.0f, 0.0f, 0.0f};

@@ -5,12 +5,12 @@
 
 class Walkthrough {
 public:
-	void Begin();
+	VOID Begin();
 	DWORD NextLevel(Level *level);
 	BOOL Update(FLOAT delta);
 
 	inline BOOL Death() { return --m_dwLives > 0; }
-	inline void SavePointUsed() { m_bSavePointUsed = true; }
+	inline VOID SavePointUsed() { m_bSavePointUsed = true; }
 
 	inline BOOL IsSavePointsEnabled() { return m_bSavePointsEnabled; }
 	inline DWORD GetOverallScore() { return m_dwOverallScore; }

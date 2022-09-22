@@ -20,7 +20,7 @@ LRESULT Editor::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	return false;
 }
 
-void Editor::OnInput(FLOAT delta, InputState *state) {
+VOID Editor::OnInput(FLOAT delta, InputState *state) {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto speed = 15.0f * delta;
@@ -47,6 +47,6 @@ void Editor::OnInput(FLOAT delta, InputState *state) {
 		engine->SysInput()->Release();
 }
 
-void Editor::OnDrawUI() {
+VOID Editor::OnDrawUI() {
 	m_Menu.Draw();
 }

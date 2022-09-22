@@ -2,16 +2,12 @@
 #include "texture.hh"
 #include "exceptions.hh"
 
-Texture::~Texture() {
+VOID Texture::OnDeviceLost() {
 	m_lpTexture->Release();
 	m_lpTexture = nullptr;
 }
 
-void Texture::OnDeviceLost() {
-	Texture::~Texture();
-}
-
-void Texture::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
+VOID Texture::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 	DWORD size = 0;

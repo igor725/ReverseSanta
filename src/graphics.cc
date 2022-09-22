@@ -87,32 +87,32 @@ Graphics::Graphics(HINSTANCE hInst) {
 	RecreateDevice();
 }
 
-Graphics::~Graphics() {
+VOID Graphics::Shutdown() {
 	if (m_lpDeviceEx) m_lpDeviceEx->Release();
 	else if (m_lpDevice) m_lpDevice->Release();
 	if (m_lpTexture) m_lpTexture->Release();
 	if (m_lpD3DEx) m_lpD3DEx->Release();
 	else if (m_lpD3D) m_lpD3D->Release();
-	if (m_lpCamera) delete m_lpCamera;
+	delete m_lpCamera;
 
 	m_lpCamera = nullptr, m_lpTexture = nullptr,
 	m_lpDevice = nullptr, m_lpDeviceEx = nullptr,
 	m_lpD3D = nullptr, m_lpD3DEx = nullptr;
 }
 
-static void DeviceLostHandler() {
+static VOID DeviceLostHandler() {
 	ImGui_ImplDX9_Shutdown();
 	Engine::GetInstance()->OnDeviceLost();
 }
 
-static void DeviceResetHandler(LPDIRECT3DDEVICE9 device) {
+static VOID DeviceResetHandler(LPDIRECT3DDEVICE9 device) {
 	ImGui_ImplDX9_Init(device);
 	ImGui_ImplDX9_CreateDeviceObjects();
 	Engine::GetInstance()->OnDeviceReset(device);
 }
 
-void Graphics::RecreateDevice() {
-	Graphics::~Graphics();
+VOID Graphics::RecreateDevice() {
+	Graphics::Shutdown();
 
 #if !defined(D3D_DISABLE_9EX)
 	do {
@@ -175,11 +175,11 @@ void Graphics::RecreateDevice() {
 	ImGui_ImplDX9_Init(m_lpDevice);
 }
 
-void Graphics::UpdateLight() {
+VOID Graphics::UpdateLight() {
 	DASSERT(m_lpDevice->SetLight(0, &m_Light));
 }
 
-void Graphics::EnableLighting(BOOL state) {
+VOID Graphics::EnableLighting(BOOL state) {
 	m_bLightEnabled = state;
 	DASSERT(m_lpDevice->LightEnable(0, state));
 	DASSERT(m_lpDevice->SetRenderState(D3DRS_LIGHTING, state));
@@ -246,23 +246,23 @@ LPDIRECT3DDEVICE9 Graphics::BeginFrame(FLOAT delta) {
 	return nullptr;
 }
 
-void Graphics::StartUI() {
+VOID Graphics::StartUI() {
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 }
 
-void Graphics::EndUI() {
+VOID Graphics::EndUI() {
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Graphics::EndFrame() {
+VOID Graphics::EndFrame() {
 	m_lpDevice->EndScene();
 }
 
-void Graphics::PresentFrame() {
+VOID Graphics::PresentFrame() {
 	HRESULT hRes;
 	if (m_lpDeviceEx)
 		hRes = m_lpDeviceEx->PresentEx(nullptr, nullptr, nullptr, nullptr, 0);

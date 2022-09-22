@@ -11,8 +11,8 @@ public:
 	Mesh *GetMesh(const std::string &path);
 	Texture *GetTexture(const std::string &path);
 
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+	VOID OnDeviceLost();
+	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 private:
 	enum Type {
@@ -22,7 +22,7 @@ private:
 
 	struct Field {
 		Type f_eType;
-		void *f_lpData;
+		LPVOID f_lpData;
 
 		operator Mesh *() {
 			EASSERT(f_eType == MESH);

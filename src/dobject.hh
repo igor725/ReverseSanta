@@ -24,7 +24,7 @@ struct DObject {
 
 	inline FLOAT GetScale() { return f_lpElem ? f_lpElem->f_fScaling : f_fScaling; }
 
-	void Update() {
+	VOID Update() {
 		D3DXMATRIX tm, rot, scale;
 
 		D3DXMatrixTranslation(&f_mxWorld, f_vPos.x, f_vPos.y, f_vPos.z);
@@ -64,7 +64,7 @@ struct DObject {
 		return false;
 	}
 
-	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false) {
+	VOID Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false) {
 		if (f_bHidden) return;
 		if (f_bAlerted) {
 			Update();

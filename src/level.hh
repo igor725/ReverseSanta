@@ -28,7 +28,7 @@ public:
 
 		ElevatorData(Elems::Type type) : f_dwState(type == Elems::ELEVATOR), f_bStopOnFinish(f_dwState == 0) {}
 
-		void Update(DObject *dobj, LObject *lobj, FLOAT delta) {
+		VOID Update(DObject *dobj, LObject *lobj, FLOAT delta) {
 			if (f_dwState < 1) return;
 			dobj->f_bAlerted = true;
 			auto prmult = f_fMult;
@@ -53,18 +53,19 @@ public:
 	};
 
 	Level() : m_lpElems(new Elems("data\\elements.txt")) {}
-	~Level();
+	~Level() { Cleanup(); }
 
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+	VOID OnDeviceLost();
+	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
-	void Rebuild();
+	VOID Cleanup();
+	VOID Rebuild();
 	BOOL Load(std::string path);
-	void Update(FLOAT delta);
-	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
+	VOID Update(FLOAT delta);
+	VOID Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 
-	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, void *ud), void *ud);
-	BOOL IterObjects(BOOL(*callback)(ObjectData data, void *ud), void *ud);
+	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, LPVOID ud), LPVOID ud);
+	BOOL IterObjects(BOOL(*callback)(ObjectData data, LPVOID ud), LPVOID ud);
 	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:

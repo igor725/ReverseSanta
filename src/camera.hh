@@ -23,11 +23,11 @@ struct Camera {
 		D3DXMatrixIdentity(&f_mxView);
 	}
 
-	void UpdateProj() {
+	VOID UpdateProj() {
 		D3DXMatrixPerspectiveFovLH(&f_mxProj, f_fFov, f_fAspect, f_fNearVP, f_fFarVP);
 	}
 
-	void Update(FLOAT delta) {
+	VOID Update(FLOAT delta) {
 		if (f_lpvFollowPos && f_lpvFollowRot) {
 			D3DXVECTOR3 flfwd = {
 				std::sinf(f_lpvFollowRot->y) * std::cosf(f_lpvFollowRot->x),
@@ -74,7 +74,7 @@ struct Camera {
 		};
 	}
 
-	void SetFollow(LPD3DXVECTOR3 pos = nullptr, LPD3DXVECTOR3 rot = nullptr) {
+	VOID SetFollow(LPD3DXVECTOR3 pos = nullptr, LPD3DXVECTOR3 rot = nullptr) {
 		f_lpvFollowPos = pos, f_lpvFollowRot = rot;
 	}
 };

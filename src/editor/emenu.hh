@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine.hh"
+#include "level.hh"
 
 class EditorMenu {
 public:
@@ -8,9 +8,7 @@ public:
 	void DrawObjectMenu();
 	void Draw();
 
-	inline void Toggle() {
-		m_bMainActive = !m_bMainActive;
-	}
+	inline void Toggle() { m_bMainActive = !m_bMainActive; }
 
 	Level::ObjectData m_odPicked = {nullptr, nullptr};
 private:

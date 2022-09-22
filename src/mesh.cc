@@ -64,7 +64,7 @@ Mesh::~Mesh() {
 	delete m_lpMaterials;
 }
 
-void Mesh::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
+VOID Mesh::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
 	if (!m_lpMesh) return;
 
 	for (DWORD i = 0; i < m_dwNumMaterials; i++) {

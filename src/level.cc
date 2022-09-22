@@ -2,17 +2,20 @@
 #include "level.hh"
 #include "exceptions.hh"
 
-Level::~Level() {
+VOID Level::Cleanup() {
 	for (DWORD i = 0; i < m_dwObjectCount; i++)
 		if (auto ud = m_lpDObjects[i].f_lpUserData)
 			delete ud;
 
 	delete m_lpLObjects;
 	delete m_lpDObjects;
+	m_lpLObjects = nullptr;
+	m_lpDObjects = nullptr;
+	m_dwObjectCount = 0;
 }
 
 BOOL Level::Load(std::string path) {
-	Level::~Level();
+	Level::Cleanup();
 	DWORD fsize = 0;
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
@@ -56,7 +59,7 @@ BOOL Level::Load(std::string path) {
 	return false;
 }
 
-void Level::Rebuild() {
+VOID Level::Rebuild() {
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		auto obj = &m_lpLObjects[i];
 		auto dobj = &m_lpDObjects[i];
@@ -77,14 +80,13 @@ void Level::Rebuild() {
 	}
 }
 
-void Level::Update(FLOAT delta) {(void)delta;
+VOID Level::Update(FLOAT delta) {(void)delta;
 	/* TODO: Логика уровня - лифты, враги, движущиеся платформы и прочая срань */
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		auto obj = &m_lpDObjects[i];
 		auto lobj = &m_lpLObjects[i];
-		auto info = obj->f_lpElem;
 
-		switch (info->f_eType) {
+		switch (obj->f_lpElem->f_eType) {
 			case Elems::MOVER:
 			case Elems::ELEVATOR:
 				((ElevatorData *)obj->f_lpUserData)->Update(obj, lobj, delta);
@@ -93,7 +95,7 @@ void Level::Update(FLOAT delta) {(void)delta;
 	}
 }
 
-void Level::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
+VOID Level::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
 	if (m_dwObjectCount > 0) {
 		if (!untextured) m_lpSkyBox->Draw(device);
 		for (DWORD i = 0; i < m_dwObjectCount; i++) {
@@ -109,7 +111,7 @@ void Level::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
 	}
 }
 
-BOOL Level::IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *second, FLOAT floor, void *ud), void *ud) {
+BOOL Level::IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *second, FLOAT floor, LPVOID ud), LPVOID ud) {
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		auto second = &m_lpDObjects[i]; FLOAT floor;
 		if (second->IsTouching(obj, &floor) && callback(obj, second, floor, ud))
@@ -119,7 +121,7 @@ BOOL Level::IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *s
 	return false;
 }
 
-BOOL Level::IterObjects(BOOL(*callback)(ObjectData data, void *ud), void *ud) {
+BOOL Level::IterObjects(BOOL(*callback)(ObjectData data, LPVOID ud), LPVOID ud) {
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		if (callback({&m_lpDObjects[i], &m_lpLObjects[i]}, ud))
 			return true;

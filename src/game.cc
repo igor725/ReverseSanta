@@ -1,7 +1,7 @@
 #include "game.hh"
 #include "engine.hh"
 
-void Game::OnOpen() {
+VOID Game::OnOpen() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto pobj = m_lpPlayer->GetDrawObject();
@@ -10,7 +10,7 @@ void Game::OnOpen() {
 	m_Walkthrough.Begin();
 }
 
-void Game::OnClose() {
+VOID Game::OnClose() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	camera->SetFollow();
@@ -29,7 +29,7 @@ LRESULT Game::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM) {
 	return false;
 }
 
-void Game::OnInput(FLOAT delta, InputState *state) {
+VOID Game::OnInput(FLOAT delta, InputState *state) {
 	if (state->CurMoved())
 		m_lpPlayer->Rotate(state->CurCX() * 0.001f);
 
@@ -47,7 +47,7 @@ void Game::OnInput(FLOAT delta, InputState *state) {
 		m_lpPlayer->Jump();
 }
 
-void Game::OnUpdate(FLOAT delta) {
+VOID Game::OnUpdate(FLOAT delta) {
 	if (m_bIsPaused) return;
 	auto engine = Engine::GetInstance();
 	auto level = engine->SysLevel();
@@ -67,7 +67,7 @@ void Game::OnUpdate(FLOAT delta) {
 	ts.player = m_lpPlayer;
 	ts.level = level;
 
-	level->IterTouches(m_lpPlayer->GetDrawObject(), [](DObject *, DObject *second, FLOAT, void *ud)->BOOL {
+	level->IterTouches(m_lpPlayer->GetDrawObject(), [](DObject *, DObject *second, FLOAT, LPVOID ud)->BOOL {
 		auto *ts = (TouchState *)ud;
 
 		switch(second->f_lpElem->f_eType) {
@@ -95,10 +95,10 @@ void Game::OnUpdate(FLOAT delta) {
 	EASSERT(m_Walkthrough.Update(delta) && "Time's up, game over!");
 }
 
-void Game::OnDraw(LPDIRECT3DDEVICE9 device) {
+VOID Game::OnDraw(LPDIRECT3DDEVICE9 device) {
 	m_lpPlayer->Draw(device);
 }
 
-void Game::OnDrawUI() {
+VOID Game::OnDrawUI() {
 	m_Menu.Draw();
 }

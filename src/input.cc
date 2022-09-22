@@ -35,7 +35,7 @@ BOOL Input::Release() {
 	(m_lpDIK->Unacquire() == DI_OK);
 }
 
-void Input::Update(FLOAT delta, BaseRunner *runner) {
+VOID Input::Update(FLOAT delta, BaseRunner *runner) {
 	if (!m_bInputAcquired) return;
 	static InputState state;
 

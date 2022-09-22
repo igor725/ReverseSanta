@@ -10,14 +10,16 @@ public:
 	Game() : m_lpPlayer(new Player) {}
 	~Game() { delete m_lpPlayer; }
 
-	void OnOpen();
-	void OnClose();
+	VOID OnOpen();
+	VOID OnClose();
+
+	inline Player *GetPlayer() { return m_lpPlayer; }
 
 	LRESULT OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam);
-	void OnInput(FLOAT delta, InputState *state);
-	void OnUpdate(FLOAT delta);
-	void OnDraw(LPDIRECT3DDEVICE9 device);
-	void OnDrawUI();
+	VOID OnInput(FLOAT delta, InputState *state);
+	VOID OnUpdate(FLOAT delta);
+	VOID OnDraw(LPDIRECT3DDEVICE9 device);
+	VOID OnDrawUI();
 
 private:
 	BOOL m_bIsPaused = false;

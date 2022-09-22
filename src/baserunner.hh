@@ -13,13 +13,13 @@ struct InputState {
 	BYTE f_lpKeyboardOld[256] = {0};
 
 	// State
-	inline void Begin(LPDIRECTINPUTDEVICE8 mouse, LPDIRECTINPUTDEVICE8 keyboard) {
+	inline VOID Begin(LPDIRECTINPUTDEVICE8 mouse, LPDIRECTINPUTDEVICE8 keyboard) {
 		if (auto hRes = mouse->GetDeviceState(sizeof(f_msMouseNew), &f_msMouseNew))
 			throw DIException(hRes, EAFINFO);
 		if (auto hRes = keyboard->GetDeviceState(sizeof(f_lpKeyboardNew), &f_lpKeyboardNew))
 			throw DIException(hRes, EAFINFO);
 	}
-	inline void End() {
+	inline VOID End() {
 		f_msMousePrev = f_msMouseNew;
 		for (WORD i = 0; i < 256; i++)
 			f_lpKeyboardOld[i] = f_lpKeyboardNew[i];
@@ -45,18 +45,18 @@ struct InputState {
 
 class BaseRunner {
 public:
-	virtual void OnOpen() {}
-	virtual void OnClose() {}
+	virtual VOID OnOpen() {}
+	virtual VOID OnClose() {}
 
 	virtual LRESULT OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		(void)hWnd, iMsg, wParam, lParam;
 		return (LRESULT)0;
 	}
-	virtual void OnInput(FLOAT, InputState *) {}
-	virtual void OnUpdate(FLOAT) {}
-	virtual void OnDraw(LPDIRECT3DDEVICE9) {}
-	virtual void OnDrawUI() {}
+	virtual VOID OnInput(FLOAT, InputState *) {}
+	virtual VOID OnUpdate(FLOAT) {}
+	virtual VOID OnDraw(LPDIRECT3DDEVICE9) {}
+	virtual VOID OnDrawUI() {}
 
-	virtual void OnDeviceLost() {}
-	virtual void OnDeviceReset(LPDIRECT3DDEVICE9) {}
+	virtual VOID OnDeviceLost() {}
+	virtual VOID OnDeviceReset(LPDIRECT3DDEVICE9) {}
 };

@@ -17,15 +17,15 @@ public:
 	Engine(HINSTANCE hInst);
 	~Engine();
 
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+	VOID OnDeviceLost();
+	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 	BaseRunner *GetRunner();
 	inline std::vector<BaseRunner *> &GetRunners() { return m_vRunners; }
-	void SetRunner(DWORD num);
-	void NextRunner();
+	VOID SetRunner(DWORD num);
+	VOID NextRunner();
 
-	void Step(FLOAT delta);
+	VOID Step(FLOAT delta);
 
 	inline Input *SysInput() { return m_lpInput; }
 	inline Graphics *SysGraphics() { return m_lpGraphics; }

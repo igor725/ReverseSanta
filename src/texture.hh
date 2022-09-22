@@ -6,10 +6,10 @@
 class Texture {
 public:
 	Texture(LPDIRECT3DDEVICE9 device, const std::string &path) : m_sFilePath(path) { OnDeviceReset(device); }
-	~Texture();
+	~Texture() { OnDeviceLost(); };
 
-	void OnDeviceLost();
-	void OnDeviceReset(LPDIRECT3DDEVICE9 device);
+	VOID OnDeviceLost();
+	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 	inline operator LPDIRECT3DTEXTURE9() const {
 		return this ? m_lpTexture : nullptr;
 	}

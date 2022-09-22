@@ -18,10 +18,10 @@ public:
 	inline D3DXVECTOR3 GetBoundCenter(D3DXVECTOR3 pos, FLOAT scale) { return (m_vBoundCenter * scale) + pos; }
 	inline FLOAT GetBoundRadius(FLOAT scale) { return m_vBoundRadius * scale; }
 
-	void SetBoundMin(D3DXVECTOR3 min) { m_vBoundMin = min; }
-	void SetBoundMax(D3DXVECTOR3 max) { m_vBoundMax = max; }
+	VOID SetBoundMin(D3DXVECTOR3 min) { m_vBoundMin = min; }
+	VOID SetBoundMax(D3DXVECTOR3 max) { m_vBoundMax = max; }
 
-	void Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
+	VOID Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
 
 private:
 	LPD3DXMESH m_lpMesh = nullptr;

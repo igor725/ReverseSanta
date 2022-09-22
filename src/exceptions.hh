@@ -71,7 +71,7 @@ public:
 		::LocalFree(m_lpMessage);
 	}
 
-	void Alert() {
+	VOID Alert() {
 		::MessageBox(nullptr, m_lpMessage, L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 	}
 
@@ -84,7 +84,7 @@ public:
 	}
 
 	template<typename... Ts>
-	void ApplyFormattedMessage(LPCWSTR format, Ts... args) {
+	VOID ApplyFormattedMessage(LPCWSTR format, Ts... args) {
 		auto sz = std::swprintf(nullptr, 0, format, args...) + 2;
 		m_lpMessage = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, (sz * 2) + 2);
 		if (m_lpMessage) std::swprintf(m_lpMessage, sz, format, args...);

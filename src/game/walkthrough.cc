@@ -1,7 +1,7 @@
 #include "game\walkthrough.hh"
 #include "exceptions.hh"
 
-void Walkthrough::Begin() {
+VOID Walkthrough::Begin() {
 	m_dwLives = 3;
 	m_fElapsedTime = 0;
 	m_bSavePointUsed = false;
@@ -10,7 +10,7 @@ void Walkthrough::Begin() {
 DWORD Walkthrough::NextLevel(Level *level) {
 	DWORD score = 0;
 
-	level->IterObjects([](Level::ObjectData data, void *ud)->BOOL {
+	level->IterObjects([](Level::ObjectData data, LPVOID ud)->BOOL {
 		switch (data.f_lpDObj->f_lpElem->f_eType) {
 			case Elems::BONUS:
 				if (data.f_lpDObj->f_bHidden)

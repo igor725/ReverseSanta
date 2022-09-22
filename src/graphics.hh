@@ -8,11 +8,12 @@
 class Graphics {
 public:
 	Graphics(HINSTANCE hInst);
-	~Graphics();
+	~Graphics() { Shutdown(); }
 
-	void RecreateDevice();
-	void UpdateLight();
-	void EnableLighting(BOOL state = true);
+	VOID Shutdown();
+	VOID RecreateDevice();
+	VOID UpdateLight();
+	VOID EnableLighting(BOOL state = true);
 
 	inline D3DLIGHT9 *GetLight() { return m_bLightEnabled ? &m_Light : nullptr; }
 	inline LPDIRECT3DDEVICE9 GetDevice() { return m_lpDevice; }
@@ -21,13 +22,13 @@ public:
 
 	BOOL TestDevice();
 	LPDIRECT3DDEVICE9 BeginFrame(FLOAT delta);
-	void StartUI();
-	void EndUI();
-	void EndFrame();
-	void PresentFrame();
+	VOID StartUI();
+	VOID EndUI();
+	VOID EndFrame();
+	VOID PresentFrame();
 	LPDIRECT3DSURFACE9 PresentToSurface();
 
-	inline void Show() { ShowWindow(m_hWindow, SW_NORMAL); }
+	inline VOID Show() { ShowWindow(m_hWindow, SW_NORMAL); }
 
 private:
 	const DWORD m_dwD3DDeviceFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING |
@@ -52,7 +53,7 @@ private:
 
 	Camera *m_lpCamera = nullptr;
 
-	void ResetPresentParams() {
+	VOID ResetPresentParams() {
 		ZeroMemory(&m_D3DPresent, sizeof(D3DPRESENT_PARAMETERS));
 		m_D3DPresent.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		m_D3DPresent.AutoDepthStencilFormat = D3DFMT_D24S8;
