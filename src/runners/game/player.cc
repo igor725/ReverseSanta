@@ -57,7 +57,7 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 		m_vVelocity.x *= factor, m_vVelocity.z *= factor;
 		m_lpDrawObj->f_vPos.y = ps.ground;
 		if (!m_bIsTouchingGround) {
- 			m_dwJumpsLeft = 2;
+ 			m_dwJumpsLeft = m_dwJumpsCount;
 			m_vVelocity.y = 0.0f;
 			m_bIsTouchingGround = true;
 		}

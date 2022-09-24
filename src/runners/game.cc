@@ -5,6 +5,7 @@ VOID Game::OnOpen(DWORD prev) {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
 	auto walk = engine->SysWalkthrough();
+	auto &wcfg = walk->GetConfig();
 	auto pobj = m_lpPlayer->GetDrawObject();
 
 	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
@@ -15,6 +16,7 @@ VOID Game::OnOpen(DWORD prev) {
 		engine->SetPause(false);
 		walk->Reset();
 	}
+	m_lpPlayer->SetAirJumps(wcfg.f_bTripleJump ? 3 : 2);
 }
 
 VOID Game::OnClose() {
@@ -45,7 +47,7 @@ VOID Game::OnInput(FLOAT delta, InputState *state) {
 	else if (state->KBIsDown(DIK_D))
 		m_lpPlayer->Rotate((D3DX_PI * 1.1f) * delta);
 
-	if (state->KBIsDown(DIK_W))
+	if (state->KBIsDown(DIK_W) || state->MBIsDown(1))
 		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * -6.0f);
 	else if (state->KBIsDown(DIK_S))
 		m_lpPlayer->SetXZVelocity(m_lpPlayer->GetForward() * 6.0f);
@@ -78,14 +80,18 @@ VOID Game::OnUpdate(FLOAT delta) {
 		auto *ts = (TouchState *)ud;
 
 		switch(second->f_lpElem->f_eType) {
+			case Elems::BONUS:
+				ts->wth->CollectBonus();
+				second->f_bHidden = true;
+				return true;
 			case Elems::SAVEPOINT:
 				if (!ts->wth->SavePointUsed()) break;
 				ts->player->SetSavePosition(&second->f_vPos, second->f_vRot.y + (D3DX_PI * 0.5f));
-				/* fallthrough */
+				second->f_bHidden = true;
+				return true;
 			case Elems::EXTRALIFE:
 				if (!ts->wth->SavePointUsed()) break;
-				/* double fallthrough */
-			case Elems::BONUS:
+				ts->wth->CollectLive();
 				second->f_bHidden = true;
 				return true;
 			case Elems::EXIT:

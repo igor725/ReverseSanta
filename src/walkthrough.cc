@@ -7,14 +7,22 @@ static void runlevel(Level *level, DWORD num) {
 }
 
 VOID Walkthrough::Reset() {
-	Begin();
 	runlevel(m_lpLevel, m_dwCurrLevel = 0);
+	Begin();
 }
 
 VOID Walkthrough::Begin() {
 	m_fElapsedTime = 0;
+	m_dwPresentsCount = 0;
 	m_bSavePointUsed = false;
-	m_dwLives = cfg.f_dwStartLives;
+	m_dwCollectedPresents = 0;
+	m_dwLives = m_Config.f_dwStartLives;
+	m_lpLevel->IterObjects([](Level::ObjectData data, LPVOID ud)->BOOL {
+		if (data.f_lpDObj->f_lpElem->f_eType == Elems::BONUS)
+			(*(DWORD *)ud)++;
+
+		return false;
+	}, &m_dwPresentsCount);
 }
 
 DWORD Walkthrough::NextLevel() {
@@ -31,15 +39,15 @@ DWORD Walkthrough::NextLevel() {
 		return false;
 	}, &score);
 
-	score += DWORD(cfg.f_fLevelTime - m_fElapsedTime) * 2;
+	score += DWORD(m_Config.f_fLevelTime - m_fElapsedTime) * 2;
 	m_dwOverallScore += score;
-	m_fElapsedTime = 0.0f;
 	runlevel(m_lpLevel, ++m_dwCurrLevel);
+	Begin();
 
 	return score;
 }
 
 BOOL Walkthrough::Update(FLOAT delta) {
 	m_fElapsedTime += delta;
-	return m_fElapsedTime < cfg.f_fLevelTime;
+	return m_fElapsedTime < m_Config.f_fLevelTime;
 }

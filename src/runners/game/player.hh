@@ -17,14 +17,15 @@ public:
 	inline VOID Rotate(FLOAT dir) { m_lpDrawObj->f_vRot.y += dir; }
 	inline VOID Jump() {
 		if (m_dwJumpsLeft > 0) {
-			m_vVelocity.y = max(m_vVelocity.y, 11.5f * (m_dwJumpsLeft * 0.5f));
-			m_dwJumpsLeft -= m_bIsTouchingGround ? 1 : m_dwJumpsLeft;
+			m_vVelocity.y = max(m_vVelocity.y, 11.5f * m_dwJumpsLeft / (FLOAT)m_dwJumpsCount);
+			m_dwJumpsLeft -= m_dwJumpsCount > 2 ? 1 : m_bIsTouchingGround ? 1 : m_dwJumpsLeft;
 		}
 	}
 	inline VOID SetXZVelocity(D3DXVECTOR3 diff) {
 		m_vVelocity.x = diff.x, m_vVelocity.z = diff.z;
 	}
-	inline VOID SetSavePosition(LPD3DXVECTOR3 pos, FLOAT rot) {
+	inline VOID SetAirJumps(DWORD count) { m_dwJumpsCount = count; }
+	inline VOID SetSavePosition(const LPD3DXVECTOR3 pos, FLOAT rot) {
 		m_vSavePos = *pos, m_vSaveRot.y = rot;
 	}
 	inline VOID ResetPosition() {
@@ -47,7 +48,6 @@ public:
 		m_lpLastStand = nullptr;
 	}
 
-	inline BOOL IsOnGround() { return m_bIsTouchingGround; }
 	inline DObject *GetDrawObject() { return m_lpDrawObj; }
 	inline D3DXVECTOR3 GetForward() {
 		return {
@@ -61,7 +61,8 @@ private:
 	DObject *m_lpDrawObj = nullptr,
 	*m_lpLastStand = nullptr;
 
-	DWORD m_dwJumpsLeft = 2;
+	DWORD m_dwJumpsLeft = 2,
+	m_dwJumpsCount = 2;
 	BOOL m_bIsTouchingGround = false;
 	D3DXVECTOR3 
 	m_vSavePos = {0.0f, 0.0f, 0.0f},

@@ -5,9 +5,12 @@
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse
 
-Menu::~Menu() {
-	delete m_lpPlayer;
-}
+static const Walkthrough::Config presets[] = {
+	{4, 600.0f, true, false, true, false, false},
+	{3, 420.0f, true, false, false, false, false},
+	{2, 320.0f, false, true, false, true, false},
+	{1, 200.0f, false, true, false, true, true},
+};
 
 VOID Menu::OnOpen(DWORD) {
 	auto engine = Engine::GetInstance();
@@ -43,7 +46,7 @@ VOID Menu::OnDrawUI() {
 	auto &io = ImGui::GetIO();
 	auto engine = Engine::GetInstance();
 	static const ImVec2 btnsz = ImVec2(150, 0);
-	static const ImVec2 wsize = ImVec2(410, 260);
+	static const ImVec2 wsize = ImVec2(404, 260);
 	const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 
 	float crb = (wsize.x - btnsz.x) * 0.5f;
@@ -63,12 +66,13 @@ VOID Menu::OnDrawUI() {
 				"Enemies throwing snowballs",
 				"Collect all presents to be able to finish the level",
 				"Extra lives and savepoints are available",
-				"Allow double air jump"
+				"Double air jump allowed",
+				"Available lives %d",
+				"Time per level: %.2f sec"
 			};
 			static int current = 0;
-			if (ImGui::ListBox("Select difficulty", &current, diffs, IM_ARRAYSIZE(diffs))) {
-				// if (current < 4) walk = GetDifficultyPreset(current);
-			}
+			if (ImGui::ListBox("Select difficulty", &current, diffs, IM_ARRAYSIZE(diffs)))
+				if (current < 4) walk = presets[current];
 
 			ImGui::Spacing();
 			if (current == 4) {
@@ -77,6 +81,7 @@ VOID Menu::OnDrawUI() {
 				ImGui::Checkbox(discr[2], (bool *)&walk.f_bAllbonuses);
 				ImGui::Checkbox(discr[3], (bool *)&walk.f_bSavePointsEnabled);
 				ImGui::Checkbox(discr[4], (bool *)&walk.f_bTripleJump);
+				ImGui::SliderInt(discr[5], (int *)&walk.f_dwStartLives, 1, 4);
 			} else {
 				ImGui::Text("Description:");
 				if (walk.f_bAirJumpDmg) ImGui::Text(discr[0]);
@@ -84,7 +89,14 @@ VOID Menu::OnDrawUI() {
 				if (walk.f_bAllbonuses) ImGui::Text(discr[2]);
 				if (walk.f_bSavePointsEnabled) ImGui::Text(discr[3]);
 				if (walk.f_bTripleJump) ImGui::Text(discr[4]);
+				ImGui::Text(discr[5], walk.f_dwStartLives);
+				ImGui::Text(discr[6], walk.f_fLevelTime);
 			}
+			ImGui::Spacing();
+			ImGui::Text("Score multipliers:");
+			ImGui::Text("Time bonus: %.3f");
+			ImGui::Text("Present: %.3f");
+			ImGui::Text("Hardcore bonus: %.3f");
 		}
 
 		if (ImGui::CollapsingHeader("Graphics")) {
@@ -132,9 +144,9 @@ VOID Menu::OnDrawUI() {
 
 	ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
 	ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-	ImGui::Begin("Main menu", nullptr, DWND_FLAGS);
+	ImGui::Begin("Main menu", nullptr, DWND_FLAGS | ImGuiWindowFlags_NoTitleBar);
 
-	ImGui::SetCursorPos(ImVec2(crb, (wsize.y - 92.0f) * 0.5f));
+	ImGui::SetCursorPos(ImVec2(crb, (wsize.y - 110.0f) * 0.5f));
 	if (ImGui::Button("Load game", btnsz))
 		showloads = !showloads;
 	ImGui::SetCursorPosX(crb);

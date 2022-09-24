@@ -7,7 +7,7 @@
 class Menu : public BaseRunner {
 public:
 	Menu() : m_lpPlayer(new Player) {}
-	~Menu();
+	~Menu() { delete m_lpPlayer; }
 
 	VOID OnOpen(DWORD prev);
 	VOID OnClose();

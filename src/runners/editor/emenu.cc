@@ -2,8 +2,6 @@
 #include "emenu.hh"
 #include "imgui.h"
 
-#define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings
-
 VOID EditorMenu::DrawMainMenu() {
 	const auto vp = ImGui::GetMainViewport();
 	const auto res = ImVec2(410, 260);
@@ -11,7 +9,7 @@ VOID EditorMenu::DrawMainMenu() {
 	ImGui::SetNextWindowPos(ImVec2((vp->WorkSize.x - res.x) * 0.5f, (vp->WorkSize.y - res.y) * 0.5f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(res, ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("ReverseSanta Editor Menu", &m_bMainActive, DWND_FLAGS)) {
+	if (!ImGui::Begin("ReverseSanta Editor Menu", &m_bMainActive, ImGuiWindowFlags_NoResize)) {
 		ImGui::End();
 		return;
 	}
@@ -114,7 +112,7 @@ VOID EditorMenu::DrawObjectMenu() {
 
 	ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin(lvlobj->f_name, &isactive, DWND_FLAGS)) {
+	if (!ImGui::Begin(lvlobj->f_name, &isactive, ImGuiWindowFlags_NoResize)) {
 		ImGui::End();
 		return;
 	}
