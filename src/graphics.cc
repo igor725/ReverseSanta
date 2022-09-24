@@ -30,22 +30,24 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 
 	switch (iMsg) {
 		case WM_RBUTTONUP:
-			engine->SysInput()->Capture();
+			engine->SetPause(false);
 			break;
 		case WM_KEYUP:
 			switch (wParam) {
 				case VK_ESCAPE:
-					if (!engine->SysInput()->Release())
-						PostMessage(hWnd, WM_CLOSE, 0, 0);
+					if (engine->IsPaused())
+						engine->SetRunner(Engine::MENU);
+					else
+						engine->SetPause(true);
 					break;
 				case VK_F5:
-					engine->NextRunner();
+					engine->ToggleEditor();
 					break;
 			}
 			break;
 		case WM_ACTIVATE:
 			if (wParam == WA_INACTIVE)
-				engine->SysInput()->Release();
+				engine->SetPause(true);
 			break;
 
 		default:
@@ -186,8 +188,6 @@ VOID Graphics::EnableLighting(BOOL state) {
 }
 
 BOOL Graphics::TestDevice() {
-	if (!m_lpDevice) return false;
-
 #if !defined(D3D_DISABLE_9EX)
 	if (m_bDeviceOccluded) {
 		switch (auto hRes = m_lpDeviceEx->CheckDeviceState(m_hWindow)) {

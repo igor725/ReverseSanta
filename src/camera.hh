@@ -10,7 +10,8 @@ struct Camera {
 				f_vUp   = {0.0f, 1.0f, 0.0f},
 				f_vRot  = {0.0f, 0.0f, 0.0f};
 
-	const FLOAT f_fFollowDistance = 6.0f;
+	FLOAT f_fFollowDistance = 6.0f,
+	f_fFollowHeightMult = 0.5f;
 	FLOAT f_fFov = 1.03f,
 	f_fNearVP = 0.01f,
 	f_fFarVP = 1000.0f,
@@ -31,11 +32,10 @@ struct Camera {
 		if (f_lpvFollowPos && f_lpvFollowRot) {
 			D3DXVECTOR3 flfwd = {
 				std::sinf(f_lpvFollowRot->y) * std::cosf(f_lpvFollowRot->x),
-				std::sinf(-f_lpvFollowRot->x),
+				f_fFollowHeightMult,
 				std::cosf(f_lpvFollowRot->y) * std::cosf(f_lpvFollowRot->x)
 			};
 
-			flfwd.y = 0.5f;
 			auto back = flfwd * -f_fFollowDistance;
 			auto dizcampos = *f_lpvFollowPos - back;
 			dizcampos.y = max(dizcampos.y, -5.0f);

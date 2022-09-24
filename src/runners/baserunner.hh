@@ -45,13 +45,11 @@ struct InputState {
 
 class BaseRunner {
 public:
-	virtual VOID OnOpen() {}
+	virtual VOID OnOpen(DWORD) {}
 	virtual VOID OnClose() {}
+	virtual VOID OnPause(BOOL) {}
 
-	virtual LRESULT OnWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam) {
-		(void)hWnd, iMsg, wParam, lParam;
-		return (LRESULT)0;
-	}
+	virtual LRESULT OnWndProc(HWND, UINT, WPARAM, LPARAM) { return (LRESULT)0; }
 	virtual VOID OnInput(FLOAT, InputState *) {}
 	virtual VOID OnUpdate(FLOAT) {}
 	virtual VOID OnDraw(LPDIRECT3DDEVICE9) {}

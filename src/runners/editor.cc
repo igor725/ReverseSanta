@@ -6,7 +6,7 @@ LRESULT Editor::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	auto engine = Engine::GetInstance();
 	if (iMsg == WM_KEYUP) {
 		if (wParam == VK_F1) {
-			engine->SysInput()->Release();
+			engine->SetPause(true);
 			m_Menu.Toggle();
 			return true;
 		}
@@ -44,7 +44,7 @@ VOID Editor::OnInput(FLOAT delta, InputState *state) {
 		camera->f_vRot += D3DXVECTOR3{state->CurCX() * 0.001f, state->CurCY() * 0.001f, 0.0f};
 
 	if (state->MBIsJustUp(0) && engine->GetObjectOn(&m_Menu.m_odPicked))
-		engine->SysInput()->Release();
+		engine->SetPause(true);
 }
 
 VOID Editor::OnDrawUI() {

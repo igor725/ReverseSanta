@@ -1,5 +1,5 @@
 #include "engine.hh"
-#include "game\player.hh"
+#include "player.hh"
 
 Player::Player() {
 	m_lpDrawObj = new DObject(
@@ -11,18 +11,16 @@ Player::Player() {
 	m_lpDrawObj->f_lpMesh->SetBoundMax({ 20.0f, 120.0f,  20.0f});
 }
 
-Player::~Player() {
-	delete m_lpDrawObj;
-}
-
 BOOL Player::Update(Level *level, FLOAT delta) {
 	struct PhyState {
 		FLOAT ground = 0.0f;
 		FLOAT friction = 0.0f;
 		FLOAT *vely = nullptr;
 		LPDWORD jumps = nullptr;
+		DObject **stand = nullptr;
 	} ps;
 
+	ps.stand = &m_lpLastStand;
 	ps.jumps = &m_dwJumpsLeft;
 	ps.vely = &m_vVelocity.y;
 	BOOL touching =
@@ -46,6 +44,7 @@ BOOL Player::Update(Level *level, FLOAT delta) {
 			case Elems::PLATFORM:
 			case Elems::RECTFORM:
 				ps->ground = floor;
+				*ps->stand = second;
 				ps->friction = elem->f_fFriction;
 				return true;
 		}

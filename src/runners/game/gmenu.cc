@@ -1,4 +1,4 @@
-#include "game\gmenu.hh"
+#include "gmenu.hh"
 #include "imgui.h"
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings
@@ -6,7 +6,7 @@
 void GameMenu::Draw() {
 	if (!m_bMainActive) return;
 	const auto vp = ImGui::GetMainViewport();
-	const auto res = ImVec2(400, 340);
+	const auto res = ImVec2(410, 260);
 
 	ImGui::SetNextWindowPos(ImVec2((vp->WorkSize.x - res.x) * 0.5f, (vp->WorkSize.y - res.y) * 0.5f), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(res, ImGuiCond_FirstUseEver);

@@ -1,13 +1,20 @@
 #include "game.hh"
 #include "engine.hh"
 
-VOID Game::OnOpen() {
+VOID Game::OnOpen(DWORD prev) {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
+	auto walk = engine->SysWalkthrough();
 	auto pobj = m_lpPlayer->GetDrawObject();
+
 	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
 	m_lpPlayer->ResetPosition();
-	m_Walkthrough.Begin();
+	if (prev == Engine::EDITOR)
+		walk->Begin();
+	else {
+		engine->SetPause(false);
+		walk->Reset();
+	}
 }
 
 VOID Game::OnClose() {
@@ -20,7 +27,7 @@ LRESULT Game::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM) {
 	auto engine = Engine::GetInstance();
 	if (iMsg == WM_KEYUP) {
 		if (wParam == VK_F1) {
-			engine->SysInput()->Release();
+			engine->SetPause(true);
 			m_Menu.Toggle();
 			return true;
 		}
@@ -48,9 +55,9 @@ VOID Game::OnInput(FLOAT delta, InputState *state) {
 }
 
 VOID Game::OnUpdate(FLOAT delta) {
-	if (m_bIsPaused) return;
 	auto engine = Engine::GetInstance();
 	auto level = engine->SysLevel();
+	auto walk = engine->SysWalkthrough();
 
 	struct TouchState {
 		Level *level;
@@ -60,10 +67,10 @@ VOID Game::OnUpdate(FLOAT delta) {
 
 	if (!m_lpPlayer->Update(level, delta)) {
 		m_lpPlayer->Respawn();
-		EASSERT(m_Walkthrough.Death() && "No more lives left, game over!");
+		EASSERT(walk->Death() && "No more lives left, game over!");
 	}
 
-	ts.wth = &m_Walkthrough;
+	ts.wth = walk;
 	ts.player = m_lpPlayer;
 	ts.level = level;
 
@@ -72,19 +79,17 @@ VOID Game::OnUpdate(FLOAT delta) {
 
 		switch(second->f_lpElem->f_eType) {
 			case Elems::SAVEPOINT:
-				if (!ts->wth->IsSavePointsEnabled()) break;
-				ts->wth->SavePointUsed();
-				ts->player->SetSavePosition(&second->f_vPos, second->f_vRot.y + (D3DX_PI / 2.0f));
+				if (!ts->wth->SavePointUsed()) break;
+				ts->player->SetSavePosition(&second->f_vPos, second->f_vRot.y + (D3DX_PI * 0.5f));
 				/* fallthrough */
 			case Elems::EXTRALIFE:
-				if (!ts->wth->IsSavePointsEnabled()) break;
-				ts->wth->SavePointUsed();
+				if (!ts->wth->SavePointUsed()) break;
 				/* double fallthrough */
 			case Elems::BONUS:
 				second->f_bHidden = true;
 				return true;
 			case Elems::EXIT:
-				ts->wth->NextLevel(ts->level);
+				ts->wth->NextLevel();
 				ts->player->ResetPosition();
 				return true;
 		}
@@ -92,7 +97,7 @@ VOID Game::OnUpdate(FLOAT delta) {
 		return false;
 	}, &ts);
 
-	EASSERT(m_Walkthrough.Update(delta) && "Time's up, game over!");
+	EASSERT(walk->Update(delta) && "Time's up, game over!");
 }
 
 VOID Game::OnDraw(LPDIRECT3DDEVICE9 device) {

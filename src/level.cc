@@ -80,7 +80,7 @@ VOID Level::Rebuild() {
 	}
 }
 
-VOID Level::Update(FLOAT delta) {(void)delta;
+VOID Level::Update(FLOAT delta) {
 	/* TODO: Логика уровня - лифты, враги, движущиеся платформы и прочая срань */
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		auto obj = &m_lpDObjects[i];

@@ -7,11 +7,21 @@
 #include "input.hh"
 #include "virtfs.hh"
 #include "level.hh"
-#include "baserunner.hh"
+#include "walkthrough.hh"
+#include "runners\baserunner.hh"
 #include "rescache.hh"
 
 class Engine {
 public:
+	enum Runner {
+		NONE,
+		MENU,
+		EDITOR,
+		GAME,
+
+		MAX_RUNNERS
+	};
+
 	static Engine *GetInstance();
 
 	Engine(HINSTANCE hInst);
@@ -21,17 +31,20 @@ public:
 	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
 	BaseRunner *GetRunner();
-	inline std::vector<BaseRunner *> &GetRunners() { return m_vRunners; }
-	VOID SetRunner(DWORD num);
-	VOID NextRunner();
+	VOID SetRunner(Runner num);
 
+	VOID ToggleEditor();
+	VOID SetPause(BOOL state);
 	VOID Step(FLOAT delta);
 
-	inline Input *SysInput() { return m_lpInput; }
-	inline Graphics *SysGraphics() { return m_lpGraphics; }
-	inline Level *SysLevel() { return m_lpLevel; }
-	inline ResCache *SysCache() { return m_lpCache; }
+	inline BOOL IsPaused() { return m_bPaused; }
+
 	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
+	inline ResCache *SysCache() { return m_lpCache; }
+	inline Graphics *SysGraphics() { return m_lpGraphics; }
+	inline Input *SysInput() { return m_lpInput; }
+	inline Level *SysLevel() { return m_lpLevel; }
+	inline Walkthrough *SysWalkthrough() { return m_lpWalkthrough; }
 
 	BOOL GetObjectOn(Level::ObjectData *data, DWORD x = (DWORD)-1, DWORD y = (DWORD)-1);
 
@@ -41,7 +54,9 @@ private:
 	ResCache *m_lpCache = nullptr;
 	VirtFs *m_lpVirtFs = nullptr;
 	Level *m_lpLevel = nullptr;
+	Walkthrough *m_lpWalkthrough = nullptr;
 
-	std::vector<BaseRunner *> m_vRunners;
-	DWORD m_dwCurrentRunner = 0;
+	BaseRunner * m_lpRunners[MAX_RUNNERS];
+	Runner m_eCurrentRunner = NONE;
+	BOOL m_bPaused = true;
 };

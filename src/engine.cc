@@ -1,11 +1,8 @@
 #include "engine.hh"
 
-#include "graphics.hh"
-#include "input.hh"
-#include "virtfs.hh"
-#include "level.hh"
-#include "editor.hh"
-#include "game.hh"
+#include "runners\editor.hh"
+#include "runners\game.hh"
+#include "runners\menu.hh"
 
 static Engine *__engineInstance = nullptr;
 
@@ -17,12 +14,14 @@ Engine::Engine(HINSTANCE hInst) {
 	m_lpGraphics = new Graphics(hInst);
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
 	m_lpLevel = new Level;
-	EASSERT(m_lpLevel->Load("levels\\000.dat"));
+	m_lpWalkthrough = new Walkthrough(m_lpLevel);
 
-	m_vRunners.push_back(new Editor);
-	m_vRunners.push_back(new Game);
+	m_lpRunners[MENU] = new Menu;
+	m_lpRunners[EDITOR] = new Editor;
+	m_lpRunners[GAME] = new Game;
 
 	m_lpGraphics->Show();
+	SetRunner(MENU);
 }
 
 Engine::~Engine() {
@@ -31,8 +30,8 @@ Engine::~Engine() {
 	delete m_lpVirtFs;
 	delete m_lpCache;
 	delete m_lpLevel;
-	for (auto runner : m_vRunners)
-		delete runner;
+	for (DWORD i = MENU; i < MAX_RUNNERS; i++)
+		delete m_lpRunners[i];
 	__engineInstance = nullptr;
 }
 
@@ -42,45 +41,57 @@ Engine *Engine::GetInstance() {
 
 VOID Engine::OnDeviceLost() {
 	m_lpCache->OnDeviceLost();
-	for (auto &runner : GetRunners())
-		runner->OnDeviceLost();
+	for (DWORD i = MENU; i < MAX_RUNNERS; i++)
+		m_lpRunners[i]->OnDeviceLost();
 }
 
 VOID Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 	m_lpCache->OnDeviceReset(device);
-	for (auto &runner : GetRunners())
-		runner->OnDeviceReset(device);
+	for (DWORD i = MENU; i < MAX_RUNNERS; i++)
+		m_lpRunners[i]->OnDeviceReset(device);
 }
 
-VOID Engine::SetRunner(DWORD num) {
+VOID Engine::SetRunner(Runner num) {
 	if (auto runner = GetRunner())
 		runner->OnClose();
 
-	m_dwCurrentRunner = num;
+	auto prev = m_eCurrentRunner;
+	m_eCurrentRunner = num;
 
 	if (auto runner = GetRunner())
-		runner->OnOpen();
-}
-
-VOID Engine::NextRunner() {
-	DWORD nextrunner = (m_dwCurrentRunner + 1);
-	if ((m_dwCurrentRunner + 1) == m_vRunners.size())
-		nextrunner = 0;
-	SetRunner(nextrunner);
+		runner->OnOpen(prev);
 }
 
 BaseRunner *Engine::GetRunner() {
-	if (m_dwCurrentRunner == m_vRunners.size()) return nullptr;
-	return m_vRunners[m_dwCurrentRunner];
+	return m_eCurrentRunner ? m_lpRunners[m_eCurrentRunner] : nullptr;
+}
+
+VOID Engine::ToggleEditor() {
+	if (m_eCurrentRunner == GAME)
+		SetRunner(EDITOR);
+	else if (m_eCurrentRunner == EDITOR)
+		SetRunner(GAME);
+}
+
+VOID Engine::SetPause(BOOL state) {
+	if (m_bPaused == state) return;
+	m_bPaused = state;
+	if (auto runner = GetRunner())
+		runner->OnPause(state);
+	if (state) { EASSERT(m_lpInput->Release() != false); }
+	else { EASSERT(m_lpInput->Capture() != false); }
 }
 
 VOID Engine::Step(FLOAT delta) {
 	delta = min(delta, 0.016f);
 	if (auto runner = GetRunner()) {
-		m_lpInput->Update(delta, runner);
-		for (DWORD i = 0; i < 4; i++) {
-			m_lpLevel->Update(delta / 4.0f);
-			runner->OnUpdate(delta / 4.0f);
+		if (!m_bPaused || m_eCurrentRunner == MENU) {
+			m_lpInput->Update(delta, runner);
+			for (DWORD i = 0; i < 4; i++) {
+				const auto hdelta = delta / 4.0f;
+				m_lpLevel->Update(hdelta);
+				runner->OnUpdate(hdelta);
+			}
 		}
 
 		if (m_lpGraphics->TestDevice()) {
@@ -104,8 +115,8 @@ BOOL Engine::GetObjectOn(Level::ObjectData *data, DWORD x, DWORD y) {
 		m_lpLevel->Draw(device, true);
 		m_lpGraphics->EndFrame();
 		auto sur = m_lpGraphics->PresentToSurface();
-		D3DLOCKED_RECT lock;
-		D3DSURFACE_DESC desc;
+		D3DLOCKED_RECT lock; D3DSURFACE_DESC desc;
+
 		if (sur->GetDesc(&desc) == D3D_OK) {
 			if (x == -1 && y == -1)
 				x = desc.Width / 2, y = desc.Height / 2;

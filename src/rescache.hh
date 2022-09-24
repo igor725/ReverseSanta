@@ -8,6 +8,8 @@
 
 class ResCache {
 public:
+	~ResCache();
+
 	Mesh *GetMesh(const std::string &path);
 	Texture *GetTexture(const std::string &path);
 
@@ -16,6 +18,7 @@ public:
 
 private:
 	enum Type {
+		INVALID,
 		MESH,
 		TEXTURE
 	};

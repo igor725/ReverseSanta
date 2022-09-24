@@ -1,7 +1,7 @@
 #pragma once
 
 #include <dinput.h>
-#include "baserunner.hh"
+#include "runners\baserunner.hh"
 
 class Input {
 public:
