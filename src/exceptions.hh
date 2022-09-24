@@ -37,16 +37,16 @@ public:
 		sym->MaxNameLen = MAX_SYM_NAME;
 		sym->SizeOfStruct = sizeof(SYMBOL_INFOW);
 
-		WORD frames = CaptureStackBackTrace(2, 16, stack, nullptr);
+		WORD frames = ::CaptureStackBackTrace(2, 16, stack, nullptr);
 		IMAGEHLP_LINEW64 ln = {};
 		ln.SizeOfStruct = sizeof(IMAGEHLP_LINEW64);
 
 		WCHAR framestr[256];
 		for (WORD i = 0; i < frames; i++) {
-			if (SymFromAddrW(GetCurrentProcess(), (DWORD64)stack[i], nullptr, sym)) {
+			if (::SymFromAddrW(::GetCurrentProcess(), (DWORD64)stack[i], nullptr, sym)) {
 				if (std::swprintf(framestr, 256, L"Frame #%d: %ls = %p\r\n", i, sym->Name, (LPVOID)sym->Address) > 0)
 					m_lpCallStack += framestr;
-				if (SymGetLineFromAddrW64(GetCurrentProcess(), (DWORD64)sym->Address, (PDWORD)&stack[i], &ln)) {
+				if (::SymGetLineFromAddrW64(::GetCurrentProcess(), (DWORD64)sym->Address, (PDWORD)&stack[i], &ln)) {
 					if (std::swprintf(framestr, 256, L"\tin %ls:%lu\r\n\r\n", TrimPath(ln.FileName), ln.LineNumber) > 0)
 						m_lpCallStack += framestr;
 				} else
@@ -182,7 +182,6 @@ public:
 			CODECASE(DIERR_DEVICENOTREG);
 			CODECASE(DIERR_NOTINITIALIZED);
 			CODECASE(DIERR_ACQUIRED);
-
 
 			CODECASE(E_FAIL);
 			CODECASE(E_HANDLE);

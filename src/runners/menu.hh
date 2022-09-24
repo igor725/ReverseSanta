@@ -22,6 +22,6 @@ public:
 
 private:
 	Player *m_lpPlayer = nullptr;
-	
+
 	D3DXVECTOR3 m_vCamRot = {0.0f, 0.0f, 0.0f};
 };
