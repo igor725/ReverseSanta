@@ -55,5 +55,5 @@ public:
 	Element *Search(std::string name);
 
 private:
-	std::map<std::string, Element> m_mElements = {};
+	std::map<std::string, Element> m_mElements;
 };

@@ -33,7 +33,6 @@ public:
 	BaseRunner *GetRunner();
 	VOID SetRunner(Runner num);
 
-	VOID ToggleEditor();
 	VOID SetPause(BOOL state);
 	VOID Step(FLOAT delta);
 

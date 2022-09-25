@@ -10,7 +10,7 @@ static std::string GetStringParam(std::string &line) {
 	return line.substr(start + 1, stop - start - 1);
 }
 
-Elems::Elems(std::string fpath) {
+Elems::Elems(std::string fpath) : m_mElements({}) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 	auto cache = engine->SysCache();

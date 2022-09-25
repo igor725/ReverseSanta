@@ -24,24 +24,16 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 		if (runner->OnWndProc(hWnd, iMsg, wParam, lParam))
 			return DefWindowProc(hWnd, iMsg, wParam, lParam);
 
-	auto &io = ImGui::GetIO();
-	if (io.WantCaptureMouse || io.WantCaptureKeyboard)
-		return DefWindowProc(hWnd, iMsg, wParam, lParam);
-
 	switch (iMsg) {
 		case WM_RBUTTONUP:
+			if (ImGui::GetIO().WantCaptureMouse) break;
 			engine->SetPause(false);
 			break;
 		case WM_KEYUP:
+			if (ImGui::GetIO().WantCaptureKeyboard) break;
 			switch (wParam) {
 				case VK_ESCAPE:
-					if (engine->IsPaused())
-						engine->SetRunner(Engine::MENU);
-					else
-						engine->SetPause(true);
-					break;
-				case VK_F5:
-					engine->ToggleEditor();
+					engine->SetPause(!engine->IsPaused());
 					break;
 			}
 			break;
@@ -49,12 +41,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 			if (wParam == WA_INACTIVE)
 				engine->SetPause(true);
 			break;
-
-		default:
-			return DefWindowProc(hWnd, iMsg, wParam, lParam);
 	}
 
-	return 0;
+	return DefWindowProc(hWnd, iMsg, wParam, lParam);
 }
 
 Graphics::Graphics(HINSTANCE hInst) {

@@ -52,6 +52,8 @@ VOID Engine::OnDeviceReset(LPDIRECT3DDEVICE9 device) {
 }
 
 VOID Engine::SetRunner(Runner num) {
+	if (m_eCurrentRunner == num) return;
+
 	if (auto runner = GetRunner())
 		runner->OnClose();
 
@@ -66,20 +68,13 @@ BaseRunner *Engine::GetRunner() {
 	return m_eCurrentRunner ? m_lpRunners[m_eCurrentRunner] : nullptr;
 }
 
-VOID Engine::ToggleEditor() {
-	if (m_eCurrentRunner == GAME)
-		SetRunner(EDITOR);
-	else if (m_eCurrentRunner == EDITOR)
-		SetRunner(GAME);
-}
-
 VOID Engine::SetPause(BOOL state) {
 	if (m_bPaused == state) return;
 	m_bPaused = state;
 	if (auto runner = GetRunner())
 		runner->OnPause(state);
-	if (state) { EASSERT(m_lpInput->Release() != false); }
-	else { EASSERT(m_lpInput->Capture() != false); }
+	if (state) { m_lpInput->Release(); }
+	else { m_lpInput->Capture(); }
 }
 
 VOID Engine::Step(FLOAT delta) {

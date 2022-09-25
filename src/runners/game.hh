@@ -6,15 +6,15 @@
 
 class Game : public BaseRunner {
 public:
-	Game() : m_lpPlayer(new Player) {}
+	Game() : m_lpPlayer(new Player), m_Menu() {}
 	~Game() { delete m_lpPlayer; }
 
 	VOID OnOpen(DWORD prev);
 	VOID OnClose();
+	VOID OnPause(BOOL state);
 
 	inline Player *GetPlayer() { return m_lpPlayer; }
 
-	LRESULT OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam);
 	VOID OnInput(FLOAT delta, InputState *state);
 	VOID OnUpdate(FLOAT delta);
 	VOID OnDraw(LPDIRECT3DDEVICE9 device);

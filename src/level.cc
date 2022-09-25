@@ -66,7 +66,7 @@ VOID Level::Rebuild() {
 
 		dobj->f_bAlerted = true;
 		dobj->f_vPos = obj->f_vPos[0];
-		dobj->f_lpElem = m_lpElems->Search(obj->f_name);
+		dobj->f_lpElem = m_Elems.Search(obj->f_name);
 		dobj->f_lpMesh = dobj->f_lpElem->f_lpMesh;
 		dobj->f_vRot.y = D3DXToRadian(dobj->f_lpElem->f_fRotation + obj->f_dwRot * 90.0f);
 		if (dobj->f_lpUserData) delete dobj->f_lpUserData;

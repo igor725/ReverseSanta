@@ -53,6 +53,8 @@ struct Camera {
 			}
 			if (dcamplpdiff.y != 0.0f)
 				f_vRot.y = std::atan(dcamplpdiff.y / std::sqrt(dcamplpdiff.x * dcamplpdiff.x + dcamplpdiff.z * dcamplpdiff.z));
+		
+			f_vRot.z = f_lpvFollowRot->z;
 		}
 
 		D3DXMatrixRotationYawPitchRoll(&f_mxRot, f_vRot.x, f_vRot.y, f_vRot.z);

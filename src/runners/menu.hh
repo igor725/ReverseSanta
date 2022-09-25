@@ -3,11 +3,12 @@
 #include <Windows.h>
 #include "baserunner.hh"
 #include "game\player.hh"
+#include "menuctl.hh"
 
 class Menu : public BaseRunner {
 public:
-	Menu() : m_lpPlayer(new Player) {}
-	~Menu() { delete m_lpPlayer; }
+	Menu();
+	~Menu();
 
 	VOID OnOpen(DWORD prev);
 	VOID OnClose();
@@ -22,6 +23,7 @@ public:
 
 private:
 	Player *m_lpPlayer = nullptr;
+	MenuController *m_lpMenuCtl;
 
 	D3DXVECTOR3 m_vCamRot = {0.0f, 0.0f, 0.0f};
 };

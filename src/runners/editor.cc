@@ -9,6 +9,10 @@ LRESULT Editor::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			engine->SetPause(true);
 			m_Menu.Toggle();
 			return true;
+		} if (wParam == VK_ESCAPE && engine->IsPaused()) {
+			engine->SetRunner(Engine::GAME);
+			engine->SetPause(false);
+			return true;
 		}
 	}  if (iMsg == WM_LBUTTONUP && !ImGui::GetIO().WantCaptureMouse) {
 		auto x = (SHORT)(((DWORD_PTR)lParam) & 0xFFFF),

@@ -5,59 +5,25 @@
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse
 
-static const Walkthrough::Config presets[] = {
-	{4, 600.0f, true, false, true, false, false},
-	{3, 420.0f, true, false, false, false, false},
-	{2, 320.0f, false, true, false, true, false},
-	{1, 200.0f, false, true, false, true, true},
-};
+class MenuOptions : public MenuBase {
+public:
+	MenuOptions(std::string title) : MenuBase(title) {}
 
-VOID Menu::OnOpen(DWORD) {
-	auto engine = Engine::GetInstance();
-	auto graphics = engine->SysGraphics();
-	auto camera = graphics->GetCamera();
-	auto level = engine->SysLevel();
-	auto pobj = m_lpPlayer->GetDrawObject();
-	EASSERT(level->Load("levels\\100.dat"));
-	camera->SetFollow(&pobj->f_vPos, &m_vCamRot);
-	camera->f_fFollowHeightMult = 0.35f;
-	pobj->f_vPos.y = 0.0f;
-}
+	void Draw() {
+		if (!m_bShowSettings) {
+			GetController()->CloseMenu();
+			m_bShowSettings = true;
+			return;
+		}
 
-VOID Menu::OnClose() {
-	auto engine = Engine::GetInstance();
-	auto graphics = engine->SysGraphics();
-	auto camera = graphics->GetCamera();
-	camera->f_fFollowHeightMult = 0.5f;
-	camera->SetFollow();
-}
+		auto &io = ImGui::GetIO();
+		auto engine = Engine::GetInstance();
+		const ImVec2 wsize = ImVec2(404, 260); // Придумать, как вынести весь этот прикол отсюда
+		const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 
-VOID Menu::OnUpdate(FLOAT delta) {
-	static FLOAT timer = 0.0f;
-	m_vCamRot.y = D3DXToRadian(77.5f) + std::sinf(timer) * D3DXToRadian(22.5f);
-	timer += delta;
-}
-
-VOID Menu::OnDraw(LPDIRECT3DDEVICE9 device) {
-	m_lpPlayer->Draw(device);
-}
-
-VOID Menu::OnDrawUI() {
-	auto &io = ImGui::GetIO();
-	auto engine = Engine::GetInstance();
-	static const ImVec2 btnsz = ImVec2(150, 0);
-	static const ImVec2 wsize = ImVec2(404, 260);
-	const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
-
-	float crb = (wsize.x - btnsz.x) * 0.5f;
-	static bool showsettings = false,
-	showscores = false, showloads = false;
-
-	if (showsettings) {
 		ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
 		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::Begin("Settings", &showsettings, DWND_FLAGS);
-
+		ImGui::Begin("Settings", &m_bShowSettings, DWND_FLAGS);
 		if (ImGui::CollapsingHeader("Diffulty")) {
 			auto &walk = engine->SysWalkthrough()->GetConfig();
 			static const char *diffs[] = {"Easy", "Normal", "Hard", "Very hard", "Custom"};
@@ -70,7 +36,13 @@ VOID Menu::OnDrawUI() {
 				"Available lives %d",
 				"Time per level: %.2f sec"
 			};
-			static int current = 0;
+			static const Walkthrough::Config presets[] = {
+				{4, 600.0f, true, false, true, false, false},
+				{}, // Стандартные настройки сложности
+				{2, 320.0f, false, true, false, true, false},
+				{1, 200.0f, false, true, false, true, true},
+			};
+			static int current = 1;
 			if (ImGui::ListBox("Select difficulty", &current, diffs, IM_ARRAYSIZE(diffs)))
 				if (current < 4) walk = presets[current];
 
@@ -121,46 +93,78 @@ VOID Menu::OnDrawUI() {
 		}
 
 		ImGui::End();
-		return;
 	}
 
-	if (showscores) {
-		ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
-		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::Begin("Highscores", &showscores, DWND_FLAGS);
+private:
+	bool m_bShowSettings = true;
+};
 
-		ImGui::End();
-		return;
-	}
+Menu::Menu() {
+	m_lpPlayer = new Player;
+	m_lpMenuCtl = new MenuController;
 
-	if (showloads) {
-		ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
-		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::Begin("Saved games", &showloads, DWND_FLAGS);
+	auto saves = new MenuButtons("Saved games");
+	saves->AddButton("Work in progress", [](MenuBase *) {});
+	saves->AddCloseButton();
+	m_lpMenuCtl->AddMenu(saves);
 
-		ImGui::End();
-		return;
-	}
+	auto options = new MenuOptions("Options");
+	m_lpMenuCtl->AddMenu(options);
 
-	ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
-	ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-	ImGui::Begin("Main menu", nullptr, DWND_FLAGS | ImGuiWindowFlags_NoTitleBar);
+	auto hscores = new MenuButtons("Highscores");
+	hscores->AddButton("Work in progress", [](MenuBase *) {});
+	hscores->AddCloseButton();
+	m_lpMenuCtl->AddMenu(hscores);
 
-	ImGui::SetCursorPos(ImVec2(crb, (wsize.y - 110.0f) * 0.5f));
-	if (ImGui::Button("Load game", btnsz))
-		showloads = !showloads;
-	ImGui::SetCursorPosX(crb);
-	if (ImGui::Button("Start new game", btnsz))
-		engine->SetRunner(Engine::GAME);
-	ImGui::SetCursorPosX(crb);
-	if (ImGui::Button("Options", btnsz))
-		showsettings = !showsettings;
-	ImGui::SetCursorPosX(crb);
-	if (ImGui::Button("Highscores", btnsz))
-		showscores = !showscores;
-	ImGui::SetCursorPosX(crb);
-	if (ImGui::Button("Quit game", btnsz))
+	auto main = new MenuButtons("Main menu", true);
+	main->AddButton("Load game", saves);
+	main->AddButton("Start new game", [](MenuBase *) {
+		Engine::GetInstance()->SetRunner(Engine::GAME);
+	});
+	main->AddButton("Options", options);
+	main->AddButton("Highscores", hscores);
+	main->AddButton("Quit game", [](MenuBase *) {
 		::PostQuitMessage(0);
+	});
+	m_lpMenuCtl->AddMenu(main);
+	m_lpMenuCtl->ShowMenu(main);
+}
 
-	ImGui::End();
+Menu::~Menu() {
+	delete m_lpPlayer;
+	delete m_lpMenuCtl;
+}
+
+VOID Menu::OnOpen(DWORD) {
+	auto engine = Engine::GetInstance();
+	auto graphics = engine->SysGraphics();
+	auto camera = graphics->GetCamera();
+	auto level = engine->SysLevel();
+	auto pobj = m_lpPlayer->GetDrawObject();
+	EASSERT(level->Load("levels\\100.dat"));
+	camera->SetFollow(&pobj->f_vPos, &m_vCamRot);
+	camera->f_fFollowHeightMult = 0.35f;
+	pobj->f_vPos.y = 0.0f;
+}
+
+VOID Menu::OnClose() {
+	auto engine = Engine::GetInstance();
+	auto graphics = engine->SysGraphics();
+	auto camera = graphics->GetCamera();
+	camera->f_fFollowHeightMult = 0.5f;
+	camera->SetFollow();
+}
+
+VOID Menu::OnUpdate(FLOAT delta) {
+	static FLOAT timer = 0.0f;
+	m_vCamRot.y = D3DXToRadian(77.5f) + std::sinf(timer) * D3DXToRadian(22.5f);
+	timer += delta;
+}
+
+VOID Menu::OnDraw(LPDIRECT3DDEVICE9 device) {
+	m_lpPlayer->Draw(device);
+}
+
+VOID Menu::OnDrawUI() {
+	m_lpMenuCtl->Draw();
 }

@@ -9,7 +9,6 @@ VOID Game::OnOpen(DWORD prev) {
 	auto pobj = m_lpPlayer->GetDrawObject();
 
 	camera->SetFollow(&pobj->f_vPos, &pobj->f_vRot);
-	m_lpPlayer->ResetPosition();
 	if (prev == Engine::EDITOR)
 		walk->Begin();
 	else {
@@ -22,20 +21,12 @@ VOID Game::OnOpen(DWORD prev) {
 VOID Game::OnClose() {
 	auto engine = Engine::GetInstance();
 	auto camera = engine->SysGraphics()->GetCamera();
+	m_lpPlayer->ResetPosition();
 	camera->SetFollow();
 }
 
-LRESULT Game::OnWndProc(HWND, UINT iMsg, WPARAM wParam, LPARAM) {
-	auto engine = Engine::GetInstance();
-	if (iMsg == WM_KEYUP) {
-		if (wParam == VK_F1) {
-			engine->SetPause(true);
-			m_Menu.Toggle();
-			return true;
-		}
-	}
-
-	return false;
+VOID Game::OnPause(BOOL state) {
+	m_Menu.SetState(state);
 }
 
 VOID Game::OnInput(FLOAT delta, InputState *state) {

@@ -52,7 +52,7 @@ public:
 		}
 	};
 
-	Level() : m_lpElems(new Elems("data\\elements.txt")) {}
+	Level() : m_Elems("data\\elements.txt") {}
 	~Level() { Cleanup(); }
 
 	VOID OnDeviceLost();
@@ -69,7 +69,7 @@ public:
 	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:
-	Elems *m_lpElems;
+	Elems m_Elems;
 	DWORD m_dwObjectCount = 0;
 	LObject *m_lpLObjects = nullptr;
 	DObject *m_lpDObjects = nullptr;
