@@ -9,9 +9,29 @@ static Engine *__engineInstance = nullptr;
 Engine::Engine(HINSTANCE hInst) {
 	__engineInstance = this;
 
-	m_lpCache = new ResCache;
-	m_lpVirtFs = new VirtFs("xmas.xpk");
 	m_lpGraphics = new Graphics(hInst);
+	m_lpConfig = new Config("config.dat", [](Config *cfg) {
+		// Эта функция вызывается, когда обновляется конфиг
+		auto engine = Engine::GetInstance();
+		auto graphics = engine->SysGraphics();
+		auto camera = graphics->GetCamera();
+
+		if (cfg->IsChanged(Config::Camera)) {
+			camera->f_fFov = cfg->GetFOV();
+			camera->f_fRenderDistance = cfg->GetRenderDistance();
+			camera->UpdateProj();
+		}
+
+		if (cfg->IsChanged(Config::Graphics)) {
+			graphics->UpdateWindow(
+				cfg->GetBorderless(),
+				cfg->GetWidth(),
+				cfg->GetHeight()
+			);
+		}
+	});
+	m_lpCache = new ResCache;
+	m_lpVirtFs = new VirtFs(m_lpConfig->GetArchivePath());
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
 	m_lpLevel = new Level;
 	m_lpWalkthrough = new Walkthrough(m_lpLevel);
@@ -26,6 +46,7 @@ Engine::Engine(HINSTANCE hInst) {
 
 Engine::~Engine() {
 	delete m_lpGraphics;
+	delete m_lpConfig;
 	delete m_lpInput;
 	delete m_lpVirtFs;
 	delete m_lpCache;
@@ -64,17 +85,13 @@ VOID Engine::SetRunner(Runner num) {
 		runner->OnOpen(prev);
 }
 
-BaseRunner *Engine::GetRunner() {
-	return m_eCurrentRunner ? m_lpRunners[m_eCurrentRunner] : nullptr;
-}
-
 VOID Engine::SetPause(BOOL state) {
 	if (m_bPaused == state) return;
 	m_bPaused = state;
 	if (auto runner = GetRunner())
 		runner->OnPause(state);
-	if (state) { m_lpInput->Release(); }
-	else { m_lpInput->Capture(); }
+	if (state) m_lpInput->Release();
+	else m_lpInput->Capture();
 }
 
 VOID Engine::Step(FLOAT delta) {
@@ -91,7 +108,7 @@ VOID Engine::Step(FLOAT delta) {
 
 		if (m_lpGraphics->TestDevice()) {
 			if (auto device = m_lpGraphics->BeginFrame(delta)) {
-				m_lpLevel->Draw(device);
+				m_lpLevel->Draw(device, m_lpGraphics->GetCamera());
 				runner->OnDraw(device);
 
 				m_lpGraphics->StartUI();
@@ -107,7 +124,7 @@ VOID Engine::Step(FLOAT delta) {
 
 BOOL Engine::GetObjectOn(Level::ObjectData *data, DWORD x, DWORD y) {
 	if (auto device = m_lpGraphics->BeginFrame(0)) {
-		m_lpLevel->Draw(device, true);
+		m_lpLevel->Draw(device, nullptr, true);
 		m_lpGraphics->EndFrame();
 		auto sur = m_lpGraphics->PresentToSurface();
 		D3DLOCKED_RECT lock; D3DSURFACE_DESC desc;

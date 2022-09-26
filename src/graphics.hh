@@ -10,6 +10,8 @@ public:
 	Graphics(HINSTANCE hInst);
 	~Graphics() { Shutdown(); }
 
+	VOID UpdateWindow(BOOL state, INT width, INT height);
+
 	VOID Shutdown();
 	VOID RecreateDevice();
 	VOID UpdateLight();
@@ -34,7 +36,6 @@ private:
 	const DWORD m_dwD3DDeviceFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING |
 	D3DCREATE_PUREDEVICE | D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES;
 	const DWORD m_dwD3DClearFlags = D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL;
-	const DWORD m_dwStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
 	BOOL m_bDeviceLost = false,
 	m_bDeviceOccluded = false,
@@ -53,15 +54,16 @@ private:
 
 	Camera *m_lpCamera = nullptr;
 
-	VOID ResetPresentParams() {
+	VOID ResetPresentParams(DWORD width = 0, DWORD height = 0) {
 		ZeroMemory(&m_D3DPresent, sizeof(D3DPRESENT_PARAMETERS));
 		m_D3DPresent.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		m_D3DPresent.AutoDepthStencilFormat = D3DFMT_D24S8;
 		m_D3DPresent.EnableAutoDepthStencil = true;
 		m_D3DPresent.hDeviceWindow = m_hWindow;
-		m_D3DPresent.BackBufferFormat = D3DFMT_UNKNOWN;
-		m_D3DPresent.MultiSampleType = D3DMULTISAMPLE_NONE;
-		m_D3DPresent.MultiSampleQuality = 0;
+		m_D3DPresent.BackBufferCount = 1;
+		m_D3DPresent.BackBufferWidth = width;
+		m_D3DPresent.BackBufferHeight = height;
+		m_D3DPresent.BackBufferFormat = D3DFMT_X8R8G8B8;
 		m_D3DPresent.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 		m_D3DPresent.Windowed = true;
 	}

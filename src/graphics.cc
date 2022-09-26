@@ -20,17 +20,51 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, iMsg, wParam, lParam))
 		return DefWindowProc(hWnd, iMsg, wParam, lParam);
 
+	auto &io = ImGui::GetIO();
+	if (!io.WantCaptureMouse) {
+		static bool drag = false;
+		static POINT ll, cl;
+		static RECT rct;
+
+		if (iMsg == WM_LBUTTONDOWN) {
+			drag = true;
+			::GetCursorPos(&ll);
+			::GetWindowRect(hWnd, &rct);
+			ll.x -= rct.left;
+			ll.y -= rct.top;
+			return true;
+		} else if (drag) {
+			if (iMsg == WM_LBUTTONUP) {
+				drag = false;
+				return true;
+			} else if (iMsg == WM_MOUSEMOVE) {
+				if (drag) {
+					::GetCursorPos(&cl);
+					cl.x -= ll.x;
+					cl.y -= ll.y;
+					::MoveWindow(
+						hWnd, cl.x, cl.y,
+						rct.right - rct.left,
+						rct.bottom - rct.top,
+						false
+					);
+					return true;
+				}
+			}
+		}
+	}
+
 	if (auto runner = engine->GetRunner())
 		if (runner->OnWndProc(hWnd, iMsg, wParam, lParam))
 			return DefWindowProc(hWnd, iMsg, wParam, lParam);
 
 	switch (iMsg) {
 		case WM_RBUTTONUP:
-			if (ImGui::GetIO().WantCaptureMouse) break;
+			if (io.WantCaptureMouse) break;
 			engine->SetPause(false);
 			break;
 		case WM_KEYUP:
-			if (ImGui::GetIO().WantCaptureKeyboard) break;
+			if (io.WantCaptureKeyboard) break;
 			switch (wParam) {
 				case VK_ESCAPE:
 					engine->SetPause(!engine->IsPaused());
@@ -47,34 +81,25 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 }
 
 Graphics::Graphics(HINSTANCE hInst) {
+	INT width = 1024, height = 768;
 	WNDCLASS wc;
 	ZeroMemory(&wc, sizeof(WNDCLASS));
-	wc.style = 0;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
 	wc.hInstance = hInst;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.lpszClassName = L"D3DAPP";
 	EASSERT(SUCCEEDED(RegisterClass(&wc)));
-
-	RECT winrect = {0, 0, 1024, 768};
-	AdjustWindowRect(&winrect, m_dwStyle, FALSE);
-
-	INT width = winrect.right - winrect.left,
-	height = winrect.bottom - winrect.top;
-
-	INT cx = (GetSystemMetrics(SM_CXSCREEN) - width) / 2,
-	cy = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 
 	m_hWindow = CreateWindow(wc.lpszClassName, L"D3D9 Window",
-	m_dwStyle, cx, cy, width, height, NULL, NULL, hInst, this);
+	WS_POPUP, CW_USEDEFAULT, CW_USEDEFAULT, width, height,
+	nullptr, nullptr, hInst, this);
 
 	ImGui_ImplWin32_Init(m_hWindow);
-
-	ResetPresentParams();
+	ResetPresentParams(width, height);
 	RecreateDevice();
 }
 
@@ -89,6 +114,21 @@ VOID Graphics::Shutdown() {
 	m_lpCamera = nullptr, m_lpTexture = nullptr,
 	m_lpDevice = nullptr, m_lpDeviceEx = nullptr,
 	m_lpD3D = nullptr, m_lpD3DEx = nullptr;
+}
+
+VOID Graphics::UpdateWindow(BOOL borderless, INT width, INT height) {
+	DWORD style = (borderless ? WS_POPUP : (WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX) | WS_CLIPCHILDREN) | WS_VISIBLE;
+	RECT wsize = {0, 0, width, height};
+	::AdjustWindowRect(&wsize, style, false);
+	width = wsize.right - wsize.left,
+	height = wsize.bottom - wsize.top;
+	::SetWindowLongPtr(m_hWindow, GWL_STYLE, style);
+	INT cx = (GetSystemMetrics(SM_CXSCREEN) - width) / 2,
+	cy = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+	::SetWindowPos(
+		m_hWindow, nullptr, cx, cy, width, height,
+		SWP_FRAMECHANGED | SWP_SHOWWINDOW
+	);
 }
 
 static VOID DeviceLostHandler() {
@@ -112,7 +152,7 @@ VOID Graphics::RecreateDevice() {
 		if (lpexfunc) {
 			if (lpexfunc(D3D_SDK_VERSION, &m_lpD3DEx) == D3D_OK) {
 				if (m_lpD3DEx->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWindow,
-				m_dwD3DDeviceFlags, &m_D3DPresent, NULL, &m_lpDeviceEx) == D3D_OK &&
+				m_dwD3DDeviceFlags, &m_D3DPresent, nullptr, &m_lpDeviceEx) == D3D_OK &&
 				m_lpDeviceEx->QueryInterface(IID_IDirect3DDevice9, (LPVOID *)&m_lpDevice) == D3D_OK)
 					break;
 			}
@@ -199,8 +239,6 @@ BOOL Graphics::TestDevice() {
 				break;
 
 			case D3DERR_DEVICENOTRESET:
-				ResetPresentParams();
-
 				if (m_lpDeviceEx)
 					DASSERT(m_lpDeviceEx->ResetEx(&m_D3DPresent, nullptr));
 				else

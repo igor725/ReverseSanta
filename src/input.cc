@@ -3,15 +3,15 @@
 
 Input::Input(HINSTANCE hInst, HWND hWnd) {
 	IASSERT(DirectInput8Create(hInst, DIRECTINPUT_VERSION,
-	IID_IDirectInput8, (LPVOID *)&m_lpDI, NULL));
+	IID_IDirectInput8, (LPVOID *)&m_lpDI, nullptr));
 
 	/* Инициализируем клавиатуру */
-	IASSERT(m_lpDI->CreateDevice(GUID_SysKeyboard, &m_lpDIK, NULL));
+	IASSERT(m_lpDI->CreateDevice(GUID_SysKeyboard, &m_lpDIK, nullptr));
 	IASSERT(m_lpDIK->SetDataFormat(&c_dfDIKeyboard));
 	IASSERT(m_lpDIK->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NOWINKEY | DISCL_NONEXCLUSIVE));
 
 	/* Инициализируем мышу */
-	IASSERT(m_lpDI->CreateDevice(GUID_SysMouse, &m_lpDIM, NULL));
+	IASSERT(m_lpDI->CreateDevice(GUID_SysMouse, &m_lpDIM, nullptr));
 	IASSERT(m_lpDIM->SetDataFormat(&c_dfDIMouse));
 	IASSERT(m_lpDIM->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND));
 }

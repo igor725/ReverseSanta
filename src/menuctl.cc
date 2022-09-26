@@ -5,7 +5,7 @@
 
 void MenuButtons::Draw() {
 	auto &io = ImGui::GetIO();
-	const ImVec2 btnsz = ImVec2(150, 19);
+	const ImVec2 btnsz = ImVec2(150, 0);
 	const ImVec2 wsize = ImVec2(404, 260);
 	const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 	const float crb = (wsize.x - btnsz.x) * 0.5f;
@@ -15,7 +15,7 @@ void MenuButtons::Draw() {
 	ImGui::Begin(m_sTitle.c_str(), nullptr, DWND_FLAGS | (m_bHideTitle ? ImGuiWindowFlags_NoTitleBar : 0));
 
 	if (auto cnt = m_vItems.size()) {
-		ImGui::SetCursorPosY((wsize.y - cnt * btnsz.y) * 0.5f);
+		ImGui::SetCursorPosY((wsize.y - cnt * ImGui::GetFrameHeightWithSpacing()) * 0.5f);
 
 		for (auto &item : m_vItems) {
 			ImGui::SetCursorPosX(crb);

@@ -62,7 +62,7 @@ public:
 	VOID Rebuild();
 	BOOL Load(std::string path);
 	VOID Update(FLOAT delta);
-	VOID Draw(LPDIRECT3DDEVICE9 device, BOOL untextured = false);
+	VOID Draw(LPDIRECT3DDEVICE9 device, Camera *camera = nullptr, BOOL untextured = false);
 
 	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, LPVOID ud), LPVOID ud);
 	BOOL IterObjects(BOOL(*callback)(ObjectData data, LPVOID ud), LPVOID ud);

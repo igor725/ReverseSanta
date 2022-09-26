@@ -86,8 +86,10 @@ VOID Game::OnUpdate(FLOAT delta) {
 				second->f_bHidden = true;
 				return true;
 			case Elems::EXIT:
-				ts->wth->NextLevel();
-				ts->player->ResetPosition();
+				if (ts->wth->NextLevel())
+					ts->player->ResetPosition();
+				else
+					ts->player->Recover();
 				return true;
 		}
 

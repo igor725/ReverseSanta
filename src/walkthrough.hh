@@ -22,7 +22,7 @@ public:
 
 	VOID Reset();
 	VOID Begin();
-	DWORD NextLevel();
+	bool NextLevel();
 	BOOL Update(FLOAT delta);
 
 	inline BOOL Death() { return --m_dwLives > 0; }
@@ -34,6 +34,7 @@ public:
 		return true;
 	}
 
+	inline DWORD GetLevel() { return m_dwCurrLevel; }
 	inline DWORD GetPresentsLeft() { return m_dwPresentsCount - m_dwCollectedPresents; }
 	inline FLOAT GetTime() { return m_Config.f_fLevelTime - m_fElapsedTime; }
 	inline DWORD GetLives() { return m_dwLives; }

@@ -38,5 +38,5 @@ private:
 		}
 	};
 
-	std::map<std::string, struct Field>m_mCache = {};
+	std::map<std::string, struct Field> m_mCache = {};
 };

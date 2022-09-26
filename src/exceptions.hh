@@ -22,12 +22,35 @@ struct MyException : public std::exception {
 	}
 
 public:
-	MyException(LPCWSTR path) : m_lpCallStack(TrimPath(path)) {
+	MyException(LPCWSTR path) : m_lpCallStack(TrimPath(path)) {}
+
+	MyException(std::exception &ex) : m_lpCallStack(L"") {
+		auto name = ex.what();
+		const auto sz = std::strlen(name) + 1;
+		auto wc = new WCHAR[sz];
+		::mbstowcs_s(nullptr, wc, sz, name, sz);
+		ApplyFormattedMessage(L"Uncaught C++ exception: %ls\r\n%ls", wc, GetCallStack());
+		delete wc;
+	}
+
+	MyException(std::exception_ptr ptr) : m_lpCallStack(L"") {
+		ApplyFormattedMessage(L"Uncaught exception: %p\r\n%ls", &ptr, GetCallStack());
+	}
+
+	~MyException() {
+		::LocalFree(m_lpMessage);
+	}
+
+	VOID Alert() {
+		::MessageBox(nullptr, m_lpMessage, L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+	}
+
+	LPCWSTR GetCallStack() {
 		m_lpCallStack += L"\r\n\r\n";
 
 		if (!SymInitializeW(GetCurrentProcess(), nullptr, true)) {
 			m_lpCallStack += L"SymInitialize() failed!";
-			return;
+			return m_lpCallStack.c_str();
 		}
 
 		LPVOID stack[16];
@@ -61,26 +84,7 @@ public:
 		}
 
 		SymCleanup(GetCurrentProcess());
-	}
-
-	MyException(std::exception_ptr ptr) {
-		ApplyFormattedMessage(L"Uncaught exception: %p\r\n%ls", &ptr, GetCallStack());
-	}
-
-	~MyException() {
-		::LocalFree(m_lpMessage);
-	}
-
-	VOID Alert() {
-		::MessageBox(nullptr, m_lpMessage, L"Exception thrown", MB_OK | MB_ICONERROR | MB_TASKMODAL);
-	}
-
-	LPCWSTR GetCallStack() {
 		return m_lpCallStack.c_str();
-	}
-
-	LPWSTR GetPointer() {
-		return (LPWSTR)&m_lpMessage;
 	}
 
 	template<typename... Ts>
@@ -92,7 +96,7 @@ public:
 
 private:
 	LPWSTR m_lpMessage = nullptr;
-	std::wstring m_lpCallStack = nullptr;
+	std::wstring m_lpCallStack;
 };
 
 struct AssertException : public MyException {

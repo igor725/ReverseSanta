@@ -7,6 +7,7 @@ static void runlevel(Level *level, DWORD num) {
 }
 
 VOID Walkthrough::Reset() {
+	m_dwLives = m_Config.f_dwStartLives;
 	runlevel(m_lpLevel, m_dwCurrLevel = 0);
 	Begin();
 }
@@ -16,7 +17,6 @@ VOID Walkthrough::Begin() {
 	m_dwPresentsCount = 0;
 	m_bSavePointUsed = false;
 	m_dwCollectedPresents = 0;
-	m_dwLives = m_Config.f_dwStartLives;
 	m_lpLevel->IterObjects([](Level::ObjectData data, LPVOID ud)->BOOL {
 		if (data.f_lpDObj->f_lpElem->f_eType == Elems::BONUS)
 			(*(DWORD *)ud)++;
@@ -25,7 +25,8 @@ VOID Walkthrough::Begin() {
 	}, &m_dwPresentsCount);
 }
 
-DWORD Walkthrough::NextLevel() {
+bool Walkthrough::NextLevel() {
+	if (m_Config.f_bAllbonuses && GetPresentsLeft() > 0) return false;
 	DWORD score = 0;
 
 	m_lpLevel->IterObjects([](Level::ObjectData data, LPVOID ud)->BOOL {
@@ -44,7 +45,7 @@ DWORD Walkthrough::NextLevel() {
 	runlevel(m_lpLevel, ++m_dwCurrLevel);
 	Begin();
 
-	return score;
+	return true;
 }
 
 BOOL Walkthrough::Update(FLOAT delta) {

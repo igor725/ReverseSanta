@@ -10,7 +10,8 @@ struct Camera {
 				f_vUp   = {0.0f, 1.0f, 0.0f},
 				f_vRot  = {0.0f, 0.0f, 0.0f};
 
-	FLOAT f_fFollowDistance = 6.0f,
+	FLOAT f_fRenderDistance = 100.0f,
+	f_fFollowDistance = 6.0f,
 	f_fFollowHeightMult = 0.5f;
 	FLOAT f_fFov = 1.03f,
 	f_fNearVP = 0.01f,
@@ -24,7 +25,7 @@ struct Camera {
 		D3DXMatrixIdentity(&f_mxView);
 	}
 
-	VOID UpdateProj() {
+	inline VOID UpdateProj() {
 		D3DXMatrixPerspectiveFovLH(&f_mxProj, f_fFov, f_fAspect, f_fNearVP, f_fFarVP);
 	}
 
@@ -68,7 +69,7 @@ struct Camera {
 		D3DXMatrixLookAtLH(&f_mxView, &f_vEye, &f_vView, &f_vUp);
 	}
 
-	D3DXVECTOR3 GetForward() {
+	inline D3DXVECTOR3 GetForward() {
 		return {
 			std::sinf(f_vRot.x) * std::cosf(f_vRot.y),
 			std::sinf(-f_vRot.y),
@@ -76,7 +77,11 @@ struct Camera {
 		};
 	}
 
-	VOID SetFollow(LPD3DXVECTOR3 pos = nullptr, LPD3DXVECTOR3 rot = nullptr) {
+	inline BOOL IsVisible(D3DXVECTOR3 dvec) {
+		return D3DXVec3Length(&(dvec -= f_vEye)) < f_fRenderDistance;
+	}
+
+	inline VOID SetFollow(LPD3DXVECTOR3 pos = nullptr, LPD3DXVECTOR3 rot = nullptr) {
 		f_lpvFollowPos = pos, f_lpvFollowRot = rot;
 	}
 };

@@ -30,16 +30,18 @@ void GameMenu::Draw() {
 
 	ImGui::Begin(
 		"HUD", nullptr,
-		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoTitleBar
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_AlwaysAutoResize
 	);
 
-	ImGui::Text("Lives: %d", wt->GetLives());
+	ImGui::Text("Level: %d;", wt->GetLevel() + 1);
 	ImGui::SameLine();
-	ImGui::Text("Presents left: %d", wt->GetPresentsLeft());
+	ImGui::Text("Lives: %d;", wt->GetLives());
 	ImGui::SameLine();
-	ImGui::Text("Time left: %.2f", wt->GetTime());
+	ImGui::Text("Presents: %d;", wt->GetPresentsLeft());
+	ImGui::SameLine();
+	ImGui::Text("Time: %.2f", wt->GetTime());
 
 	ImGui::End();
 

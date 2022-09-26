@@ -95,18 +95,17 @@ VOID Level::Update(FLOAT delta) {
 	}
 }
 
-VOID Level::Draw(LPDIRECT3DDEVICE9 device, BOOL untextured) {
+VOID Level::Draw(LPDIRECT3DDEVICE9 device, Camera *camera, BOOL untextured) {
 	if (m_dwObjectCount > 0) {
 		if (!untextured) m_lpSkyBox->Draw(device);
 		for (DWORD i = 0; i < m_dwObjectCount; i++) {
-			// D3DXVECTOR3 v = campos - obj.f_vPos;
-			// if (D3DXVec3Length(&v) < 1000.f) {
-				if (untextured) {
-					device->ColorFill(m_lpTempSurface, nullptr, i);
-					device->SetTexture(0, m_lpTempTexture);
-				}
-				m_lpDObjects[i].Draw(device, untextured);
-			// }
+			if (camera && !camera->IsVisible(m_lpDObjects[i].f_vPos))
+				continue;
+			if (untextured) {
+				device->ColorFill(m_lpTempSurface, nullptr, i);
+				device->SetTexture(0, m_lpTempTexture);
+			}
+			m_lpDObjects[i].Draw(device, untextured);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <vector>
 
+#include "config.hh"
 #include "graphics.hh"
 #include "input.hh"
 #include "virtfs.hh"
@@ -30,7 +31,8 @@ public:
 	VOID OnDeviceLost();
 	VOID OnDeviceReset(LPDIRECT3DDEVICE9 device);
 
-	BaseRunner *GetRunner();
+	inline BaseRunner *GetRunner() { return m_eCurrentRunner ? m_lpRunners[m_eCurrentRunner] : nullptr; }
+	inline BaseRunner *GetRunner(DWORD i) { return i < MAX_RUNNERS ? m_lpRunners[i] : nullptr; }
 	VOID SetRunner(Runner num);
 
 	VOID SetPause(BOOL state);
@@ -38,6 +40,7 @@ public:
 
 	inline BOOL IsPaused() { return m_bPaused; }
 
+	inline Config *SysConfig() { return m_lpConfig; }
 	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
 	inline ResCache *SysCache() { return m_lpCache; }
 	inline Graphics *SysGraphics() { return m_lpGraphics; }
@@ -48,6 +51,7 @@ public:
 	BOOL GetObjectOn(Level::ObjectData *data, DWORD x = (DWORD)-1, DWORD y = (DWORD)-1);
 
 private:
+	Config *m_lpConfig = nullptr;
 	Input *m_lpInput = nullptr;
 	Graphics *m_lpGraphics = nullptr;
 	ResCache *m_lpCache = nullptr;

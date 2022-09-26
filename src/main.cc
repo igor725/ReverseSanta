@@ -58,7 +58,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 		DWORD ct = 0, lt;
 
 		while (true) {
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			while (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 				if (msg.message == WM_QUIT)
@@ -70,6 +70,9 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdSh
 			engine.Step((ct - lt) / 1000.0f);
 		}
 	} catch (MyException &mex) {
+		mex.Alert();
+	} catch (std::exception &ex) {
+		MyException mex(ex);
 		mex.Alert();
 	} catch (...) {
 		MyException mex(std::current_exception());
