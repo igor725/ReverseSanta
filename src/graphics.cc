@@ -32,12 +32,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 			::GetWindowRect(hWnd, &rct);
 			ll.x -= rct.left;
 			ll.y -= rct.top;
-			return true;
 		} else if (drag) {
-			if (iMsg == WM_LBUTTONUP) {
-				drag = false;
-				return true;
-			} else if (iMsg == WM_MOUSEMOVE) {
+			if (iMsg == WM_MOUSEMOVE) {
 				if (drag) {
 					::GetCursorPos(&cl);
 					cl.x -= ll.x;
@@ -50,7 +46,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 					);
 					return true;
 				}
-			}
+			} else if (iMsg == WM_LBUTTONUP) drag = false;
 		}
 	}
 

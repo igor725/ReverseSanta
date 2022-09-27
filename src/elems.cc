@@ -1,6 +1,7 @@
 #include "exceptions.hh"
 #include "engine.hh"
 #include "elems.hh"
+#include "todo.hh"
 
 static std::string GetStringParam(std::string &line) {
 	auto start = line.find_first_of('"'),
@@ -8,6 +9,22 @@ static std::string GetStringParam(std::string &line) {
 	EASSERT(stop != line.npos && start < stop);
 
 	return line.substr(start + 1, stop - start - 1);
+}
+
+static DWORD joaat(LPCSTR key) {
+	DWORD hash = 0x00000000;
+
+	for (DWORD i = 0; key[i] != '\0'; i++) {
+		hash += (uint8_t)key[i];
+		hash += hash << 0x0A;
+		hash ^= hash >> 0x06;
+	}
+
+	hash += hash << 0x03;
+	hash ^= hash >> 0x0B;
+	hash += hash << 0x0F;
+
+	return hash;
 }
 
 Elems::Elems(std::string fpath) : m_mElements({}) {
@@ -41,7 +58,7 @@ Elems::Elems(std::string fpath) : m_mElements({}) {
 							}
 						}
 					} else if (line.find("FILE") == 0) {
-						/* TODO: Lazy mesh loading */
+						TODO("Lazy mesh loading");
 						inwork->f_lpMesh = cache->GetMesh(GetStringParam(line));
 					} else if (line.find("EFFECT") == 0) {
 					} else if (line.find("WALKANIM") == 0) {
@@ -65,8 +82,11 @@ Elems::Elems(std::string fpath) : m_mElements({}) {
 							inwork->f_fRotation = value;
 						else EASSERT(0 && "Unknown elements.txt field");
 					}
-				} else
-					inwork = &m_mElements[GetStringParam(line)];
+				} else {
+					auto name = GetStringParam(line);
+					inwork = &m_mElements[name];
+					inwork->f_dwHash = joaat(name.c_str());
+				}
 			}
 			file->seekg(pos);
 		} while (file->tellg() < end);

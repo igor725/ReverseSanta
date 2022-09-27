@@ -2,6 +2,7 @@
 #include "exceptions.hh"
 #include "menu.hh"
 #include "imgui.h"
+#include "todo.hh"
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse
 
@@ -118,10 +119,10 @@ public:
 		if (ImGui::CollapsingHeader("Controls")) {
 			static bool mouse, pad;
 			ImGui::Checkbox("Mouse controls", &mouse);
-			ImGui::SameLine(265.0f); /* TODO: Автоматическое вычисление этого прикола */
+			ImGui::SameLine(265.0f); FIXME;
 			ImGui::Checkbox("Gamepad controls", &pad);
 			ImGui::SetCursorPosX((wsize.x - 130.0f) * 0.5f);
-			ImGui::Text("Keyboard bindings"); /* TODO: И этого тоже */
+			ImGui::Text("Keyboard bindings");
 		}
 
 		if (ImGui::Button("Apply changes"))

@@ -6,6 +6,7 @@
 
 #include "elems.hh"
 #include "dobject.hh"
+#include "exceptions.hh"
 
 class Level {
 public:
@@ -28,28 +29,24 @@ public:
 
 		ElevatorData(Elems::Type type) : f_dwState(type == Elems::ELEVATOR), f_bStopOnFinish(f_dwState == 0) {}
 
-		VOID Update(DObject *dobj, LObject *lobj, FLOAT delta) {
-			if (f_dwState < 1) return;
-			dobj->f_bAlerted = true;
-			auto prmult = f_fMult;
-			f_fMult = (0.5f * (1.0f + std::sinf(2 * D3DX_PI * f_fTime)));
-			if (f_bStopOnFinish) {
-				if (f_dwState % 2 ? f_fMult < prmult : f_fMult > prmult) f_dwState++;
-				if (f_dwState == 3) {
-					f_vMove = {0.0f, 0.0f, 0.0f};
-					f_fTime = 0.75f;
-					f_dwState = 0;
-					f_fMult = 0;
-					return;
-				}
-			}
-			f_vMove = dobj->f_vPos;
-			auto dir = lobj->f_vPos[1] - lobj->f_vPos[0];
-			dobj->f_vPos = lobj->f_vPos[0] + dir * f_fMult;
-			f_vMove -= dobj->f_vPos;
-			auto len = D3DXVec3Length(&dir);
-			f_fTime += delta / (len / 1.5f);
-		}
+		VOID Update(DObject *dobj, LObject *lobj, FLOAT delta);
+	};
+
+	struct EnemyData {
+		BOOL f_bEnabled = true;
+		DWORD f_dwBehaviourHash;
+		DWORD f_dwState = 0;
+		FLOAT f_fFwdX = 0.0f, f_fFwdZ = 0.0f;
+
+		EnemyData(DWORD hash) : f_dwBehaviourHash(hash) {}
+
+		BOOL CheckForward(Level *level, DObject *me);
+
+		VOID CrowTick(Level *, DObject *, FLOAT) {}
+		VOID SnowmanTick(Level *, DObject *, FLOAT) {}
+		VOID TrollTick(Level *level, DObject *me, FLOAT delta);
+
+		VOID Update(Level *level, DObject *self, FLOAT delta);
 	};
 
 	Level() : m_Elems("data\\elements.txt") {}
@@ -64,8 +61,9 @@ public:
 	VOID Update(FLOAT delta);
 	VOID Draw(LPDIRECT3DDEVICE9 device, Camera *camera = nullptr, BOOL untextured = false);
 
-	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, LPVOID ud), LPVOID ud);
-	BOOL IterObjects(BOOL(*callback)(ObjectData data, LPVOID ud), LPVOID ud);
+	BOOL IterTouches(DObject *obj, BOOL(*callback)(DObject *first, DObject *other, FLOAT floor, LPVOID ud), LPVOID ud = nullptr);
+	BOOL IsTouchingAnything(LPD3DXVECTOR3 point, DObject *except);
+	BOOL IterObjects(BOOL(*callback)(ObjectData data, LPVOID ud), LPVOID ud = nullptr);
 	BOOL GetObjectData(DWORD id, ObjectData *data);
 
 private:

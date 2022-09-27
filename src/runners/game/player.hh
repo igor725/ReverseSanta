@@ -51,9 +51,9 @@ public:
 	inline DObject *GetDrawObject() { return m_lpDrawObj; }
 	inline D3DXVECTOR3 GetForward() {
 		return {
-			std::sinf(m_lpDrawObj->f_vRot.y) * std::cosf(m_lpDrawObj->f_vRot.x),
-			std::sinf(-m_lpDrawObj->f_vRot.x),
-			std::cosf(m_lpDrawObj->f_vRot.y) * std::cosf(m_lpDrawObj->f_vRot.x)
+			std::sinf(m_lpDrawObj->f_vRot.y),
+			0,
+			std::cosf(m_lpDrawObj->f_vRot.y)
 		};
 	}
 

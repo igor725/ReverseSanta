@@ -1,6 +1,7 @@
 #include "engine.hh"
 #include "emenu.hh"
 #include "imgui.h"
+#include "todo.hh"
 
 VOID EditorMenu::DrawMainMenu() {
 	const auto vp = ImGui::GetMainViewport();
@@ -20,7 +21,7 @@ VOID EditorMenu::DrawMainMenu() {
 
 	if (ImGui::CollapsingHeader("Level manager")) {
 		static int curr_level = 0;
-		// TODO: Итерация по XPK файлу
+		TODO("Scan levels folder");
 		static LPSTR items[] = {
 			"000.dat", "001.dat", "002.dat", "003.dat", "004.dat", "005.dat",
 			"006.dat", "007.dat", "008.dat", "009.dat", "010.dat", "100.dat",
@@ -34,14 +35,8 @@ VOID EditorMenu::DrawMainMenu() {
 	}
 
 	if (ImGui::CollapsingHeader("Camera manager")) {
-		bool update = false;
-
-		update |= ImGui::SliderFloat("FOV", &camera->f_fFov, 0.0f, D3DX_PI, "%.2f");
-		ImGui::Spacing();
-		update |= ImGui::SliderFloat2("Viewport", &camera->f_fNearVP, 0.0f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-		ImGui::Spacing();
-
-		if (update) camera->UpdateProj();
+		if (ImGui::Button("Teleport to start"))
+			camera->f_vRot = camera->f_vEye = {0.0f, 0.0f, 0.0f};
 	}
 
 	if (ImGui::CollapsingHeader("Light manager")) {
@@ -106,8 +101,21 @@ VOID EditorMenu::DrawMainMenu() {
 	ImGui::End();
 }
 
+static VOID DrawEnemyStatus(Level::EnemyData *ed) {
+	ImGui::Text("AI enabled: %s", ed->f_bEnabled ? "true" : "false");
+	ImGui::Text("AI pattern: 0x%08x", ed->f_dwBehaviourHash);
+	ImGui::Text("AI direction: %.2f, %.2f", ed->f_fFwdX, ed->f_fFwdZ);
+	ImGui::Text("AI state: %d", ed->f_dwState);
+}
+
+static VOID DrawEnemyButtons(Level::EnemyData *ed) {
+	if (ImGui::Button("Toogle AI"))
+		ed->f_bEnabled ^= true;
+}
+
 VOID EditorMenu::DrawObjectMenu() {
 	auto lvlobj = m_odPicked.f_lpLObj;
+	auto dobj = m_odPicked.f_lpDObj;
 	bool isactive = true;
 
 	ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
@@ -116,6 +124,33 @@ VOID EditorMenu::DrawObjectMenu() {
 		ImGui::End();
 		return;
 	}
+
+	ImGui::Text("Rotation: %.2f deg", D3DXToDegree(dobj->f_vRot.y));
+	auto type = dobj->f_lpElem->f_eType;
+	auto ud = dobj->f_lpUserData;
+	switch (type) {
+		case Elems::ENEMY:
+		case Elems::ELEVATORENEMY:
+			DrawEnemyStatus((Level::EnemyData *)ud);
+			break;
+	}
+
+	ImGui::Separator();
+	if (ImGui::DragFloat3("Position", (float *)&dobj->f_vPos, 0.01f))
+		dobj->f_bAlerted = true;
+
+	if (ImGui::Button("Rotate"))
+		dobj->f_vRot.y = std::fmodf(dobj->f_vRot.y + D3DX_PI * 0.5f, D3DX_PI * 2.0f), dobj->f_bAlerted = true;
+
+	switch(type) {
+		case Elems::ENEMY:
+		case Elems::ELEVATORENEMY:
+			ImGui::SameLine();
+			DrawEnemyButtons(((Level::EnemyData *)ud));
+			break;
+	}
+	ImGui::Separator();
+
 
 	ImGui::End();
 	if (!isactive)

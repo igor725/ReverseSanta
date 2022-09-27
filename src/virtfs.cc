@@ -13,9 +13,9 @@ std::ifstream *VirtFs::Open(std::string &path, DWORD *end, DWORD *size) {
 	}
 
 	DWORD fsz = (DWORD)direct->tellg();
+	direct->seekg(0, std::ios::beg);
 	if (size) *size = fsz;
 	if (end) *end = fsz;
-	direct->seekg(0, direct->beg);
 	return direct;
 }
 

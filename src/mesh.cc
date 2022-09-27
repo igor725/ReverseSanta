@@ -1,12 +1,14 @@
 #include "engine.hh"
 #include "mesh.hh"
 #include "exceptions.hh"
+#include "todo.hh"
 
 Mesh::Mesh(LPDIRECT3DDEVICE9 device, const std::string &path) {
 	auto engine = Engine::GetInstance();
 	auto virtfs = engine->SysVirtFs();
 	auto cache = engine->SysCache();
-	/* TODO: Animations ??? */
+	TODO("Animations ???");
+
 	auto _path = std::string(path);
 	auto ext = _path.find_last_of('.');
 	if (_path.find("ani", ext))

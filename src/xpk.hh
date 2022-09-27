@@ -15,9 +15,6 @@ public:
 	Xpk(std::string fname);
 
 	BOOL SearchFile(XpkFile &cfile, DWORD *end, DWORD *size);
-
-	std::string &ReadFileName(XpkFile &cfile, std::string &fname);
-
 	BOOL SearchFile(std::string name, DWORD *end, DWORD *size);
 
 	inline std::vector<XpkFile> &GetFiles() { return m_fileMap; }
@@ -26,6 +23,7 @@ public:
 private:
 	std::ifstream m_fArchive;
 	std::vector<XpkFile> m_fileMap;
-	DWORD m_dwFileCount, m_dwNameTableOffset,
+	LPCSTR m_lpNameMap;
+	DWORD m_dwFileCount,
 	m_dwContentOffset;
 };

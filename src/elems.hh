@@ -36,6 +36,7 @@ public:
 
 	struct Element {
 		Type f_eType = NONE;
+		DWORD f_dwHash = 0x00000000;
 		Mesh *f_lpMesh = nullptr;
 		/*Effect *f_lpEffect;*/
 		/*Anim *f_lpAnimation;*/
