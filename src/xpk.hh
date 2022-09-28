@@ -12,10 +12,10 @@ public:
 		DWORD dwCreated, dwModified;
 	};
 
-	Xpk(std::string fname);
+	Xpk(std::string &fname);
 
 	BOOL SearchFile(XpkFile &cfile, DWORD *end, DWORD *size);
-	BOOL SearchFile(std::string name, DWORD *end, DWORD *size);
+	BOOL SearchFile(std::string &name, DWORD *end, DWORD *size);
 
 	inline std::vector<XpkFile> &GetFiles() { return m_fileMap; }
 	inline std::ifstream *GetHandle() { return &m_fArchive; }

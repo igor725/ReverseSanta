@@ -69,11 +69,12 @@ public:
 				ImGui::Text("Available lives: %d", walk.f_dwStartLives);
 				ImGui::Text("Time per level: %.2f sec", walk.f_fLevelTime);
 			}
+
 			ImGui::Spacing();
 			ImGui::Text("Score multipliers:");
-			ImGui::Text("Time bonus: %.3f");
-			ImGui::Text("Present: %.3f");
-			ImGui::Text("Hardcore bonus: %.3f");
+			ImGui::Text("Time bonus: %.2f");
+			ImGui::Text("Present: %.2f");
+			ImGui::Text("Hardcore bonus: %.2f");
 		}
 
 		if (ImGui::CollapsingHeader("General")) {

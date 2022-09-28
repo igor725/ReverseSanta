@@ -1,12 +1,12 @@
 #include "exceptions.hh"
 #include "xpk.hh"
 
-Xpk::Xpk(std::string fpath) : m_fArchive(fpath, std::ios::binary) {
+Xpk::Xpk(std::string &fpath) : m_fArchive(fpath, std::ios::binary) {
 	EASSERT(m_fArchive.is_open());
 	m_fArchive.seekg(0, std::ios::beg);
 	m_fArchive.read((char *)&m_dwFileCount, 4);
 	for (DWORD i = 0; i < m_dwFileCount; i++) {
-		XpkFile cfile = {0};
+		XpkFile cfile;
 		m_fArchive.read((char *)&cfile.dwNameOffset, 4);
 		m_fileMap.push_back(cfile);
 	}
@@ -15,26 +15,22 @@ Xpk::Xpk(std::string fpath) : m_fArchive(fpath, std::ios::binary) {
 	m_fArchive.read((char *)&dwNameTableSize, 4);
 	m_lpNameMap = new CHAR[dwNameTableSize + 1]();
 	m_fArchive.read((char *)m_lpNameMap, dwNameTableSize);
-	m_fArchive.seekg(4, std::ios::cur); // Какие-то странные 4 байта
+	m_fArchive.seekg(4, std::ios::cur); /* Размер блока с архивированными файлами в байтах */
 
-	for (DWORD i = 0; i < m_dwFileCount; i++) {
-		XpkFile &cfile = m_fileMap[i];
+	for (DWORD i = 0, o = 0; i < m_dwFileCount; i++) {
+		auto &cfile = m_fileMap[i];
 		m_fArchive.read((char *)&cfile.dwSize, 4);
-		if (i > 0) {
-			XpkFile &pfile = m_fileMap[i - 1];
-			cfile.dwOffset = pfile.dwOffset + pfile.dwSize;
-		}
+		cfile.dwOffset = o;
+		o += cfile.dwSize;
 	}
 
-	for (DWORD i = 0; i < m_dwFileCount; i++) {
-		XpkFile &cfile = m_fileMap[i];
-		m_fArchive.read((char *)&cfile.dwCreated, 8); /*Читается 2 DWORD значения последовательно!!!*/
-	}
+	for (DWORD i = 0; i < m_dwFileCount; i++)
+		m_fArchive.read((char *)&m_fileMap[i].dwCreated, 8); /* Читается 2 DWORD значения последовательно!!! */
 
 	m_dwContentOffset = (DWORD)m_fArchive.tellg();
 }
 
-BOOL Xpk::SearchFile(std::string name, DWORD *end, DWORD *size) {
+BOOL Xpk::SearchFile(std::string &name, DWORD *end, DWORD *size) {
 	DWORD fileIndex = 0;
 	LPCSTR nstart = m_lpNameMap;
 
