@@ -16,9 +16,9 @@ public:
 	}
 
 	void Draw() {
-		if (!m_bShowSettings) {
+		if (!m_bShow) {
 			GetController()->CloseMenu();
-			m_bShowSettings = true;
+			m_bShow = true;
 			return;
 		}
 
@@ -31,7 +31,7 @@ public:
 
 		ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
 		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::Begin("Settings", &m_bShowSettings, DWND_FLAGS);
+		ImGui::Begin("Settings", &m_bShow, DWND_FLAGS);
 		if (ImGui::CollapsingHeader("Diffulty")) {
 			auto &walk = engine->SysWalkthrough()->GetConfig();
 			static const char *diffs[] = {"Easy", "Normal", "Hard", "Very hard", "Custom"};
@@ -145,7 +145,7 @@ public:
 	}
 
 private:
-	bool m_bShowSettings = true;
+	bool m_bShow = true;
 	int m_iDifficulty = 0;
 
 	const Walkthrough::Config m_lpPresets[4] = {
@@ -154,6 +154,42 @@ private:
 		{2, 320.0f, false, true, false, true, false},
 		{1, 200.0f, false, true, false, true, true},
 	};
+};
+
+class MenuScores : public MenuBase {
+public:
+	MenuScores(std::string title) : MenuBase(title) {}
+
+	void Draw() {
+		if (!m_bShow) {
+			GetController()->CloseMenu();
+			m_bShow = true;
+			return;
+		}
+
+		auto &io = ImGui::GetIO();
+		auto engine = Engine::GetInstance();
+		auto score = engine->SysScore();
+		const ImVec2 wsize = ImVec2(404, 260); // Придумать, как вынести весь этот прикол отсюда
+		const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+
+		ImGui::SetNextWindowSize(wsize, ImGuiCond_Always);
+		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+		ImGui::Begin("Highscores", &m_bShow, DWND_FLAGS);
+
+		ImGui::SetCursorPosY((wsize.y - score->f_dwSize * ImGui::GetTextLineHeightWithSpacing()) * 0.5f);
+		for (DWORD i = 0; i < score->f_dwSize; i++) {
+			auto &field = score->f_Fields[i];
+			TODO("Align text to center");
+			// ImGui::SetCursorPosX((wsize.x - ...) * 0.5f);
+			ImGui::Text("%d. %s - %d (%d)", i+1, field.name, field.score, field.difficulty);
+		}
+
+		ImGui::End();
+	}
+
+private:
+	bool m_bShow = true;
 };
 
 Menu::Menu() {
@@ -168,9 +204,7 @@ Menu::Menu() {
 	auto options = new MenuOptions("Options");
 	m_lpMenuCtl->AddMenu(options);
 
-	auto hscores = new MenuButtons("Highscores");
-	hscores->AddButton("Work in progress", [](MenuBase *) {});
-	hscores->AddCloseButton();
+	auto hscores = new MenuScores("Highscores");
 	m_lpMenuCtl->AddMenu(hscores);
 
 	auto main = new MenuButtons("Main menu", true);

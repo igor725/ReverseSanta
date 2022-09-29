@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <vector>
 
+#include "score.hh"
 #include "config.hh"
 #include "graphics.hh"
 #include "input.hh"
@@ -40,6 +41,7 @@ public:
 
 	inline BOOL IsPaused() { return m_bPaused; }
 
+	inline Scores *SysScore() { return m_lpScores; }
 	inline Config *SysConfig() { return m_lpConfig; }
 	inline VirtFs *SysVirtFs() { return m_lpVirtFs; }
 	inline ResCache *SysCache() { return m_lpCache; }
@@ -51,6 +53,7 @@ public:
 	BOOL GetObjectOn(Level::ObjectData *data, DWORD x = (DWORD)-1, DWORD y = (DWORD)-1);
 
 private:
+	Scores *m_lpScores = nullptr;
 	Config *m_lpConfig = nullptr;
 	Input *m_lpInput = nullptr;
 	Graphics *m_lpGraphics = nullptr;

@@ -30,6 +30,7 @@ Engine::Engine(HINSTANCE hInst) {
 			);
 		}
 	});
+	m_lpScores = new Scores;
 	m_lpCache = new ResCache;
 	m_lpVirtFs = new VirtFs(m_lpConfig->GetArchivePath());
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
@@ -51,6 +52,7 @@ Engine::~Engine() {
 	delete m_lpVirtFs;
 	delete m_lpCache;
 	delete m_lpLevel;
+	delete m_lpScores;
 	for (DWORD i = MENU; i < MAX_RUNNERS; i++)
 		delete m_lpRunners[i];
 	__engineInstance = nullptr;

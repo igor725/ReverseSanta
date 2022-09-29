@@ -92,7 +92,7 @@ public:
 	bool IsRegistred(MenuBase *menu) {
 		for (auto it : m_vRegistred)
 			if (it == menu) return true;
-		
+
 		return false;
 	}
 

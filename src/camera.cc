@@ -25,7 +25,7 @@ VOID Camera::Update(FLOAT delta) {
 		}
 		if (dcamplpdiff.y != 0.0f)
 			f_vRot.y = std::atan(dcamplpdiff.y / std::sqrt(dcamplpdiff.x * dcamplpdiff.x + dcamplpdiff.z * dcamplpdiff.z));
-	
+
 		f_vRot.z = f_lpvFollowRot->z;
 	}
 
