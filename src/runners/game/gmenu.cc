@@ -25,6 +25,46 @@ GameMenu::~GameMenu() {
 	delete m_lpMenuCtl;
 }
 
+static BOOL GameOverWin(const char *text) {
+	auto engine = Engine::GetInstance();
+	auto walk = engine->SysWalkthrough();
+	DWORD score = walk->GetOverallScore();
+	static char buf[48] = {'\0'};
+
+	ImGui::Begin("Game over!", nullptr, ImGuiWindowFlags_NoCollapse |
+	ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("%s, game over! Your score: %d", text, score);
+
+	BOOL restart = false;
+	if (score > 0) {
+		ImGui::InputText("Enter your name", buf, IM_ARRAYSIZE(buf));
+		if (ImGui::Button("Save to leaderboard") && *buf != '\0')
+			if (engine->SysScore()->Put(score, walk->GetDifficulty(), buf)) {
+				engine->SysScore()->Save();
+				::strcpy_s(buf, "Saved!");
+			}
+		ImGui::SameLine();
+	}
+	if (ImGui::Button("Continue playing")) {
+		walk->Reset();
+		restart = true;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Exit to main menu"))
+		engine->SetRunner(Engine::MENU);
+	ImGui::End();
+
+	return restart;
+}
+
+BOOL GameMenu::DrawGOL() {
+	return GameOverWin("No more lives left");
+}
+
+BOOL GameMenu::DrawGOT() {
+	return GameOverWin("Time's up");
+}
+
 void GameMenu::Draw() {
 	auto wt = Engine::GetInstance()->SysWalkthrough();
 

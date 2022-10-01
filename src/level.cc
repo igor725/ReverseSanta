@@ -38,12 +38,14 @@ BOOL Level::EnemyData::CheckForward(Level *level, DObject *me) {
 
 	return !level->IterObjects([](Level::ObjectData data, LPVOID ud)->BOOL {
 		auto fst = (struct ForwardState *)ud;
-		if (data.f_lpDObj == fst->me) return false;
-		if (data.f_lpDObj->IsTouching(&fst->fwdpt)) return true;
+		auto dobj = data.f_lpDObj;
+
+		if (dobj == fst->me) return false;
+		if (dobj->IsTouching(&fst->fwdpt) && dobj->f_lpElem->f_eType != Elems::ENEMY) return true;
 		if (fst->ground) return false;
 
 		fst->fwdpt.y -= 0.06f;
-		fst->ground = data.f_lpDObj->IsTouching(&fst->fwdpt);
+		fst->ground = dobj->IsTouching(&fst->fwdpt);
 		fst->fwdpt.y += 0.06f;
 		return false;
 	}, &fst) && fst.ground;
@@ -186,6 +188,7 @@ VOID Level::Rebuild() {
 }
 
 VOID Level::Update(FLOAT delta) {
+	static DWORD counter = 0;
 	for (DWORD i = 0; i < m_dwObjectCount; i++) {
 		auto obj = &m_lpDObjects[i];
 		auto lobj = &m_lpLObjects[i];
@@ -197,10 +200,12 @@ VOID Level::Update(FLOAT delta) {
 				break;
 			case Elems::ENEMY:
 			case Elems::ELEVATORENEMY:
-				((EnemyData *)obj->f_lpUserData)->Update(this, obj, delta);
+				if (counter == 0)
+					((EnemyData *)obj->f_lpUserData)->Update(this, obj, delta * 6);
 				break;
 		}
 	}
+	counter = ++counter % 6;
 }
 
 VOID Level::Draw(LPDIRECT3DDEVICE9 device, Camera *camera, BOOL untextured) {

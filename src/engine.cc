@@ -10,11 +10,17 @@ Engine::Engine(HINSTANCE hInst) {
 	__engineInstance = this;
 
 	m_lpGraphics = new Graphics(hInst);
+	m_lpWalkthrough = new Walkthrough();
 	m_lpConfig = new Config("config.dat", [](Config *cfg) {
 		// Эта функция вызывается, когда обновляется конфиг
 		auto engine = Engine::GetInstance();
 		auto graphics = engine->SysGraphics();
 		auto camera = graphics->GetCamera();
+		auto walk = engine->SysWalkthrough();
+
+		if (cfg->IsChanged(Config::General)) {
+			walk->SetDifficulty((Walkthrough::Difficulty)cfg->GetDifficulty());
+		}
 
 		if (cfg->IsChanged(Config::Camera)) {
 			camera->f_fFov = cfg->GetFOV();
@@ -34,8 +40,7 @@ Engine::Engine(HINSTANCE hInst) {
 	m_lpCache = new ResCache;
 	m_lpVirtFs = new VirtFs(m_lpConfig->GetArchivePath());
 	m_lpInput = new Input(hInst, m_lpGraphics->GetWindow());
-	m_lpLevel = new Level;
-	m_lpWalkthrough = new Walkthrough(m_lpLevel);
+	m_lpWalkthrough->SetLevel(m_lpLevel = new Level);
 
 	m_lpRunners[MENU] = new Menu;
 	m_lpRunners[EDITOR] = new Editor;

@@ -8,6 +8,8 @@ public:
 	~GameMenu();
 
 	void Draw();
+	BOOL DrawGOL();
+	BOOL DrawGOT();
 
 	inline void SetState(BOOL state) { m_bMainActive = state; }
 

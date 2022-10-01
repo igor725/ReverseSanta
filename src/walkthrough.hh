@@ -5,6 +5,16 @@
 
 class Walkthrough {
 public:
+	enum Difficulty {
+		EASY,
+		NORMAL,
+		HARD,
+		VERYHARD,
+		DIFF_MAX,
+
+		CUSTOM		
+	};
+
 	struct Config {
 		FLOAT f_fLevelTime;
 		BOOL f_bSavePointsEnabled, f_bAISnowballs,
@@ -18,14 +28,17 @@ public:
 		f_bAirJumpDmg(jdmg) {}
 	};
 
-	Walkthrough(Level *level) : m_lpLevel(level), m_Config() {}
+	Walkthrough() : m_Config() {}
 
 	VOID Reset();
 	VOID Begin();
-	bool NextLevel();
+	BOOL NextLevel();
+	DWORD CalcScores();
 	BOOL Update(FLOAT delta);
+	VOID SetDifficulty(Difficulty lvl);
+	inline VOID SetLevel(Level *level) { m_lpLevel = level; }
 
-	inline BOOL Death() { return --m_dwLives > 0; }
+	inline BOOL Death() { return --m_dwLives < 1; }
 	inline VOID CollectLive() { m_dwLives++; }
 	inline VOID CollectBonus() { m_dwCollectedPresents++; }
 	inline BOOL SavePointUsed() {
@@ -34,6 +47,7 @@ public:
 		return true;
 	}
 
+	inline Difficulty GetDifficulty() { return m_eDifficulty; }
 	inline DWORD GetLevel() { return m_dwCurrLevel; }
 	inline DWORD GetPresentsLeft() { return m_dwPresentsCount - m_dwCollectedPresents; }
 	inline FLOAT GetTime() { return m_Config.f_fLevelTime - m_fElapsedTime; }
@@ -45,6 +59,7 @@ private:
 	Level *m_lpLevel;
 	Config m_Config;
 
+	Difficulty m_eDifficulty = NORMAL;
 	DWORD m_dwCurrLevel = 0,
 	m_dwOverallScore = 0,
 	m_dwLives = 0,

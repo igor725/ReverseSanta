@@ -16,6 +16,7 @@ VOID Game::OnOpen(DWORD prev) {
 		walk->Reset();
 	}
 	m_lpPlayer->SetAirJumps(wcfg.f_bTripleJump ? 3 : 2);
+	m_eState = PLAYING;
 }
 
 VOID Game::OnClose() {
@@ -23,6 +24,7 @@ VOID Game::OnClose() {
 	auto camera = engine->SysGraphics()->GetCamera();
 	m_lpPlayer->ResetPosition();
 	camera->SetFollow();
+	m_eState = INVALID;
 }
 
 VOID Game::OnPause(BOOL state) {
@@ -30,6 +32,8 @@ VOID Game::OnPause(BOOL state) {
 }
 
 VOID Game::OnInput(FLOAT delta, InputState *state) {
+	if (m_eState != PLAYING) return;
+
 	if (state->CurMoved())
 		m_lpPlayer->Rotate(state->CurCX() * 0.001f);
 
@@ -49,6 +53,10 @@ VOID Game::OnInput(FLOAT delta, InputState *state) {
 
 VOID Game::OnUpdate(FLOAT delta) {
 	auto engine = Engine::GetInstance();
+	if (m_eState != PLAYING) {
+		engine->SetPause(true);
+		return;
+	}
 	auto level = engine->SysLevel();
 	auto walk = engine->SysWalkthrough();
 
@@ -60,7 +68,10 @@ VOID Game::OnUpdate(FLOAT delta) {
 
 	if (!m_lpPlayer->Update(level, delta)) {
 		m_lpPlayer->Respawn();
-		EASSERT(walk->Death() && "No more lives left, game over!");
+		if (walk->Death()) {
+			m_eState = GAMEOVER_LIVES;
+			return;
+		}
 	}
 
 	ts.wth = walk;
@@ -96,7 +107,8 @@ VOID Game::OnUpdate(FLOAT delta) {
 		return false;
 	}, &ts);
 
-	EASSERT(walk->Update(delta) && "Time's up, game over!");
+	if (!walk->Update(delta))
+		m_eState = GAMEOVER_TIME;
 }
 
 VOID Game::OnDraw(LPDIRECT3DDEVICE9 device) {
@@ -104,5 +116,15 @@ VOID Game::OnDraw(LPDIRECT3DDEVICE9 device) {
 }
 
 VOID Game::OnDrawUI() {
-	m_Menu.Draw();
+	if (m_eState == PLAYING)
+		m_Menu.Draw();
+	else if (m_eState != INVALID) {
+		if (m_eState == GAMEOVER_LIVES && m_Menu.DrawGOL())
+			m_eState = PLAYING;
+		else if (m_eState == GAMEOVER_TIME && m_Menu.DrawGOT())
+			m_eState = PLAYING;
+
+		if (m_eState == PLAYING)
+			Engine::GetInstance()->SetPause(false);
+	}
 }

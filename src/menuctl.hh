@@ -48,6 +48,7 @@ private:
 		CALLBACK,
 		CLOSE
 	};
+
 	struct MenuItem {
 		ItemType f_eType;
 		std::string f_sTitle;

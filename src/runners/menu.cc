@@ -9,10 +9,7 @@
 class MenuOptions : public MenuBase {
 public:
 	MenuOptions(std::string title) : MenuBase(title) {
-		auto engine = Engine::GetInstance();
-		auto config = engine->SysConfig();
-		m_iDifficulty = config->GetDifficulty();
-		engine->SysWalkthrough()->GetConfig() = m_lpPresets[m_iDifficulty];
+		m_eDifficulty = (Walkthrough::Difficulty)Engine::GetInstance()->SysConfig()->GetDifficulty();
 	}
 
 	void Draw() {
@@ -33,7 +30,8 @@ public:
 		ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 		ImGui::Begin("Settings", &m_bShow, DWND_FLAGS);
 		if (ImGui::CollapsingHeader("Diffulty")) {
-			auto &walk = engine->SysWalkthrough()->GetConfig();
+			auto walk = engine->SysWalkthrough();
+			auto &walkc = walk->GetConfig();
 			static const char *diffs[] = {"Easy", "Normal", "Hard", "Very hard", "Custom"};
 			static const char *discr[] = {
 				"Each air jump takes 5 seconds off the timer",
@@ -43,31 +41,31 @@ public:
 				"Double air jump allowed"
 			};
 
-			if (ImGui::ListBox("Select difficulty", &m_iDifficulty, diffs, IM_ARRAYSIZE(diffs))) {
-				if (m_iDifficulty < 4) {
-					walk = m_lpPresets[m_iDifficulty];
-					config->SetDifficulty(m_iDifficulty);
+			if (ImGui::ListBox("Select difficulty", (int *)&m_eDifficulty, diffs, IM_ARRAYSIZE(diffs))) {
+				if (m_eDifficulty < 4) {
+					walk->SetDifficulty(m_eDifficulty);
+					config->SetDifficulty(m_eDifficulty);
 				}
 			}
 
 			ImGui::Spacing();
-			if (m_iDifficulty == 4) {
-				ImGui::Checkbox(discr[0], (bool *)&walk.f_bAirJumpDmg);
-				ImGui::Checkbox(discr[1], (bool *)&walk.f_bAISnowballs);
-				ImGui::Checkbox(discr[2], (bool *)&walk.f_bAllbonuses);
-				ImGui::Checkbox(discr[3], (bool *)&walk.f_bSavePointsEnabled);
-				ImGui::Checkbox(discr[4], (bool *)&walk.f_bTripleJump);
-				ImGui::SliderInt("Available lives", (int *)&walk.f_dwStartLives, 1, 4);
-				ImGui::SliderFloat("Time per level", &walk.f_fLevelTime, 120.0f, 600.0f);
+			if (m_eDifficulty == 4) {
+				ImGui::Checkbox(discr[0], (bool *)&walkc.f_bAirJumpDmg);
+				ImGui::Checkbox(discr[1], (bool *)&walkc.f_bAISnowballs);
+				ImGui::Checkbox(discr[2], (bool *)&walkc.f_bAllbonuses);
+				ImGui::Checkbox(discr[3], (bool *)&walkc.f_bSavePointsEnabled);
+				ImGui::Checkbox(discr[4], (bool *)&walkc.f_bTripleJump);
+				ImGui::SliderInt("Available lives", (int *)&walkc.f_dwStartLives, 1, 4);
+				ImGui::SliderFloat("Time per level", &walkc.f_fLevelTime, 120.0f, 600.0f);
 			} else {
 				ImGui::Text("Description:");
-				if (walk.f_bAirJumpDmg) ImGui::Text(discr[0]);
-				if (walk.f_bAISnowballs) ImGui::Text(discr[1]);
-				if (walk.f_bAllbonuses) ImGui::Text(discr[2]);
-				if (walk.f_bSavePointsEnabled) ImGui::Text(discr[3]);
-				if (walk.f_bTripleJump) ImGui::Text(discr[4]);
-				ImGui::Text("Available lives: %d", walk.f_dwStartLives);
-				ImGui::Text("Time per level: %.2f sec", walk.f_fLevelTime);
+				if (walkc.f_bAirJumpDmg) ImGui::Text(discr[0]);
+				if (walkc.f_bAISnowballs) ImGui::Text(discr[1]);
+				if (walkc.f_bAllbonuses) ImGui::Text(discr[2]);
+				if (walkc.f_bSavePointsEnabled) ImGui::Text(discr[3]);
+				if (walkc.f_bTripleJump) ImGui::Text(discr[4]);
+				ImGui::Text("Available lives: %d", walkc.f_dwStartLives);
+				ImGui::Text("Time per level: %.2f sec", walkc.f_fLevelTime);
 			}
 
 			ImGui::Spacing();
@@ -146,14 +144,7 @@ public:
 
 private:
 	bool m_bShow = true;
-	int m_iDifficulty = 0;
-
-	const Walkthrough::Config m_lpPresets[4] = {
-		{4, 600.0f, true, false, true, false, false},
-		{}, // Стандартные настройки сложности
-		{2, 320.0f, false, true, false, true, false},
-		{1, 200.0f, false, true, false, true, true},
-	};
+	Walkthrough::Difficulty m_eDifficulty;
 };
 
 class MenuScores : public MenuBase {
