@@ -5,6 +5,7 @@
 #include "todo.hh"
 
 #define DWND_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse
+static const char *diffs[] = {"Easy", "Normal", "Hard", "Very hard", "Custom"};
 
 class MenuOptions : public MenuBase {
 public:
@@ -32,7 +33,6 @@ public:
 		if (ImGui::CollapsingHeader("Diffulty")) {
 			auto walk = engine->SysWalkthrough();
 			auto &walkc = walk->GetConfig();
-			static const char *diffs[] = {"Easy", "Normal", "Hard", "Very hard", "Custom"};
 			static const char *discr[] = {
 				"Each air jump takes 5 seconds off the timer",
 				"Enemies throwing snowballs",
@@ -173,7 +173,7 @@ public:
 			auto &field = score->f_Fields[i];
 			TODO("Align text to center");
 			// ImGui::SetCursorPosX((wsize.x - ...) * 0.5f);
-			ImGui::Text("%d. %s - %d (%d)", i+1, field.name, field.score, field.difficulty);
+			ImGui::Text("%d. %s - %d (%s)", i+1, field.name, field.score, diffs[field.difficulty]);
 		}
 
 		ImGui::End();

@@ -26,11 +26,14 @@ GameMenu::~GameMenu() {
 }
 
 static BOOL GameOverWin(const char *text) {
+	auto &io = ImGui::GetIO();
 	auto engine = Engine::GetInstance();
 	auto walk = engine->SysWalkthrough();
 	DWORD score = walk->GetOverallScore();
+	const ImVec2 wcenter = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 	static char buf[48] = {'\0'};
 
+	ImGui::SetNextWindowPos(wcenter, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	ImGui::Begin("Game over!", nullptr, ImGuiWindowFlags_NoCollapse |
 	ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("%s, game over! Your score: %d", text, score);
