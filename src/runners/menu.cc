@@ -169,11 +169,30 @@ public:
 		ImGui::Begin("Highscores", &m_bShow, DWND_FLAGS);
 
 		ImGui::SetCursorPosY((wsize.y - score->f_dwSize * ImGui::GetTextLineHeightWithSpacing()) * 0.5f);
-		for (DWORD i = 0; i < score->f_dwSize; i++) {
-			auto &field = score->f_Fields[i];
-			TODO("Align text to center");
-			// ImGui::SetCursorPosX((wsize.x - ...) * 0.5f);
-			ImGui::Text("%d. %s - %d (%s)", i+1, field.name, field.score, diffs[field.difficulty]);
+		if (ImGui::BeginTable("hs#table", 4, ImGuiTableFlags_Borders |
+		ImGuiTableFlags_NoSavedSettings |  ImGuiTableFlags_SizingStretchProp)) {
+			ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+			ImGui::TableNextColumn();
+			ImGui::Text("#");
+			ImGui::TableNextColumn();
+			ImGui::Text("Name");
+			ImGui::TableNextColumn();
+			ImGui::Text("Score");
+			ImGui::TableNextColumn();
+			ImGui::Text("Difficulty");
+			for (DWORD i = 0; i < score->f_dwSize; i++) {
+				auto &field = score->f_Fields[i];
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("%d", i+1);
+				ImGui::TableNextColumn();
+				ImGui::Text("%s", field.name);
+				ImGui::TableNextColumn();
+				ImGui::Text("%d", field.score);
+				ImGui::TableNextColumn();
+				ImGui::Text("%s", diffs[field.difficulty]);
+			}
+			ImGui::EndTable();
 		}
 
 		ImGui::End();
