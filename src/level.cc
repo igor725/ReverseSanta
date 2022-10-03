@@ -22,8 +22,7 @@ VOID Level::ElevatorData::Update(DObject *dobj, LObject *lobj, FLOAT delta) {
 	auto dir = lobj->f_vPos[1] - lobj->f_vPos[0];
 	dobj->f_vPos = lobj->f_vPos[0] + dir * f_fMult;
 	f_vMove -= dobj->f_vPos;
-	auto len = D3DXVec3Length(&dir);
-	f_fTime += delta / (len / 1.5f);
+	f_fTime += delta / (D3DXVec3Length(&dir) / 1.5f);
 }
 
 BOOL Level::EnemyData::CheckForward(Level *level, DObject *me) {

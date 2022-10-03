@@ -103,11 +103,12 @@ VOID Engine::SetPause(BOOL state) {
 
 VOID Engine::Step(FLOAT delta) {
 	delta = min(delta, 0.016f);
+
 	if (auto runner = GetRunner()) {
 		if (!m_bPaused || m_eCurrentRunner == MENU) {
 			m_lpInput->Update(delta, runner);
+			const auto hdelta = delta / 4.0f;
 			for (DWORD i = 0; i < 4; i++) {
-				const auto hdelta = delta / 4.0f;
 				m_lpLevel->Update(hdelta);
 				runner->OnUpdate(hdelta);
 			}
@@ -130,7 +131,7 @@ VOID Engine::Step(FLOAT delta) {
 }
 
 BOOL Engine::GetObjectOn(Level::ObjectData *data, DWORD x, DWORD y) {
-	if (auto device = m_lpGraphics->BeginFrame(0)) {
+	if (auto device = m_lpGraphics->BeginFrame(0.0f)) {
 		m_lpLevel->Draw(device, nullptr, true);
 		m_lpGraphics->EndFrame();
 		auto sur = m_lpGraphics->PresentToSurface();

@@ -11,7 +11,7 @@ public:
 	BOOL DrawGOL();
 	BOOL DrawGOT();
 
-	inline void SetState(BOOL state) { m_bMainActive = state; }
+	inline void SetState(bool state) { m_bMainActive = state; }
 
 private:
 	MenuController *m_lpMenuCtl = nullptr;

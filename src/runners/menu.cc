@@ -49,7 +49,7 @@ public:
 			}
 
 			ImGui::Spacing();
-			if (m_eDifficulty == 4) {
+			if (m_eDifficulty == Walkthrough::CUSTOM) {
 				ImGui::Checkbox(discr[0], (bool *)&walkc.f_bAirJumpDmg);
 				ImGui::Checkbox(discr[1], (bool *)&walkc.f_bAISnowballs);
 				ImGui::Checkbox(discr[2], (bool *)&walkc.f_bAllbonuses);

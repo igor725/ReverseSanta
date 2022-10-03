@@ -3,8 +3,7 @@
 #include "exceptions.hh"
 #include <ShlObj.h>
 
-INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, INT iCmdShow) {
-	(VOID)hPrev;(VOID)szCmdLine;(VOID)iCmdShow;
+INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT) {
 	// ::AttachConsole(ATTACH_PARENT_PROCESS);
 	// ::freopen("CONOUT$", "w", stderr);
 	// HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);

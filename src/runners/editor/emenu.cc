@@ -98,6 +98,9 @@ VOID EditorMenu::DrawMainMenu() {
 		}
 	}
 
+	if (ImGui::Button("Switch to game"))
+		engine->SetRunner(Engine::GAME);
+
 	ImGui::End();
 }
 

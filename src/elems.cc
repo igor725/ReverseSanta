@@ -15,7 +15,7 @@ static DWORD joaat(LPCSTR key) {
 	DWORD hash = 0x00000000;
 
 	for (DWORD i = 0; key[i] != '\0'; i++) {
-		hash += (uint8_t)key[i];
+		hash += (UCHAR)key[i];
 		hash += hash << 0x0A;
 		hash ^= hash >> 0x06;
 	}
@@ -39,7 +39,9 @@ Elems::Elems(std::string fpath) : m_mElements({}) {
 			char ch;
 			std::string line;
 			while (!file->eof() && file->read(&ch, 1) && ch != '\n')
-				if(ch != '\r') line.push_back(ch);
+				if (ch != '\r') line.push_back(ch);
+
+			if (line.rfind("//", 0) == 0) continue;
 
 			auto pos = file->tellg();
 			if (line.length() > 0) {
