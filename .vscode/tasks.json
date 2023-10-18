@@ -2,18 +2,15 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build",
-			"type": "shell",
-			"command": "build.bat",
-			"args": ["dbg"],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"presentation": {
-				"reveal": "silent"
-			},
-			"problemMatcher": "$msCompile"
-		},
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"ALL_BUILD"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		}
 	]
 }

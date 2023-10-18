@@ -4,12 +4,12 @@
 			"name": "(Windows) Launch",
 			"type": "cppvsdbg",
 			"request": "launch",
-			"program": "se-x64.exe",
+			"program": "se-AMD64.exe",
 			"stopAtEntry": false,
-			"cwd": "${workspaceFolder}/out",
+			"cwd": "${workspaceFolder}/build/Debug/",
 			"environment": [],
 			"console": "integratedTerminal",
-			"preLaunchTask": "Build"
+			"preLaunchTask": "CMake: build"
 		}
 	]
 }

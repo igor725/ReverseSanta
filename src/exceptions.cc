@@ -1,3 +1,4 @@
+#define DIRECTINPUT_VERSION 0x0800
 #include "exceptions.hh"
 #include <DbgHelp.h>
 #include <d3d9.h>
